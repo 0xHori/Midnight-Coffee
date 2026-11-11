@@ -1214,17 +1214,14 @@ MonoBehaviour:
   score: 0
   clickPower: 1
   upgradeCost: 10
+  critChance: 0.1
+  critMultiplier: 10
   autoIncome: 0
   autoUpgradeCost: 50
-  autoText: {fileID: 1236402831}
-  autoButtonComponent: {fileID: 1850006349}
-  scoreText: {fileID: 1515975746}
-  upgradeText: {fileID: 1532308002}
-  upgradeButtonComponent: {fileID: 659797183}
+  uiManager: {fileID: 1710731201}
+  saveManager: {fileID: 1758446583}
   floatingTextPrefab: {fileID: 1980625081264330645, guid: 978c18e75eeb9ab6086cd1daa611c598, type: 3}
   canvasTransform: {fileID: 1212280915}
-  offlinePanel: {fileID: 70306199}
-  offlineText: {fileID: 1873938500}
 --- !u!1 &1506751026
 GameObject:
   m_ObjectHideFlags: 0
@@ -1632,6 +1629,104 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1532308000}
   m_CullTransparentMesh: 1
+--- !u!1 &1710731199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1710731200}
+  - component: {fileID: 1710731201}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1710731200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710731199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 458.45773, y: 984.60834, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1710731201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710731199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4c2930ce0936ec89e622e5b0a83d4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  clickerManager: {fileID: 1410147653}
+  scoreText: {fileID: 1515975746}
+  upgradeText: {fileID: 1532308002}
+  autoText: {fileID: 1236402831}
+  offlineText: {fileID: 1873938500}
+  offlinePanel: {fileID: 70306199}
+  upgradeButtonComponent: {fileID: 659797183}
+  autoButtonComponent: {fileID: 1850006349}
+--- !u!1 &1758446581
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1758446582}
+  - component: {fileID: 1758446583}
+  m_Layer: 0
+  m_Name: SaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1758446582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758446581}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 458.45773, y: 984.60834, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1758446583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758446581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 958149ae4607be6599b3189422177053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  clickerManager: {fileID: 1410147653}
+  uiManager: {fileID: 1710731201}
 --- !u!1 &1836497909
 GameObject:
   m_ObjectHideFlags: 0
@@ -2044,3 +2139,5 @@ SceneRoots:
   - {fileID: 1212280915}
   - {fileID: 490982019}
   - {fileID: 1410147652}
+  - {fileID: 1710731200}
+  - {fileID: 1758446582}
