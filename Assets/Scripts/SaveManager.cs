@@ -1,53 +1,45 @@
 using UnityEngine;
 using System;
-using System.Globalization; // Обязательно для CultureInfo
+using System.Globalization;
 
 public class SaveManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
     public UIManager uiManager;
-    
     private double maxOfflineHours = 8;
 
     public void SaveGame()
     {
-        // Сохраняем, явно указывая InvariantCulture, чтобы десятичный разделитель всегда был точкой
         PlayerPrefs.SetString("SavedScore", clickerManager.score.ToString(CultureInfo.InvariantCulture));
         PlayerPrefs.SetString("SavedClickPower", clickerManager.clickPower.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedFlatClickPower", clickerManager.flatClickPower.ToString(CultureInfo.InvariantCulture)); // Новое
         PlayerPrefs.SetString("SavedUpgradeCost", clickerManager.upgradeCost.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedFlatUpgradeCost", clickerManager.flatUpgradeCost.ToString(CultureInfo.InvariantCulture)); // Новое
         PlayerPrefs.SetString("SavedAutoIncome", clickerManager.autoIncome.ToString(CultureInfo.InvariantCulture));
         PlayerPrefs.SetString("SavedAutoUpgradeCost", clickerManager.autoUpgradeCost.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedManagerCost", clickerManager.managerCost.ToString(CultureInfo.InvariantCulture)); // Новое
         PlayerPrefs.Save(); 
     }
 
     public void LoadGame()
     {
-        // Загружаем, также используя InvariantCulture, и добавляем проверку на пустую строку
-        string scoreStr = PlayerPrefs.GetString("SavedScore", "0");
-        clickerManager.score = string.IsNullOrEmpty(scoreStr) ? 0 : double.Parse(scoreStr, CultureInfo.InvariantCulture);
-
-        string clickPowerStr = PlayerPrefs.GetString("SavedClickPower", "1");
-        clickerManager.clickPower = string.IsNullOrEmpty(clickPowerStr) ? 1 : double.Parse(clickPowerStr, CultureInfo.InvariantCulture);
-
-        string upgradeCostStr = PlayerPrefs.GetString("SavedUpgradeCost", "10");
-        clickerManager.upgradeCost = string.IsNullOrEmpty(upgradeCostStr) ? 10 : double.Parse(upgradeCostStr, CultureInfo.InvariantCulture);
-
-        string autoIncomeStr = PlayerPrefs.GetString("SavedAutoIncome", "0");
-        clickerManager.autoIncome = string.IsNullOrEmpty(autoIncomeStr) ? 0 : double.Parse(autoIncomeStr, CultureInfo.InvariantCulture);
-
-        string autoUpgradeCostStr = PlayerPrefs.GetString("SavedAutoUpgradeCost", "50");
-        clickerManager.autoUpgradeCost = string.IsNullOrEmpty(autoUpgradeCostStr) ? 50 : double.Parse(autoUpgradeCostStr, CultureInfo.InvariantCulture);
+        clickerManager.score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"), CultureInfo.InvariantCulture);
+        clickerManager.clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"), CultureInfo.InvariantCulture);
+        clickerManager.flatClickPower = double.Parse(PlayerPrefs.GetString("SavedFlatClickPower", "0"), CultureInfo.InvariantCulture); // Новое
+        clickerManager.upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"), CultureInfo.InvariantCulture);
+        clickerManager.flatUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedFlatUpgradeCost", "100"), CultureInfo.InvariantCulture); // Новое
+        clickerManager.autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"), CultureInfo.InvariantCulture);
+        clickerManager.autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50"), CultureInfo.InvariantCulture);
+        clickerManager.managerCost = double.Parse(PlayerPrefs.GetString("SavedManagerCost", "500"), CultureInfo.InvariantCulture); // Новое
     }
 
     public void CalculateOfflineIncome()
     {
         if (PlayerPrefs.HasKey("LastExitTime") && clickerManager.autoIncome > 0)
         {
-            string lastTimeString = PlayerPrefs.GetString("LastExitTime");
-            DateTime lastTime = DateTime.Parse(lastTimeString);
+            DateTime lastTime = DateTime.Parse(PlayerPrefs.GetString("LastExitTime"), CultureInfo.InvariantCulture);
             TimeSpan timeAway = DateTime.UtcNow - lastTime;
             double secondsAway = timeAway.TotalSeconds;
-
             double maxSeconds = maxOfflineHours * 60 * 60;
             if (secondsAway > maxSeconds) secondsAway = maxSeconds;
 
@@ -55,27 +47,13 @@ public class SaveManager : MonoBehaviour
             {
                 double earned = secondsAway * clickerManager.autoIncome;
                 clickerManager.score += earned;
-
                 int hours = (int)(secondsAway / 3600);
                 int minutes = (int)((secondsAway % 3600) / 60);
-                
                 uiManager.ShowOfflinePanel(earned, hours, minutes);
             }
         }
     }
 
-    void OnApplicationQuit()
-    {
-        PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString());
-        PlayerPrefs.Save();
-    }
-
-    void OnApplicationPause(bool pauseStatus)
-    {
-        if (pauseStatus)
-        {
-            PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString());
-            PlayerPrefs.Save();
-        }
-    }
+    void OnApplicationQuit() { PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)); PlayerPrefs.Save(); }
+    void OnApplicationPause(bool pauseStatus) { if (pauseStatus) { PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)); PlayerPrefs.Save(); } }
 }

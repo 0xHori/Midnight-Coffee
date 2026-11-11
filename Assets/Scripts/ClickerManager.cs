@@ -10,20 +10,22 @@ public class ClickerManager : MonoBehaviour
     public AudioClip critSound;
     public AudioClip buySound;
 
+    [Header("Данные игрока")]
     public double score = 0;           
-    public double clickPower = 1;      
-    public double upgradeCost = 10;    
+    public double clickPower = 1;      // Множитель (x2)
+    public double flatClickPower = 0;  // НОВОЕ: Плоская прибавка (+5)
     public double critChance = 0.1;    
     public double critMultiplier = 10; 
-
     public double autoIncome = 0;        
-    public double autoUpgradeCost = 50;  
 
-    // Ссылки на другие менеджеры
+    [Header("Цены улучшений")]
+    public double upgradeCost = 10;       // x2
+    public double flatUpgradeCost = 100;  // НОВОЕ: +5
+    public double autoUpgradeCost = 50;   // +1/сек
+    public double managerCost = 500;      // НОВОЕ: Менеджер
+
     public UIManager uiManager;
     public SaveManager saveManager;
-
-    // Для спавна текста
     public GameObject floatingTextPrefab; 
     public Transform canvasTransform;     
 
@@ -32,7 +34,6 @@ public class ClickerManager : MonoBehaviour
         saveManager.LoadGame();
         saveManager.CalculateOfflineIncome(); 
         uiManager.UpdateUI();
-        
         InvokeRepeating("AutoIncome", 1f, 1f); 
     }
 
@@ -47,29 +48,20 @@ public class ClickerManager : MonoBehaviour
 
     public void AddScore()
     {
-        double earnedPoints = clickPower; 
+        // Считаем общую силу клика: базовый множитель + плоская прибавка
+        double baseClick = clickPower + flatClickPower; 
+        double earnedPoints = baseClick; 
         bool isCrit = false;
 
         if (UnityEngine.Random.value <= critChance)
         {
             earnedPoints *= critMultiplier;
             isCrit = true;
-
-            // Воспроизводим звук крита
-            if (audioSource != null && critSound != null)
-            {
-                audioSource.pitch = 1f; 
-                audioSource.PlayOneShot(critSound);
-            }
+            if (audioSource != null && critSound != null) { audioSource.pitch = 1f; audioSource.PlayOneShot(critSound); }
         }
         else
         {
-            // Воспроизводим звук обычного клика со случайным питчем
-            if (audioSource != null && clickSound != null)
-            {
-                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f); 
-                audioSource.PlayOneShot(clickSound);
-            }
+            if (audioSource != null && clickSound != null) { audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f); audioSource.PlayOneShot(clickSound); }
         }
 
         score += earnedPoints; 
@@ -79,89 +71,69 @@ public class ClickerManager : MonoBehaviour
             GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
             TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
             
-            if (isCrit)
-            {
+            if (isCrit) {
                 textComponent.text = "КРИТ! +" + FormatNumber(earnedPoints);
                 textComponent.color = Color.red; 
                 textObj.transform.localScale = new Vector3(1.5f, 1.5f, 1f); 
-            }
-            else
-            {
+            } else {
                 textComponent.text = "+" + FormatNumber(earnedPoints);
             }
             
-            // --- ИСПРАВЛЕНИЕ: Берем текущую позицию указателя (мыши или пальца) ---
             Vector2 pointerPos = Pointer.current.position.ReadValue();
             Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
-            
             screenPos.y += 100f; 
             screenPos.x += UnityEngine.Random.Range(-150f, 150f); 
             screenPos.y += UnityEngine.Random.Range(-50f, 100f);
-            
             textObj.transform.position = screenPos;
             textObj.transform.SetAsLastSibling();
         }
 
-        // Теперь этот код гарантированно выполнится!
         uiManager.UpdateUI();
         saveManager.SaveGame();
     }
 
-    public void BuyUpgrade()
+    public void BuyUpgrade() // x2
     {
-        if (score >= upgradeCost)
-        {
-            score -= upgradeCost; 
-            clickPower *= 2; 
-            upgradeCost *= 2; 
-            
-            // Воспроизводим звук покупки
-            if (audioSource != null && buySound != null)
-            {
-                audioSource.pitch = 1f;
-                audioSource.PlayOneShot(buySound);
-            }
-
-            uiManager.UpdateUI(); 
-            saveManager.SaveGame();
+        if (score >= upgradeCost) {
+            score -= upgradeCost; clickPower *= 2; upgradeCost *= 2.5; 
+            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
         }
     }
 
-    public void BuyAutoClicker()
+    public void BuyFlatUpgrade() // +5
     {
-        if (score >= autoUpgradeCost)
-        {
-            score -= autoUpgradeCost;
-            autoIncome += 1; 
-            autoUpgradeCost *= 2.5; 
-            
-            // Воспроизводим звук покупки
-            if (audioSource != null && buySound != null)
-            {
-                audioSource.pitch = 1f;
-                audioSource.PlayOneShot(buySound);
-            }
-
-            uiManager.UpdateUI();
-            saveManager.SaveGame();
+        if (score >= flatUpgradeCost) {
+            score -= flatUpgradeCost; flatClickPower += 5; flatUpgradeCost *= 3; 
+            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
         }
     }
 
-    // Сделали метод публичным (добавили слово public)
+    public void BuyAutoClicker() // +1/сек
+    {
+        if (score >= autoUpgradeCost) {
+            score -= autoUpgradeCost; autoIncome += 1; autoUpgradeCost *= 2.5; 
+            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
+        }
+    }
+
+    public void BuyManager() // +10/сек
+    {
+        if (score >= managerCost) {
+            score -= managerCost; autoIncome += 10; managerCost *= 4; 
+            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
+        }
+    }
+
+    void PlayBuySound() {
+        if (audioSource != null && buySound != null) { audioSource.pitch = 1f; audioSource.PlayOneShot(buySound); }
+    }
+
     public string FormatNumber(double num)
     {
-        if (num < 1000) 
-            return num.ToString("0", System.Globalization.CultureInfo.InvariantCulture); 
-            
+        if (num < 1000) return num.ToString("0", System.Globalization.CultureInfo.InvariantCulture); 
         string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
         int suffixIndex = 0;
-        
-        while (num >= 1000 && suffixIndex < suffixes.Length - 1)
-        {
-            num /= 1000;
-            suffixIndex++;
-        }
-        
+        while (num >= 1000 && suffixIndex < suffixes.Length - 1) { num /= 1000; suffixIndex++; }
         return num.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suffixes[suffixIndex];
     }
 }
