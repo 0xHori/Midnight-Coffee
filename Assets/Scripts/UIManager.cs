@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI upgradeText;
     public TextMeshProUGUI autoText;
     public TextMeshProUGUI offlineText;
+    public TextMeshProUGUI incomeText;
     public GameObject offlinePanel;
     
     public UnityEngine.UI.Button upgradeButtonComponent;
@@ -17,6 +18,12 @@ public class UIManager : MonoBehaviour
     public void UpdateUI()
     {
         scoreText.text = "Счет: " + clickerManager.FormatNumber(clickerManager.score);
+        
+        // --- НОВАЯ СТРОКА ---
+        if (incomeText != null)
+            incomeText.text = "Доход: " + clickerManager.FormatNumber(clickerManager.autoIncome) + " / сек";
+        // --------------------
+
         upgradeText.text = "Улучшение x2\nЦена: " + clickerManager.FormatNumber(clickerManager.upgradeCost);
         upgradeButtonComponent.interactable = (clickerManager.score >= clickerManager.upgradeCost);
 
