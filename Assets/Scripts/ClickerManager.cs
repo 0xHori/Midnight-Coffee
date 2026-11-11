@@ -3,39 +3,41 @@ using TMPro;
 
 public class ClickerManager : MonoBehaviour
 {
-    public UnityEngine.UI.Button upgradeButtonComponent; // Ссылка на компонент кнопки
+    public int score = 0;           
+    public int clickPower = 1;      
+    public int upgradeCost = 10;    
 
-    // --- Переменные игры ---
-    public int score = 0;           // Текущие очки
-    public int clickPower = 1;      // Сколько очков дает 1 клик
-    public int upgradeCost = 10;    // Сколько стоит улучшение
-
-    // --- Ссылки на UI ---
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI upgradeText; // Текст на кнопке улучшения
+    public TextMeshProUGUI upgradeText; 
+    public UnityEngine.UI.Button upgradeButtonComponent; 
 
-    // Метод для обычного клика
-    public void AddScore()
+    // Start вызывается один раз при запуске игры
+    void Start()
     {
-        score = score + clickPower; // Теперь прибавляем силу клика, а не 1
-        UpdateUI();
+        LoadGame(); // Загружаем сохраненные данные
+        UpdateUI(); // Обновляем экран
     }
 
-    // Метод для покупки улучшения
+    public void AddScore()
+    {
+        score = score + clickPower; 
+        UpdateUI();
+        SaveGame(); // Сохраняем после каждого клика (для простоты)
+    }
+
     public void BuyUpgrade()
     {
-        // Проверяем, хватает ли очков
         if (score >= upgradeCost)
         {
-            score = score - upgradeCost; // Списываем цену
-            clickPower = clickPower * 2; // Увеличиваем силу клика в 2 раза
-            upgradeCost = upgradeCost * 2; // Следующее улучшение будет стоить дороже
+            score = score - upgradeCost; 
+            clickPower = clickPower * 2; 
+            upgradeCost = upgradeCost * 2; 
             
-            UpdateUI(); // Обновляем текст на экране
+            UpdateUI(); 
+            SaveGame(); // Сохраняем после покупки
         }
     }
 
-    // Вспомогательный метод для обновления всех надписей
     void UpdateUI()
     {
         scoreText.text = "Счет: " + score.ToString();
@@ -45,17 +47,30 @@ public class ClickerManager : MonoBehaviour
             upgradeText.text = "Улучшение x2\nЦена: " + upgradeCost.ToString();
         }
 
-        // Проверяем, хватает ли денег, чтобы включить/выключить кнопку
         if (upgradeButtonComponent != null)
         {
-            if (score >= upgradeCost)
-            {
-                upgradeButtonComponent.interactable = true; // Включаем (можно нажимать)
-            }
-            else
-            {
-                upgradeButtonComponent.interactable = false; // Выключаем (серая, не нажимается)
-            }
+            upgradeButtonComponent.interactable = (score >= upgradeCost);
         }
+    }
+
+    // --- НОВЫЕ МЕТОДЫ ДЛЯ СОХРАНЕНИЯ ---
+
+    void SaveGame()
+    {
+        // Сохраняем наши переменные под определенными именами
+        PlayerPrefs.SetInt("SavedScore", score);
+        PlayerPrefs.SetInt("SavedClickPower", clickPower);
+        PlayerPrefs.SetInt("SavedUpgradeCost", upgradeCost);
+        
+        // Физически записываем данные на диск (Unity делает это не сразу, а по команде)
+        PlayerPrefs.Save(); 
+    }
+
+    void LoadGame()
+    {
+        // Если данные существуют, загружаем их. Если нет (первый запуск) - оставляем по умолчанию
+        score = PlayerPrefs.GetInt("SavedScore", 0);
+        clickPower = PlayerPrefs.GetInt("SavedClickPower", 1);
+        upgradeCost = PlayerPrefs.GetInt("SavedUpgradeCost", 10);
     }
 }
