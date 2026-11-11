@@ -31,7 +31,11 @@ public class UIManager : MonoBehaviour
     {
         // Показываем множитель, если есть кристаллы
         string multiplierString = clickerManager.totalCrystals > 0 ? $" (x{clickerManager.PrestigeMultiplier.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)})" : "";
-        
+        // Показываем реальный доход с учетом престижа
+        double actualAutoGain = 1 * clickerManager.PrestigeMultiplier;
+        double actualManagerGain = 10 * clickerManager.PrestigeMultiplier;
+
+
         scoreText.text = "Счет: " + clickerManager.FormatNumber(clickerManager.score) + multiplierString;
         incomeText.text = "Доход: " + clickerManager.FormatNumber(clickerManager.autoIncome * clickerManager.PrestigeMultiplier) + " / сек";
         
@@ -41,10 +45,10 @@ public class UIManager : MonoBehaviour
         flatUpgradeText.text = "Клик +5\nЦена: " + clickerManager.FormatNumber(clickerManager.flatUpgradeCost);
         flatUpgradeButtonComponent.interactable = (clickerManager.score >= clickerManager.flatUpgradeCost);
 
-        autoText.text = "Автокликер (+1/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.autoUpgradeCost);
+        autoText.text = "Автокликер (+" + clickerManager.FormatNumber(actualAutoGain) + "/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.autoUpgradeCost);
         autoButtonComponent.interactable = (clickerManager.score >= clickerManager.autoUpgradeCost);
 
-        managerText.text = "Менеджер (+10/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.managerCost);
+        managerText.text = "Менеджер (+" + clickerManager.FormatNumber(actualManagerGain) + "/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.managerCost);
         managerButtonComponent.interactable = (clickerManager.score >= clickerManager.managerCost);
 
         // Обновление текста престижа
