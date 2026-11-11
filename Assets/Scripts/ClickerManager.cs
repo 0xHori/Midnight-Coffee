@@ -12,17 +12,24 @@ public class ClickerManager : MonoBehaviour
 
     [Header("Данные игрока")]
     public double score = 0;           
-    public double clickPower = 1;      // Множитель (x2)
-    public double flatClickPower = 0;  // НОВОЕ: Плоская прибавка (+5)
+    public double clickPower = 1;      
+    public double flatClickPower = 0;  
     public double critChance = 0.1;    
     public double critMultiplier = 10; 
     public double autoIncome = 0;        
 
     [Header("Цены улучшений")]
-    public double upgradeCost = 10;       // x2
-    public double flatUpgradeCost = 100;  // НОВОЕ: +5
-    public double autoUpgradeCost = 50;   // +1/сек
-    public double managerCost = 500;      // НОВОЕ: Менеджер
+    public double upgradeCost = 10;       
+    public double flatUpgradeCost = 100;  
+    public double autoUpgradeCost = 50;   
+    public double managerCost = 500;      
+
+    [Header("Престиж")]
+    public double totalCrystals = 0; // Всего кристаллов
+    public double prestigeThreshold = 10000; // Сколько нужно очков для перерождения (для теста сделай 1000)
+    
+    // Вычисляемый множитель (1 + (кристаллы * 0.1)) -> каждый кристалл дает +10%
+    public double PrestigeMultiplier => 1 + (totalCrystals * 0.1); 
 
     public UIManager uiManager;
     public SaveManager saveManager;
@@ -41,16 +48,15 @@ public class ClickerManager : MonoBehaviour
     {
         if (autoIncome > 0)
         {
-            score += autoIncome;
+            score += autoIncome * PrestigeMultiplier; // Учитываем престиж
             uiManager.UpdateUI();
         }
     }
 
     public void AddScore()
     {
-        // Считаем общую силу клика: базовый множитель + плоская прибавка
         double baseClick = clickPower + flatClickPower; 
-        double earnedPoints = baseClick; 
+        double earnedPoints = baseClick * PrestigeMultiplier; // Учитываем престиж
         bool isCrit = false;
 
         if (UnityEngine.Random.value <= critChance)
@@ -94,34 +100,54 @@ public class ClickerManager : MonoBehaviour
 
     public void BuyUpgrade() // x2
     {
-        if (score >= upgradeCost) {
-            score -= upgradeCost; clickPower *= 2; upgradeCost *= 2.5; 
-            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
-        }
+        if (score >= upgradeCost) { score -= upgradeCost; clickPower *= 2; upgradeCost *= 2.5; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
     }
 
     public void BuyFlatUpgrade() // +5
     {
-        if (score >= flatUpgradeCost) {
-            score -= flatUpgradeCost; flatClickPower += 5; flatUpgradeCost *= 3; 
-            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
-        }
+        if (score >= flatUpgradeCost) { score -= flatUpgradeCost; flatClickPower += 5; flatUpgradeCost *= 3; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
     }
 
     public void BuyAutoClicker() // +1/сек
     {
-        if (score >= autoUpgradeCost) {
-            score -= autoUpgradeCost; autoIncome += 1; autoUpgradeCost *= 2.5; 
-            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
-        }
+        if (score >= autoUpgradeCost) { score -= autoUpgradeCost; autoIncome += 1; autoUpgradeCost *= 2.5; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
     }
 
     public void BuyManager() // +10/сек
     {
-        if (score >= managerCost) {
-            score -= managerCost; autoIncome += 10; managerCost *= 4; 
-            PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame();
-        }
+        if (score >= managerCost) { score -= managerCost; autoIncome += 10; managerCost *= 4; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
+    }
+
+    // --- НОВЫЕ МЕТОДЫ ДЛЯ ПРЕСТИЖА ---
+
+    // Сколько кристаллов игрок получит прямо сейчас
+    public double CalculatePotentialCrystals()
+    {
+        if (score < prestigeThreshold) return 0;
+        return Mathf.Floor((float)(score / prestigeThreshold)); 
+    }
+
+    // Само перерождение
+    public void DoPrestige()
+    {
+        double crystalsToAdd = CalculatePotentialCrystals();
+        if (crystalsToAdd <= 0) return; // Защита от случайного нажатия
+
+        totalCrystals += crystalsToAdd;
+
+        // СБРОС ПРОГРЕССА
+        score = 0;           
+        clickPower = 1;      
+        flatClickPower = 0;  
+        autoIncome = 0;        
+        upgradeCost = 10;       
+        flatUpgradeCost = 100;  
+        autoUpgradeCost = 50;   
+        managerCost = 500;      
+
+        PlayBuySound();
+        saveManager.SaveGame();
+        uiManager.UpdateUI();
     }
 
     void PlayBuySound() {
