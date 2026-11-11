@@ -68,15 +68,19 @@ public class ClickerManager : MonoBehaviour
                 textComponent.text = "+" + FormatNumber(earnedPoints);
             }
             
-            Vector3 mousePos = Mouse.current.position.ReadValue();
-            mousePos.y += 100f; 
-            mousePos.x += UnityEngine.Random.Range(-150f, 150f); 
-            mousePos.y += UnityEngine.Random.Range(-50f, 100f);
+            // --- ИСПРАВЛЕНИЕ: Берем текущую позицию указателя (мыши или пальца) ---
+            Vector2 pointerPos = Pointer.current.position.ReadValue();
+            Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
             
-            textObj.transform.position = mousePos;
+            screenPos.y += 100f; 
+            screenPos.x += UnityEngine.Random.Range(-150f, 150f); 
+            screenPos.y += UnityEngine.Random.Range(-50f, 100f);
+            
+            textObj.transform.position = screenPos;
             textObj.transform.SetAsLastSibling();
         }
 
+        // Теперь этот код гарантированно выполнится!
         uiManager.UpdateUI();
         saveManager.SaveGame();
     }
@@ -107,17 +111,21 @@ public class ClickerManager : MonoBehaviour
         }
     }
 
-    // Сделали публичной, чтобы UIManager мог её использовать
+    // Сделали метод публичным (добавили слово public)
     public string FormatNumber(double num)
     {
-        if (num < 1000) return num.ToString("0"); 
+        if (num < 1000) 
+            return num.ToString("0", System.Globalization.CultureInfo.InvariantCulture); 
+            
         string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
         int suffixIndex = 0;
+        
         while (num >= 1000 && suffixIndex < suffixes.Length - 1)
         {
             num /= 1000;
             suffixIndex++;
         }
-        return num.ToString("0.0") + suffixes[suffixIndex];
+        
+        return num.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suffixes[suffixIndex];
     }
 }

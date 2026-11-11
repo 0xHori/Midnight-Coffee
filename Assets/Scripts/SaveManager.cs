@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Globalization; // Обязательно для CultureInfo
 
 public class SaveManager : MonoBehaviour
 {
@@ -10,21 +11,32 @@ public class SaveManager : MonoBehaviour
 
     public void SaveGame()
     {
-        PlayerPrefs.SetString("SavedScore", clickerManager.score.ToString());
-        PlayerPrefs.SetString("SavedClickPower", clickerManager.clickPower.ToString());
-        PlayerPrefs.SetString("SavedUpgradeCost", clickerManager.upgradeCost.ToString());
-        PlayerPrefs.SetString("SavedAutoIncome", clickerManager.autoIncome.ToString());
-        PlayerPrefs.SetString("SavedAutoUpgradeCost", clickerManager.autoUpgradeCost.ToString());
+        // Сохраняем, явно указывая InvariantCulture, чтобы десятичный разделитель всегда был точкой
+        PlayerPrefs.SetString("SavedScore", clickerManager.score.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedClickPower", clickerManager.clickPower.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedUpgradeCost", clickerManager.upgradeCost.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedAutoIncome", clickerManager.autoIncome.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedAutoUpgradeCost", clickerManager.autoUpgradeCost.ToString(CultureInfo.InvariantCulture));
         PlayerPrefs.Save(); 
     }
 
     public void LoadGame()
     {
-        clickerManager.score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"));
-        clickerManager.clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"));
-        clickerManager.upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"));
-        clickerManager.autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"));
-        clickerManager.autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50"));
+        // Загружаем, также используя InvariantCulture, и добавляем проверку на пустую строку
+        string scoreStr = PlayerPrefs.GetString("SavedScore", "0");
+        clickerManager.score = string.IsNullOrEmpty(scoreStr) ? 0 : double.Parse(scoreStr, CultureInfo.InvariantCulture);
+
+        string clickPowerStr = PlayerPrefs.GetString("SavedClickPower", "1");
+        clickerManager.clickPower = string.IsNullOrEmpty(clickPowerStr) ? 1 : double.Parse(clickPowerStr, CultureInfo.InvariantCulture);
+
+        string upgradeCostStr = PlayerPrefs.GetString("SavedUpgradeCost", "10");
+        clickerManager.upgradeCost = string.IsNullOrEmpty(upgradeCostStr) ? 10 : double.Parse(upgradeCostStr, CultureInfo.InvariantCulture);
+
+        string autoIncomeStr = PlayerPrefs.GetString("SavedAutoIncome", "0");
+        clickerManager.autoIncome = string.IsNullOrEmpty(autoIncomeStr) ? 0 : double.Parse(autoIncomeStr, CultureInfo.InvariantCulture);
+
+        string autoUpgradeCostStr = PlayerPrefs.GetString("SavedAutoUpgradeCost", "50");
+        clickerManager.autoUpgradeCost = string.IsNullOrEmpty(autoUpgradeCostStr) ? 50 : double.Parse(autoUpgradeCostStr, CultureInfo.InvariantCulture);
     }
 
     public void CalculateOfflineIncome()
