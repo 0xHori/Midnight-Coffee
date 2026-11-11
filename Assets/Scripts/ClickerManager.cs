@@ -4,49 +4,60 @@ using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
-    // ВАЖНО: Заменили int на double, чтобы числа не переполнялись
     public double score = 0;           
     public double clickPower = 1;      
     public double upgradeCost = 10;    
 
+    // --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ АВТОКЛИКЕРА ---
+    public double autoIncome = 0;        // Сколько очков в секунду мы получаем
+    public double autoUpgradeCost = 50;  // Цена автокликера
+    public TextMeshProUGUI autoText;     // Ссылка на текст кнопки автокликера
+    public UnityEngine.UI.Button autoButtonComponent; // Ссылка на кнопку автокликера
+    // ----------------------------------------
+
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI upgradeText; 
     public UnityEngine.UI.Button upgradeButtonComponent; 
-    public GameObject floatingTextPrefab; // Ссылка на наш префаб
-    public Transform canvasTransform;     // Ссылка на Canvas, чтобы текст не убегал за экран
+    public GameObject floatingTextPrefab; 
+    public Transform canvasTransform;     
 
     void Start()
     {
         LoadGame();
         UpdateUI();
+        
+        // Запускаем таймер: каждую 1 секунду вызываем метод AutoIncome
+        InvokeRepeating("AutoIncome", 1f, 1f); 
+    }
+
+    void AutoIncome()
+    {
+        if (autoIncome > 0)
+        {
+            score += autoIncome;
+            UpdateUI();
+            // Сохранять игру каждую секунду - это тяжеловато, поэтому сохраняем раз в 5-10 секунд или при выходе
+            // Пока для простоты оставим без сохранения в этом методе, чтобы не грузить диск
+        }
     }
 
     public void AddScore()
     {
         score += clickPower; 
         
-        // --- НОВЫЙ КОД ДЛЯ СПАВНА ТЕКСТА ---
         if (floatingTextPrefab != null && canvasTransform != null)
         {
             GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
             textObj.GetComponent<TextMeshProUGUI>().text = "+" + FormatNumber(clickPower);
             
-            // Ставим текст туда, где находится мышка (или палец)
             Vector3 mousePos = Mouse.current.position.ReadValue();
-            
-            // 1. Сдвигаем спавн чуть выше пальца, чтобы текст не появлялся прямо на кнопке
             mousePos.y += 100f; 
-            
-            // 2. Сильно увеличиваем разброс (150 пикселей в стороны)
             mousePos.x += Random.Range(-150f, 150f); 
             mousePos.y += Random.Range(-50f, 100f);
             
             textObj.transform.position = mousePos;
-            
-            // 3. Делаем так, чтобы текст рисовался ПОВЕРХ всех остальных элементов UI
             textObj.transform.SetAsLastSibling();
         }
-        // -----------------------------------
 
         UpdateUI();
         SaveGame();
@@ -65,58 +76,71 @@ public class ClickerManager : MonoBehaviour
         }
     }
 
-    void UpdateUI()
+    // --- НОВЫЙ МЕТОД ДЛЯ ПОКУПКИ АВТОКЛИКЕРА ---
+    public void BuyAutoClicker()
     {
-        // Теперь используем нашу новую функцию форматирования
-        scoreText.text = "Счет: " + FormatNumber(score);
-        
-        if (upgradeText != null)
+        if (score >= autoUpgradeCost)
         {
-            upgradeText.text = "Улучшение x2\nЦена: " + FormatNumber(upgradeCost);
-        }
-
-        if (upgradeButtonComponent != null)
-        {
-            upgradeButtonComponent.interactable = (score >= upgradeCost);
+            score -= autoUpgradeCost;
+            autoIncome += 1; // Добавляем 1 очко в секунду
+            autoUpgradeCost *= 2.5; // Следующий автокликер будет стоить дороже (в 2.5 раза)
+            
+            UpdateUI();
+            SaveGame();
         }
     }
 
-    // --- НОВАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ---
+    void UpdateUI()
+    {
+        scoreText.text = "Счет: " + FormatNumber(score);
+        
+        if (upgradeText != null)
+            upgradeText.text = "Улучшение x2\nЦена: " + FormatNumber(upgradeCost);
+
+        if (upgradeButtonComponent != null)
+            upgradeButtonComponent.interactable = (score >= upgradeCost);
+
+        // Обновляем текст и доступность кнопки автокликера
+        if (autoText != null)
+            autoText.text = "Автокликер (+1/сек)\nЦена: " + FormatNumber(autoUpgradeCost);
+
+        if (autoButtonComponent != null)
+            autoButtonComponent.interactable = (score >= autoUpgradeCost);
+    }
+
     string FormatNumber(double num)
     {
-        // Если число меньше 1000, просто выводим его (без десятичных дробей)
         if (num < 1000) 
             return num.ToString("0"); 
         
-        // Массив суффиксов для больших чисел
         string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
         int suffixIndex = 0;
         
-        // Делим число на 1000, пока оно не станет меньше 1000
         while (num >= 1000 && suffixIndex < suffixes.Length - 1)
         {
             num /= 1000;
             suffixIndex++;
         }
         
-        // Выводим с одним знаком после запятой (например, 1.5K)
         return num.ToString("0.0") + suffixes[suffixIndex];
     }
 
     void SaveGame()
     {
-        // ВАЖНО: Теперь сохраняем как строку (SetString), так как double нельзя сохранить через SetInt
         PlayerPrefs.SetString("SavedScore", score.ToString());
         PlayerPrefs.SetString("SavedClickPower", clickPower.ToString());
         PlayerPrefs.SetString("SavedUpgradeCost", upgradeCost.ToString());
+        PlayerPrefs.SetString("SavedAutoIncome", autoIncome.ToString());       // Новое
+        PlayerPrefs.SetString("SavedAutoUpgradeCost", autoUpgradeCost.ToString()); // Новое
         PlayerPrefs.Save(); 
     }
 
     void LoadGame()
     {
-        // Загружаем строку и конвертируем обратно в double
         score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"));
         clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"));
         upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"));
+        autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"));       // Новое
+        autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50")); // Новое
     }
 }
