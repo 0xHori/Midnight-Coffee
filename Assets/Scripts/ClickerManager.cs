@@ -3,48 +3,49 @@ using TMPro;
 
 public class ClickerManager : MonoBehaviour
 {
-    public int score = 0;           
-    public int clickPower = 1;      
-    public int upgradeCost = 10;    
+    // ВАЖНО: Заменили int на double, чтобы числа не переполнялись
+    public double score = 0;           
+    public double clickPower = 1;      
+    public double upgradeCost = 10;    
 
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI upgradeText; 
     public UnityEngine.UI.Button upgradeButtonComponent; 
 
-    // Start вызывается один раз при запуске игры
     void Start()
     {
-        LoadGame(); // Загружаем сохраненные данные
-        UpdateUI(); // Обновляем экран
+        LoadGame();
+        UpdateUI();
     }
 
     public void AddScore()
     {
-        score = score + clickPower; 
+        score += clickPower; 
         UpdateUI();
-        SaveGame(); // Сохраняем после каждого клика (для простоты)
+        SaveGame();
     }
 
     public void BuyUpgrade()
     {
         if (score >= upgradeCost)
         {
-            score = score - upgradeCost; 
-            clickPower = clickPower * 2; 
-            upgradeCost = upgradeCost * 2; 
+            score -= upgradeCost; 
+            clickPower *= 2; 
+            upgradeCost *= 2; 
             
             UpdateUI(); 
-            SaveGame(); // Сохраняем после покупки
+            SaveGame();
         }
     }
 
     void UpdateUI()
     {
-        scoreText.text = "Счет: " + score.ToString();
+        // Теперь используем нашу новую функцию форматирования
+        scoreText.text = "Счет: " + FormatNumber(score);
         
         if (upgradeText != null)
         {
-            upgradeText.text = "Улучшение x2\nЦена: " + upgradeCost.ToString();
+            upgradeText.text = "Улучшение x2\nЦена: " + FormatNumber(upgradeCost);
         }
 
         if (upgradeButtonComponent != null)
@@ -53,24 +54,42 @@ public class ClickerManager : MonoBehaviour
         }
     }
 
-    // --- НОВЫЕ МЕТОДЫ ДЛЯ СОХРАНЕНИЯ ---
+    // --- НОВАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ---
+    string FormatNumber(double num)
+    {
+        // Если число меньше 1000, просто выводим его (без десятичных дробей)
+        if (num < 1000) 
+            return num.ToString("0"); 
+        
+        // Массив суффиксов для больших чисел
+        string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
+        int suffixIndex = 0;
+        
+        // Делим число на 1000, пока оно не станет меньше 1000
+        while (num >= 1000 && suffixIndex < suffixes.Length - 1)
+        {
+            num /= 1000;
+            suffixIndex++;
+        }
+        
+        // Выводим с одним знаком после запятой (например, 1.5K)
+        return num.ToString("0.0") + suffixes[suffixIndex];
+    }
 
     void SaveGame()
     {
-        // Сохраняем наши переменные под определенными именами
-        PlayerPrefs.SetInt("SavedScore", score);
-        PlayerPrefs.SetInt("SavedClickPower", clickPower);
-        PlayerPrefs.SetInt("SavedUpgradeCost", upgradeCost);
-        
-        // Физически записываем данные на диск (Unity делает это не сразу, а по команде)
+        // ВАЖНО: Теперь сохраняем как строку (SetString), так как double нельзя сохранить через SetInt
+        PlayerPrefs.SetString("SavedScore", score.ToString());
+        PlayerPrefs.SetString("SavedClickPower", clickPower.ToString());
+        PlayerPrefs.SetString("SavedUpgradeCost", upgradeCost.ToString());
         PlayerPrefs.Save(); 
     }
 
     void LoadGame()
     {
-        // Если данные существуют, загружаем их. Если нет (первый запуск) - оставляем по умолчанию
-        score = PlayerPrefs.GetInt("SavedScore", 0);
-        clickPower = PlayerPrefs.GetInt("SavedClickPower", 1);
-        upgradeCost = PlayerPrefs.GetInt("SavedUpgradeCost", 10);
+        // Загружаем строку и конвертируем обратно в double
+        score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"));
+        clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"));
+        upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"));
     }
 }
