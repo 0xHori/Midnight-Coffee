@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem; 
+using System; // Добавили для работы с DateTime
 
 public class ClickerManager : MonoBehaviour
 {
@@ -8,12 +9,10 @@ public class ClickerManager : MonoBehaviour
     public double clickPower = 1;      
     public double upgradeCost = 10;    
 
-    // --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ АВТОКЛИКЕРА ---
-    public double autoIncome = 0;        // Сколько очков в секунду мы получаем
-    public double autoUpgradeCost = 50;  // Цена автокликера
-    public TextMeshProUGUI autoText;     // Ссылка на текст кнопки автокликера
-    public UnityEngine.UI.Button autoButtonComponent; // Ссылка на кнопку автокликера
-    // ----------------------------------------
+    public double autoIncome = 0;        
+    public double autoUpgradeCost = 50;  
+    public TextMeshProUGUI autoText;     
+    public UnityEngine.UI.Button autoButtonComponent; 
 
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI upgradeText; 
@@ -21,12 +20,18 @@ public class ClickerManager : MonoBehaviour
     public GameObject floatingTextPrefab; 
     public Transform canvasTransform;     
 
+    // --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ ОФФЛАЙН-ДОХОДА ---
+    public GameObject offlinePanel;       // Панель (окно), которое покажет доход
+    public TextMeshProUGUI offlineText;   // Текст внутри этой панели
+    private double maxOfflineHours = 8;   // Максимум часов, за которые начислим доход
+    // --------------------------------------------
+
     void Start()
     {
         LoadGame();
+        CalculateOfflineIncome(); // Считаем оффлайн-доход при старте
         UpdateUI();
         
-        // Запускаем таймер: каждую 1 секунду вызываем метод AutoIncome
         InvokeRepeating("AutoIncome", 1f, 1f); 
     }
 
@@ -36,8 +41,6 @@ public class ClickerManager : MonoBehaviour
         {
             score += autoIncome;
             UpdateUI();
-            // Сохранять игру каждую секунду - это тяжеловато, поэтому сохраняем раз в 5-10 секунд или при выходе
-            // Пока для простоты оставим без сохранения в этом методе, чтобы не грузить диск
         }
     }
 
@@ -52,8 +55,8 @@ public class ClickerManager : MonoBehaviour
             
             Vector3 mousePos = Mouse.current.position.ReadValue();
             mousePos.y += 100f; 
-            mousePos.x += Random.Range(-150f, 150f); 
-            mousePos.y += Random.Range(-50f, 100f);
+            mousePos.x += UnityEngine.Random.Range(-150f, 150f); 
+            mousePos.y += UnityEngine.Random.Range(-50f, 100f);
             
             textObj.transform.position = mousePos;
             textObj.transform.SetAsLastSibling();
@@ -76,19 +79,75 @@ public class ClickerManager : MonoBehaviour
         }
     }
 
-    // --- НОВЫЙ МЕТОД ДЛЯ ПОКУПКИ АВТОКЛИКЕРА ---
     public void BuyAutoClicker()
     {
         if (score >= autoUpgradeCost)
         {
             score -= autoUpgradeCost;
-            autoIncome += 1; // Добавляем 1 очко в секунду
-            autoUpgradeCost *= 2.5; // Следующий автокликер будет стоить дороже (в 2.5 раза)
+            autoIncome += 1; 
+            autoUpgradeCost *= 2.5; 
             
             UpdateUI();
             SaveGame();
         }
     }
+
+    // --- НОВЫЙ МЕТОД: РАСЧЕТ ОФФЛАЙН-ДОХОДА ---
+    void CalculateOfflineIncome()
+    {
+        if (PlayerPrefs.HasKey("LastExitTime") && autoIncome > 0)
+        {
+            // Загружаем время выхода
+            string lastTimeString = PlayerPrefs.GetString("LastExitTime");
+            DateTime lastTime = DateTime.Parse(lastTimeString);
+            
+            // Считаем, сколько прошло времени (используем UtcNow, чтобы не зависеть от часового пояса)
+            TimeSpan timeAway = DateTime.UtcNow - lastTime;
+            double secondsAway = timeAway.TotalSeconds;
+
+            // ОГРАНИЧЕНИЕ: максимум 8 часов (8 * 60 * 60 секунд)
+            double maxSeconds = maxOfflineHours * 60 * 60;
+            if (secondsAway > maxSeconds) 
+            {
+                secondsAway = maxSeconds;
+            }
+
+            // Если игрок отсутствовал больше 1 минуты, начисляем доход и показываем окно
+            if (secondsAway > 60)
+            {
+                double earned = secondsAway * autoIncome;
+                score += earned;
+
+                if (offlinePanel != null && offlineText != null)
+                {
+                    offlinePanel.SetActive(true); // Показываем окно
+                    
+                    int hours = (int)(secondsAway / 3600);
+                    int minutes = (int)((secondsAway % 3600) / 60);
+                    
+                    offlineText.text = $"Пока вас не было\n({hours}ч {minutes}м),\nвы заработали:\n{FormatNumber(earned)}";
+                }
+            }
+        }
+    }
+
+    // Метод закрытия игры (для ПК)
+    void OnApplicationQuit()
+    {
+        PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString());
+        PlayerPrefs.Save();
+    }
+
+    // Метод сворачивания игры (для телефонов, когда игрок нажимает кнопку "Домой")
+    void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString());
+            PlayerPrefs.Save();
+        }
+    }
+    // ------------------------------------------
 
     void UpdateUI()
     {
@@ -100,7 +159,6 @@ public class ClickerManager : MonoBehaviour
         if (upgradeButtonComponent != null)
             upgradeButtonComponent.interactable = (score >= upgradeCost);
 
-        // Обновляем текст и доступность кнопки автокликера
         if (autoText != null)
             autoText.text = "Автокликер (+1/сек)\nЦена: " + FormatNumber(autoUpgradeCost);
 
@@ -110,18 +168,14 @@ public class ClickerManager : MonoBehaviour
 
     string FormatNumber(double num)
     {
-        if (num < 1000) 
-            return num.ToString("0"); 
-        
+        if (num < 1000) return num.ToString("0"); 
         string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
         int suffixIndex = 0;
-        
         while (num >= 1000 && suffixIndex < suffixes.Length - 1)
         {
             num /= 1000;
             suffixIndex++;
         }
-        
         return num.ToString("0.0") + suffixes[suffixIndex];
     }
 
@@ -130,8 +184,8 @@ public class ClickerManager : MonoBehaviour
         PlayerPrefs.SetString("SavedScore", score.ToString());
         PlayerPrefs.SetString("SavedClickPower", clickPower.ToString());
         PlayerPrefs.SetString("SavedUpgradeCost", upgradeCost.ToString());
-        PlayerPrefs.SetString("SavedAutoIncome", autoIncome.ToString());       // Новое
-        PlayerPrefs.SetString("SavedAutoUpgradeCost", autoUpgradeCost.ToString()); // Новое
+        PlayerPrefs.SetString("SavedAutoIncome", autoIncome.ToString());
+        PlayerPrefs.SetString("SavedAutoUpgradeCost", autoUpgradeCost.ToString());
         PlayerPrefs.Save(); 
     }
 
@@ -140,7 +194,7 @@ public class ClickerManager : MonoBehaviour
         score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"));
         clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"));
         upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"));
-        autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"));       // Новое
-        autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50")); // Новое
+        autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"));
+        autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50"));
     }
 }
