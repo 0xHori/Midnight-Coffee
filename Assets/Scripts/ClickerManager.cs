@@ -7,7 +7,10 @@ public class ClickerManager : MonoBehaviour
 {
     public double score = 0;           
     public double clickPower = 1;      
-    public double upgradeCost = 10;    
+    public double upgradeCost = 10;
+
+    public double critChance = 0.1;    // 10% шанс крита
+    public double critMultiplier = 10; // Крит дает х10 очков
 
     public double autoIncome = 0;        
     public double autoUpgradeCost = 50;  
@@ -46,13 +49,40 @@ public class ClickerManager : MonoBehaviour
 
     public void AddScore()
     {
-        score += clickPower; 
+        // 1. Считаем базовые очки и проверяем на крит
+        double earnedPoints = clickPower; 
+        bool isCrit = false;
+
+        // UnityEngine.Random.value выдает число от 0.0 до 1.0. 
+        // Если оно меньше или равно 0.1 (10%), то это крит!
+        if (UnityEngine.Random.value <= critChance)
+        {
+            earnedPoints = earnedPoints * critMultiplier;
+            isCrit = true;
+        }
+
+        // 2. Добавляем очки к общему счету
+        score += earnedPoints; 
         
+        // 3. Спавним текст
         if (floatingTextPrefab != null && canvasTransform != null)
         {
             GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
-            textObj.GetComponent<TextMeshProUGUI>().text = "+" + FormatNumber(clickPower);
+            TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
             
+            // Настраиваем текст в зависимости от того, крит это или нет
+            if (isCrit)
+            {
+                textComponent.text = "КРИТ! +" + FormatNumber(earnedPoints);
+                textComponent.color = Color.red; // Красим в красный
+                textObj.transform.localScale = new Vector3(1.5f, 1.5f, 1f); // Делаем текст в 1.5 раза больше
+            }
+            else
+            {
+                textComponent.text = "+" + FormatNumber(earnedPoints);
+            }
+            
+            // Позиция (как было раньше)
             Vector3 mousePos = Mouse.current.position.ReadValue();
             mousePos.y += 100f; 
             mousePos.x += UnityEngine.Random.Range(-150f, 150f); 
@@ -62,6 +92,7 @@ public class ClickerManager : MonoBehaviour
             textObj.transform.SetAsLastSibling();
         }
 
+        // 4. Обновляем интерфейс и сохраняем
         UpdateUI();
         SaveGame();
     }
