@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem; 
 
 public class ClickerManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class ClickerManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI upgradeText; 
     public UnityEngine.UI.Button upgradeButtonComponent; 
+    public GameObject floatingTextPrefab; // Ссылка на наш префаб
+    public Transform canvasTransform;     // Ссылка на Canvas, чтобы текст не убегал за экран
 
     void Start()
     {
@@ -21,6 +24,30 @@ public class ClickerManager : MonoBehaviour
     public void AddScore()
     {
         score += clickPower; 
+        
+        // --- НОВЫЙ КОД ДЛЯ СПАВНА ТЕКСТА ---
+        if (floatingTextPrefab != null && canvasTransform != null)
+        {
+            GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
+            textObj.GetComponent<TextMeshProUGUI>().text = "+" + FormatNumber(clickPower);
+            
+            // Ставим текст туда, где находится мышка (или палец)
+            Vector3 mousePos = Mouse.current.position.ReadValue();
+            
+            // 1. Сдвигаем спавн чуть выше пальца, чтобы текст не появлялся прямо на кнопке
+            mousePos.y += 100f; 
+            
+            // 2. Сильно увеличиваем разброс (150 пикселей в стороны)
+            mousePos.x += Random.Range(-150f, 150f); 
+            mousePos.y += Random.Range(-50f, 100f);
+            
+            textObj.transform.position = mousePos;
+            
+            // 3. Делаем так, чтобы текст рисовался ПОВЕРХ всех остальных элементов UI
+            textObj.transform.SetAsLastSibling();
+        }
+        // -----------------------------------
+
         UpdateUI();
         SaveGame();
     }
