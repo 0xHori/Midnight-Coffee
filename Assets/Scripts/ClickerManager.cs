@@ -4,6 +4,12 @@ using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
+    [Header("Звуки")]
+    public AudioSource audioSource;
+    public AudioClip clickSound;
+    public AudioClip critSound;
+    public AudioClip buySound;
+
     public double score = 0;           
     public double clickPower = 1;      
     public double upgradeCost = 10;    
@@ -48,6 +54,22 @@ public class ClickerManager : MonoBehaviour
         {
             earnedPoints *= critMultiplier;
             isCrit = true;
+
+            // Воспроизводим звук крита
+            if (audioSource != null && critSound != null)
+            {
+                audioSource.pitch = 1f; 
+                audioSource.PlayOneShot(critSound);
+            }
+        }
+        else
+        {
+            // Воспроизводим звук обычного клика со случайным питчем
+            if (audioSource != null && clickSound != null)
+            {
+                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f); 
+                audioSource.PlayOneShot(clickSound);
+            }
         }
 
         score += earnedPoints; 
@@ -93,6 +115,13 @@ public class ClickerManager : MonoBehaviour
             clickPower *= 2; 
             upgradeCost *= 2; 
             
+            // Воспроизводим звук покупки
+            if (audioSource != null && buySound != null)
+            {
+                audioSource.pitch = 1f;
+                audioSource.PlayOneShot(buySound);
+            }
+
             uiManager.UpdateUI(); 
             saveManager.SaveGame();
         }
@@ -106,6 +135,13 @@ public class ClickerManager : MonoBehaviour
             autoIncome += 1; 
             autoUpgradeCost *= 2.5; 
             
+            // Воспроизводим звук покупки
+            if (audioSource != null && buySound != null)
+            {
+                audioSource.pitch = 1f;
+                audioSource.PlayOneShot(buySound);
+            }
+
             uiManager.UpdateUI();
             saveManager.SaveGame();
         }
