@@ -20,7 +20,7 @@ public class BonusSpawner : MonoBehaviour
         while (true)
         {
             // Ждем от 15 до 30 секунд (для теста поставил меньше, потом можешь вернуть 45-90)
-            yield return new WaitForSeconds(Random.Range(5f, 10f));
+            yield return new WaitForSeconds(Random.Range(45f, 90f));
 
             // Спавним только если кнопки сейчас нет на экране
             if (!isButtonActive)

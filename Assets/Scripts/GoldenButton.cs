@@ -4,7 +4,7 @@ using TMPro;
 public class GoldenButton : MonoBehaviour
 {
     public ClickerManager clickerManager;
-    public float lifeTime = 8f; 
+    public float lifeTime = 3f; 
     private bool isClicked = false;
 
     void Start()
