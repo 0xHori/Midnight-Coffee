@@ -38,7 +38,6 @@ public class ClickerManager : MonoBehaviour
     void Start()
     {
         saveManager.LoadGame();
-        saveManager.CalculateOfflineIncome(); 
         GameEvents.UpdateUI(); // Вызываем событие вместо uiManager
         InvokeRepeating("AutoIncome", 1f, 1f); 
     }

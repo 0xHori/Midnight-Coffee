@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 using System.Globalization;
 
 public class SaveManager : MonoBehaviour
@@ -7,81 +9,146 @@ public class SaveManager : MonoBehaviour
     public ClickerManager clickerManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
+    
     private double maxOfflineHours = 8;
+    private string saveFilePath;
+
+    void Awake()
+    {
+        // Путь к файлу сохранения. В Windows это AppData, на Android/iOS - внутренняя память приложения.
+        saveFilePath = Application.persistentDataPath + "/MyClickerSave.json";
+    }
 
     void OnEnable() { GameEvents.OnSaveGame += SaveGame; }
     void OnDisable() { GameEvents.OnSaveGame -= SaveGame; }
 
     public void SaveGame()
     {
-        // ... (тут твой код сохранения без изменений) ...
-        PlayerPrefs.SetString("SavedScore", clickerManager.score.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedClickPower", clickerManager.clickPower.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedFlatClickPower", clickerManager.flatClickPower.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedUpgradeCost", clickerManager.upgradeCost.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedFlatUpgradeCost", clickerManager.flatUpgradeCost.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedAutoIncome", clickerManager.autoIncome.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedAutoUpgradeCost", clickerManager.autoUpgradeCost.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedManagerCost", clickerManager.managerCost.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedCrystals", clickerManager.totalCrystals.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetString("SavedThreshold", clickerManager.prestigeThreshold.ToString(CultureInfo.InvariantCulture));
-        PlayerPrefs.SetInt("SavedClickBoost", skillTreeManager.clickBoostLvl);
-        PlayerPrefs.SetInt("SavedAutoBoost", skillTreeManager.autoBoostLvl);
-        PlayerPrefs.SetInt("SavedCritBoost", skillTreeManager.critBoostLvl);
+        GameData data = new GameData();
+
+        // 1. Собираем данные из менеджеров
+        data.score = clickerManager.score;
+        data.clickPower = clickerManager.clickPower;
+        data.flatClickPower = clickerManager.flatClickPower;
+        data.upgradeCost = clickerManager.upgradeCost;
+        data.flatUpgradeCost = clickerManager.flatUpgradeCost;
+        data.autoIncome = clickerManager.autoIncome;
+        data.autoUpgradeCost = clickerManager.autoUpgradeCost;
+        data.managerCost = clickerManager.managerCost;
+        data.totalCrystals = clickerManager.totalCrystals;
+        data.prestigeThreshold = clickerManager.prestigeThreshold;
+
+        data.clickBoostLvl = skillTreeManager.clickBoostLvl;
+        data.autoBoostLvl = skillTreeManager.autoBoostLvl;
+        data.critBoostLvl = skillTreeManager.critBoostLvl;
+
         if (gachaManager != null)
         {
-            string chars = string.Join(",", gachaManager.ownedCharacterNames);
-            PlayerPrefs.SetString("SavedCharacters", chars);
+            data.ownedCharacterNames = new List<string>(gachaManager.ownedCharacterNames);
         }
-        PlayerPrefs.Save(); 
+
+        // 2. Записываем время сохранения (в формате UTC)
+        data.lastExitTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+
+        // 3. Конвертируем в красивый JSON
+        string json = JsonUtility.ToJson(data, true); // true = форматирование с отступами (удобно читать)
+
+        // 4. Сохраняем в файл
+        try
+        {
+            File.WriteAllText(saveFilePath, json);
+            Debug.Log("Игра сохранена в: " + saveFilePath);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Ошибка при сохранении файла: " + e.Message);
+        }
     }
 
     public void LoadGame()
     {
-        // ... (тут твой код загрузки без изменений) ...
-        clickerManager.score = double.Parse(PlayerPrefs.GetString("SavedScore", "0"), CultureInfo.InvariantCulture);
-        clickerManager.clickPower = double.Parse(PlayerPrefs.GetString("SavedClickPower", "1"), CultureInfo.InvariantCulture);
-        clickerManager.flatClickPower = double.Parse(PlayerPrefs.GetString("SavedFlatClickPower", "0"), CultureInfo.InvariantCulture);
-        clickerManager.upgradeCost = double.Parse(PlayerPrefs.GetString("SavedUpgradeCost", "10"), CultureInfo.InvariantCulture);
-        clickerManager.flatUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedFlatUpgradeCost", "100"), CultureInfo.InvariantCulture);
-        clickerManager.autoIncome = double.Parse(PlayerPrefs.GetString("SavedAutoIncome", "0"), CultureInfo.InvariantCulture);
-        clickerManager.autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50"), CultureInfo.InvariantCulture);
-        clickerManager.managerCost = double.Parse(PlayerPrefs.GetString("SavedManagerCost", "500"), CultureInfo.InvariantCulture);
-        clickerManager.totalCrystals = double.Parse(PlayerPrefs.GetString("SavedCrystals", "0"), CultureInfo.InvariantCulture);
-        clickerManager.prestigeThreshold = double.Parse(PlayerPrefs.GetString("SavedThreshold", "10000"), CultureInfo.InvariantCulture);
-        skillTreeManager.clickBoostLvl = PlayerPrefs.GetInt("SavedClickBoost", 0);
-        skillTreeManager.autoBoostLvl = PlayerPrefs.GetInt("SavedAutoBoost", 0);
-        skillTreeManager.critBoostLvl = PlayerPrefs.GetInt("SavedCritBoost", 0);
-        if (gachaManager != null)
+        if (!File.Exists(saveFilePath))
         {
-            gachaManager.ownedCharacterNames.Clear();
-            string savedChars = PlayerPrefs.GetString("SavedCharacters", "");
-            if (!string.IsNullOrEmpty(savedChars))
-                gachaManager.ownedCharacterNames.AddRange(savedChars.Split(','));
+            Debug.Log("Файл сохранения не найден. Начинаем новую игру.");
+            return; // Выходим, оставляя дефолтные значения из инспектора
+        }
+
+        try
+        {
+            // 1. Читаем файл
+            string json = File.ReadAllText(saveFilePath);
+            
+            // 2. Конвертируем обратно в класс
+            GameData data = JsonUtility.FromJson<GameData>(json);
+
+            // 3. Раздаем данные обратно менеджерам
+            clickerManager.score = data.score;
+            clickerManager.clickPower = data.clickPower;
+            clickerManager.flatClickPower = data.flatClickPower;
+            clickerManager.upgradeCost = data.upgradeCost;
+            clickerManager.flatUpgradeCost = data.flatUpgradeCost;
+            clickerManager.autoIncome = data.autoIncome;
+            clickerManager.autoUpgradeCost = data.autoUpgradeCost;
+            clickerManager.managerCost = data.managerCost;
+            clickerManager.totalCrystals = data.totalCrystals;
+            clickerManager.prestigeThreshold = data.prestigeThreshold;
+
+            skillTreeManager.clickBoostLvl = data.clickBoostLvl;
+            skillTreeManager.autoBoostLvl = data.autoBoostLvl;
+            skillTreeManager.critBoostLvl = data.critBoostLvl;
+
+            if (gachaManager != null && data.ownedCharacterNames != null)
+            {
+                gachaManager.ownedCharacterNames = new List<string>(data.ownedCharacterNames);
+            }
+
+            // 4. Считаем офлайн-доход используя время из файла
+            CalculateOfflineIncome(data.lastExitTime);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Ошибка при загрузке файла: " + e.Message);
         }
     }
 
-    public void CalculateOfflineIncome()
+    private void CalculateOfflineIncome(string lastExitTimeStr)
     {
-        if (PlayerPrefs.HasKey("LastExitTime") && clickerManager.autoIncome > 0)
+        if (string.IsNullOrEmpty(lastExitTimeStr) || clickerManager.autoIncome <= 0) return;
+
+        if (DateTime.TryParse(lastExitTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime lastTime))
         {
-            DateTime lastTime = DateTime.Parse(PlayerPrefs.GetString("LastExitTime"), CultureInfo.InvariantCulture);
             TimeSpan timeAway = DateTime.UtcNow - lastTime;
             double secondsAway = timeAway.TotalSeconds;
             double maxSeconds = maxOfflineHours * 60 * 60;
+
             if (secondsAway > maxSeconds) secondsAway = maxSeconds;
 
-            if (secondsAway > 60)
+            if (secondsAway > 60) // Если прошло больше минуты
             {
                 double earned = secondsAway * clickerManager.autoIncome * clickerManager.PrestigeMultiplier;
                 clickerManager.score += earned;
+                
                 int hours = (int)(secondsAway / 3600);
                 int minutes = (int)((secondsAway % 3600) / 60);
-                GameEvents.ShowOfflinePanel(earned, hours, minutes); // Вызов через событие
+                
+                GameEvents.ShowOfflinePanel(earned, hours, minutes);
             }
         }
     }
 
-    void OnApplicationQuit() { PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)); PlayerPrefs.Save(); }
-    void OnApplicationPause(bool pauseStatus) { if (pauseStatus) { PlayerPrefs.SetString("LastExitTime", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)); PlayerPrefs.Save(); } }
+    // --- Убираем PlayerPrefs для игровых данных, но оставляем для времени выхода ---
+    // При сворачивании игры мы не хотим писать весь JSON (это может занять время), 
+    // достаточно быстро сохранить текущее время.
+    void OnApplicationQuit() 
+    { 
+        SaveGame(); // На всякий случай сохраняем всё перед выходом
+    }
+    
+    void OnApplicationPause(bool pauseStatus) 
+    { 
+        if (pauseStatus) 
+        { 
+            SaveGame(); // Сохраняем игру при сворачивании на телефоне
+        } 
+    }
 }
