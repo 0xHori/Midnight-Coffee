@@ -28,8 +28,11 @@ public class SaveManager : MonoBehaviour
         PlayerPrefs.SetInt("SavedClickBoost", skillTreeManager.clickBoostLvl);
         PlayerPrefs.SetInt("SavedAutoBoost", skillTreeManager.autoBoostLvl);
         PlayerPrefs.SetInt("SavedCritBoost", skillTreeManager.critBoostLvl);
-        string chars = string.Join(",", gachaManager.ownedCharacterNames);
-        PlayerPrefs.SetString("SavedCharacters", chars);
+        if (gachaManager != null)
+        {
+            string chars = string.Join(",", gachaManager.ownedCharacterNames);
+            PlayerPrefs.SetString("SavedCharacters", chars);
+        }
         PlayerPrefs.Save(); 
     }
 
@@ -49,10 +52,13 @@ public class SaveManager : MonoBehaviour
         skillTreeManager.clickBoostLvl = PlayerPrefs.GetInt("SavedClickBoost", 0);
         skillTreeManager.autoBoostLvl = PlayerPrefs.GetInt("SavedAutoBoost", 0);
         skillTreeManager.critBoostLvl = PlayerPrefs.GetInt("SavedCritBoost", 0);
-        gachaManager.ownedCharacterNames.Clear();
-        string savedChars = PlayerPrefs.GetString("SavedCharacters", "");
-        if (!string.IsNullOrEmpty(savedChars))
-            gachaManager.ownedCharacterNames.AddRange(savedChars.Split(','));
+        if (gachaManager != null)
+        {
+            gachaManager.ownedCharacterNames.Clear();
+            string savedChars = PlayerPrefs.GetString("SavedCharacters", "");
+            if (!string.IsNullOrEmpty(savedChars))
+                gachaManager.ownedCharacterNames.AddRange(savedChars.Split(','));
+        }
     }
 
     public void CalculateOfflineIncome()
