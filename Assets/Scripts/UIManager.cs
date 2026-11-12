@@ -126,7 +126,22 @@ public class UIManager : MonoBehaviour
     public void ConfirmPrestige() { clickerManager.DoPrestige(); ClosePrestigePanel(); }
     public void OpenSkillPanel() { skillTreePanel.SetActive(true); UpdateSkillUI(); }
     public void CloseSkillPanel() { skillTreePanel.SetActive(false); }
-    public void OpenGachaPanel() => gachaPanel.SetActive(true);
+    public void OpenGachaPanel()
+    {
+        gachaPanel.SetActive(true);
+
+        if (gachaResultText != null)
+        {
+            gachaResultText.gameObject.SetActive(true);
+            gachaResultText.text = "Испытай удачу!";
+            gachaResultText.color = Color.white;
+        }
+
+        if (gachaResultImage != null)
+        {
+            gachaResultImage.gameObject.SetActive(false);
+        }
+    }
     public void CloseGachaPanel() => gachaPanel.SetActive(false);
 
     private void ShowGachaResult(string name, Sprite sprite, Color color)
