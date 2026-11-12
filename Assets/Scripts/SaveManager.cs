@@ -5,6 +5,7 @@ using System.Globalization;
 public class SaveManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
+    public SkillTreeManager skillTreeManager; // Добавь в переменные
     public UIManager uiManager;
     private double maxOfflineHours = 8;
 
@@ -21,6 +22,10 @@ public class SaveManager : MonoBehaviour
         
         PlayerPrefs.SetString("SavedCrystals", clickerManager.totalCrystals.ToString(CultureInfo.InvariantCulture));
         PlayerPrefs.SetString("SavedThreshold", clickerManager.prestigeThreshold.ToString(CultureInfo.InvariantCulture));
+
+        PlayerPrefs.SetInt("SavedClickBoost", skillTreeManager.clickBoostLvl);
+        PlayerPrefs.SetInt("SavedAutoBoost", skillTreeManager.autoBoostLvl);
+        PlayerPrefs.SetInt("SavedCritBoost", skillTreeManager.critBoostLvl);
         
         PlayerPrefs.Save(); 
     }
@@ -38,6 +43,10 @@ public class SaveManager : MonoBehaviour
         
         clickerManager.totalCrystals = double.Parse(PlayerPrefs.GetString("SavedCrystals", "0"), CultureInfo.InvariantCulture);
         clickerManager.prestigeThreshold = double.Parse(PlayerPrefs.GetString("SavedThreshold", "10000"), CultureInfo.InvariantCulture);
+
+        skillTreeManager.clickBoostLvl = PlayerPrefs.GetInt("SavedClickBoost", 0);
+        skillTreeManager.autoBoostLvl = PlayerPrefs.GetInt("SavedAutoBoost", 0);
+        skillTreeManager.critBoostLvl = PlayerPrefs.GetInt("SavedCritBoost", 0);
     }
 
     public void CalculateOfflineIncome()

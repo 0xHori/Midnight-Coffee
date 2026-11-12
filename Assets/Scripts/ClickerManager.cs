@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
+    public SkillTreeManager skillTreeManager; // НОВОЕ
+
     [Header("Звуки")]
     public AudioSource audioSource;
     public AudioClip clickSound;
@@ -48,18 +50,20 @@ public class ClickerManager : MonoBehaviour
     {
         if (autoIncome > 0)
         {
-            score += autoIncome * PrestigeMultiplier; // Учитываем престиж
+            score += autoIncome * PrestigeMultiplier * skillTreeManager.AutoMultiplier; // НОВОЕ
             uiManager.UpdateUI();
         }
     }
 
     public void AddScore()
     {
-        double baseClick = clickPower + flatClickPower; 
-        double earnedPoints = baseClick * PrestigeMultiplier; // Учитываем престиж
+        // Учитываем бонус от Дерева Навыков
+        double baseClick = (clickPower + flatClickPower) * skillTreeManager.ClickMultiplier; 
+        double earnedPoints = baseClick * PrestigeMultiplier; 
         bool isCrit = false;
 
-        if (UnityEngine.Random.value <= critChance)
+        // Используем шанс крита из Дерева Навыков
+        if (UnityEngine.Random.value <= skillTreeManager.CritChance)
         {
             earnedPoints *= critMultiplier;
             isCrit = true;
@@ -131,11 +135,31 @@ public class ClickerManager : MonoBehaviour
     public void DoPrestige()
     {
         double crystalsToAdd = CalculatePotentialCrystals();
-        if (crystalsToAdd <= 0) return; // Защита от случайного нажатия
+        if (crystalsToAdd <= 0) return;
 
         totalCrystals += crystalsToAdd;
 
-        // СБРОС ПРОГРЕССА
+        // --- ВИЗУАЛЬНЫЙ ЭФФЕКТ ---
+        if (audioSource != null && buySound != null) // Используем звук покупки (или можешь добавить отдельный prestigeSound)
+        {
+            audioSource.pitch = 0.8f; // Немного понижаем тон для эпичности
+            audioSource.PlayOneShot(buySound);
+        }
+
+        if (floatingTextPrefab != null && canvasTransform != null)
+        {
+            GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
+            TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
+            textComponent.text = "ПРЕСТИЖ! +" + crystalsToAdd + " КРИСТАЛЛОВ";
+            textComponent.color = new Color(0.8f, 0.2f, 1f); // Фиолетовый цвет
+            textObj.transform.localScale = new Vector3(2.5f, 2.5f, 1f); // Делаем огромным
+            
+            // Ставим ровно по центру экрана
+            textObj.transform.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
+            textObj.transform.SetAsLastSibling();
+        }
+
+        // --- СБРОС ПРОГРЕССА ---
         score = 0;           
         clickPower = 1;      
         flatClickPower = 0;  
@@ -145,7 +169,9 @@ public class ClickerManager : MonoBehaviour
         autoUpgradeCost = 50;   
         managerCost = 500;      
 
-        PlayBuySound();
+        // --- УСЛОЖНЕНИЕ ---
+        prestigeThreshold *= 2.5; // Каждый следующий престиж требует в 2.5 раза больше очков
+
         saveManager.SaveGame();
         uiManager.UpdateUI();
     }
