@@ -11,20 +11,10 @@ public class UIManager : MonoBehaviour
     [Header("Главный экран - Тексты")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI incomeText;
-    public TextMeshProUGUI upgradeText;
-    public TextMeshProUGUI flatUpgradeText;
-    public TextMeshProUGUI autoText;
-    public TextMeshProUGUI managerText;
     public TextMeshProUGUI offlineText;
 
     [Header("Главный персонаж на экране (опционально)")]
     public Image mainCharacterImage;
-
-    [Header("Главный экран - Кнопки")]
-    public Button upgradeButtonComponent;
-    public Button flatUpgradeButtonComponent;
-    public Button autoButtonComponent;
-    public Button managerButtonComponent;
 
     [Header("Престиж UI")]
     public GameObject prestigePanel;
@@ -45,7 +35,6 @@ public class UIManager : MonoBehaviour
     public Image gachaResultImage;
     public GameObject galleryPanel;
     public GalleryManager galleryManager;
-    
 
     void OnEnable()
     {
@@ -71,24 +60,8 @@ public class UIManager : MonoBehaviour
             ? $" (x{clickerManager.FormatNumber(clickerManager.PrestigeMultiplier)})"
             : "";
 
-        double totalAutoMult = clickerManager.GetTotalAutoMultiplier();
-        double actualAutoGain = 1 * totalAutoMult;
-        double actualManagerGain = 10 * totalAutoMult;
-
         scoreText.text = "Счет: " + clickerManager.FormatNumber(clickerManager.score) + multiplierString;
         incomeText.text = "Доход: " + clickerManager.FormatNumber(clickerManager.GetTotalAutoIncomePerSecond()) + " / сек";
-
-        upgradeText.text = "Улучшение x2\nЦена: " + clickerManager.FormatNumber(clickerManager.upgradeCost);
-        upgradeButtonComponent.interactable = (clickerManager.score >= clickerManager.upgradeCost);
-
-        flatUpgradeText.text = "Клик +5\nЦена: " + clickerManager.FormatNumber(clickerManager.flatUpgradeCost);
-        flatUpgradeButtonComponent.interactable = (clickerManager.score >= clickerManager.flatUpgradeCost);
-
-        autoText.text = "Автокликер (+" + clickerManager.FormatNumber(actualAutoGain) + "/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.autoUpgradeCost);
-        autoButtonComponent.interactable = (clickerManager.score >= clickerManager.autoUpgradeCost);
-
-        managerText.text = "Менеджер (+" + clickerManager.FormatNumber(actualManagerGain) + "/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.managerCost);
-        managerButtonComponent.interactable = (clickerManager.score >= clickerManager.managerCost);
 
         if (prestigeInfoText != null)
         {
@@ -114,7 +87,6 @@ public class UIManager : MonoBehaviour
 
     public void UpdateSkillUI()
     {
-        // Сюда подключим обновление динамического списка навыков на следующем шаге
     }
 
     public void ShowOfflinePanel(double earned, int hours, int minutes)
@@ -128,6 +100,7 @@ public class UIManager : MonoBehaviour
     public void ConfirmPrestige() { clickerManager.DoPrestige(); ClosePrestigePanel(); }
     public void OpenSkillPanel() { skillTreePanel.SetActive(true); UpdateSkillUI(); }
     public void CloseSkillPanel() { skillTreePanel.SetActive(false); }
+
     public void OpenGachaPanel()
     {
         gachaPanel.SetActive(true);
@@ -145,6 +118,7 @@ public class UIManager : MonoBehaviour
         }
         UpdateGachaCrystalsUI();
     }
+
     public void CloseGachaPanel() => gachaPanel.SetActive(false);
 
     private void ShowGachaResult(string name, Sprite sprite, Color color)

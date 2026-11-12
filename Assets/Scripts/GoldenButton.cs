@@ -23,9 +23,13 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         if (isClicked || clickerManager == null) return;
         isClicked = true;
 
-        // Теперь учитываем ВСЕ множители автодохода (престиж + навыки + персонажи)
+        // Теперь учитываем ВСЕ множители автодохода и актуальную силу клика из магазина
         double totalAutoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
-        double reward = (totalAutoPerSec * 60.0) + (clickerManager.clickPower * 50.0);
+        double currentClickPower = clickerManager.shopManager != null
+            ? (clickerManager.baseClickPower + clickerManager.shopManager.TotalFlatClick) * clickerManager.shopManager.TotalClickMultiplier
+            : clickerManager.baseClickPower;
+
+        double reward = (totalAutoPerSec * 60.0) + (currentClickPower * 50.0);
         if (reward < 100) reward = 100;
 
         clickerManager.score += reward;

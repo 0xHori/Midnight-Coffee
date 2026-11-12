@@ -6,6 +6,7 @@ using System.Globalization;
 public class SaveManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
+    public ShopManager shopManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
 
@@ -25,15 +26,11 @@ public class SaveManager : MonoBehaviour
         GameData data = new GameData();
 
         data.score = clickerManager.score;
-        data.clickPower = clickerManager.clickPower;
-        data.flatClickPower = clickerManager.flatClickPower;
-        data.upgradeCost = clickerManager.upgradeCost;
-        data.flatUpgradeCost = clickerManager.flatUpgradeCost;
-        data.autoIncome = clickerManager.autoIncome;
-        data.autoUpgradeCost = clickerManager.autoUpgradeCost;
-        data.managerCost = clickerManager.managerCost;
         data.totalCrystals = clickerManager.totalCrystals;
         data.prestigeThreshold = clickerManager.prestigeThreshold;
+
+        if (shopManager != null)
+            data.purchasedUpgrades = shopManager.ExportSaveData();
 
         if (skillTreeManager != null)
             data.unlockedSkills = skillTreeManager.ExportSaveData();
@@ -72,15 +69,11 @@ public class SaveManager : MonoBehaviour
             GameData data = JsonUtility.FromJson<GameData>(json);
 
             clickerManager.score = data.score;
-            clickerManager.clickPower = data.clickPower;
-            clickerManager.flatClickPower = data.flatClickPower;
-            clickerManager.upgradeCost = data.upgradeCost;
-            clickerManager.flatUpgradeCost = data.flatUpgradeCost;
-            clickerManager.autoIncome = data.autoIncome;
-            clickerManager.autoUpgradeCost = data.autoUpgradeCost;
-            clickerManager.managerCost = data.managerCost;
             clickerManager.totalCrystals = data.totalCrystals;
             clickerManager.prestigeThreshold = data.prestigeThreshold;
+
+            if (shopManager != null)
+                shopManager.ImportSaveData(data.purchasedUpgrades);
 
             if (skillTreeManager != null)
                 skillTreeManager.ImportSaveData(data.unlockedSkills);
@@ -98,7 +91,8 @@ public class SaveManager : MonoBehaviour
 
     private void CalculateOfflineIncome(string lastExitTimeStr)
     {
-        if (string.IsNullOrEmpty(lastExitTimeStr) || clickerManager.autoIncome <= 0) return;
+        double autoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
+        if (string.IsNullOrEmpty(lastExitTimeStr) || autoPerSec <= 0) return;
 
         if (DateTime.TryParse(lastExitTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime lastTime))
         {
@@ -110,8 +104,7 @@ public class SaveManager : MonoBehaviour
 
             if (secondsAway > 60)
             {
-                // Теперь учитываем все актуальные множители!
-                double earned = secondsAway * clickerManager.GetTotalAutoIncomePerSecond();
+                double earned = secondsAway * autoPerSec;
                 clickerManager.score += earned;
 
                 int hours = (int)(secondsAway / 3600);

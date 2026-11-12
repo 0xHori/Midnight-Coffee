@@ -21,19 +21,11 @@ public class GameData
     public double totalCrystals;
     public double prestigeThreshold = 10000;
 
-    // Базовые апгрейды (пока оставляем твои, на Шаге 2 тоже переведем на SO)
-    public double clickPower = 1;
-    public double flatClickPower = 0;
-    public double autoIncome = 0;
-    public double upgradeCost = 10;
-    public double flatUpgradeCost = 100;
-    public double autoUpgradeCost = 50;
-    public double managerCost = 500;
-
-    // Масштабируемые списки для RPG-навыков и Гачи
+    // Масштабируемые списки для Магазина, RPG-навыков и Гачи
+    public List<IdLevelPair> purchasedUpgrades = new List<IdLevelPair>();
     public List<IdLevelPair> unlockedSkills = new List<IdLevelPair>();
     public List<IdLevelPair> ownedCharacters = new List<IdLevelPair>();
-    public string equippedCharacterId; // ID персонажа, который сейчас стоит на главном экране
+    public string equippedCharacterId;
 
     // Время выхода
     public string lastExitTime;

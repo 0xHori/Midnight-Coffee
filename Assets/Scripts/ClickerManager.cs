@@ -1,10 +1,10 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
     [Header("Менеджеры")]
+    public ShopManager shopManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
     public SaveManager saveManager;
@@ -17,17 +17,9 @@ public class ClickerManager : MonoBehaviour
 
     [Header("Данные игрока")]
     public double score = 0;
-    public double clickPower = 1;
-    public double flatClickPower = 0;
+    public double baseClickPower = 1;
     public double critChance = 0.1;
     public double critMultiplier = 10;
-    public double autoIncome = 0;
-
-    [Header("Цены улучшений")]
-    public double upgradeCost = 10;
-    public double flatUpgradeCost = 100;
-    public double autoUpgradeCost = 50;
-    public double managerCost = 500;
 
     [Header("Престиж")]
     public double totalCrystals = 0;
@@ -43,7 +35,7 @@ public class ClickerManager : MonoBehaviour
         GameEvents.UpdateUI();
 
         InvokeRepeating(nameof(AutoIncome), 1f, 1f);
-        InvokeRepeating(nameof(AutoSave), 20f, 20f); // Автосейв раз в 20 сек вместо спама при кликах
+        InvokeRepeating(nameof(AutoSave), 20f, 20f);
     }
 
     void AutoSave()
@@ -51,15 +43,16 @@ public class ClickerManager : MonoBehaviour
         GameEvents.SaveGame();
     }
 
-    // Единый источник правды для автодохода (используется везде: в игре, UI и оффлайн-расчёте)
     public double GetTotalAutoIncomePerSecond()
     {
+        double baseAuto = shopManager != null ? shopManager.TotalBaseAutoIncome : 0;
+        if (baseAuto <= 0) return 0;
+
         double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
         double charMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.AutoMultiplier)) : 1.0;
-        return autoIncome * PrestigeMultiplier * skillMult * charMult;
+        return baseAuto * PrestigeMultiplier * skillMult * charMult;
     }
 
-    // Множитель для отображения дохода одного юнита (Автокликера или Менеджера) в магазине
     public double GetTotalAutoMultiplier()
     {
         double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
@@ -69,23 +62,25 @@ public class ClickerManager : MonoBehaviour
 
     void AutoIncome()
     {
-        if (autoIncome > 0)
+        double income = GetTotalAutoIncomePerSecond();
+        if (income > 0)
         {
-            score += GetTotalAutoIncomePerSecond();
+            score += income;
             GameEvents.UpdateUI();
         }
     }
 
     public void AddScore()
     {
+        double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
+        double shopMult = shopManager != null ? shopManager.TotalClickMultiplier : 1.0;
         double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
         double charClickMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
 
-        double baseClick = (clickPower + flatClickPower) * skillClickMult * charClickMult;
+        double baseClick = (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult;
         double earnedPoints = baseClick * PrestigeMultiplier;
         bool isCrit = false;
 
-        // Суммируем шанс крита из навыков и персонажей
         double totalCritChance = (skillTreeManager != null ? skillTreeManager.CritChance : critChance)
                                + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritChance) : 0.0);
 
@@ -136,58 +131,6 @@ public class ClickerManager : MonoBehaviour
         GameEvents.UpdateUI();
     }
 
-    public void BuyUpgrade() // x2
-    {
-        if (score >= upgradeCost)
-        {
-            score -= upgradeCost;
-            clickPower *= 2;
-            upgradeCost *= 2.5;
-            PlayBuySound();
-            GameEvents.UpdateUI();
-            GameEvents.SaveGame();
-        }
-    }
-
-    public void BuyFlatUpgrade() // +5
-    {
-        if (score >= flatUpgradeCost)
-        {
-            score -= flatUpgradeCost;
-            flatClickPower += 5;
-            flatUpgradeCost *= 3;
-            PlayBuySound();
-            GameEvents.UpdateUI();
-            GameEvents.SaveGame();
-        }
-    }
-
-    public void BuyAutoClicker() // +1/сек
-    {
-        if (score >= autoUpgradeCost)
-        {
-            score -= autoUpgradeCost;
-            autoIncome += 1;
-            autoUpgradeCost *= 2.5;
-            PlayBuySound();
-            GameEvents.UpdateUI();
-            GameEvents.SaveGame();
-        }
-    }
-
-    public void BuyManager() // +10/сек
-    {
-        if (score >= managerCost)
-        {
-            score -= managerCost;
-            autoIncome += 10;
-            managerCost *= 4;
-            PlayBuySound();
-            GameEvents.UpdateUI();
-            GameEvents.SaveGame();
-        }
-    }
-
     public double CalculatePotentialCrystals()
     {
         if (score < prestigeThreshold) return 0;
@@ -223,26 +166,13 @@ public class ClickerManager : MonoBehaviour
         }
 
         score = 0;
-        clickPower = 1;
-        flatClickPower = 0;
-        autoIncome = 0;
-        upgradeCost = 10;
-        flatUpgradeCost = 100;
-        autoUpgradeCost = 50;
-        managerCost = 500;
         prestigeThreshold *= 2.5;
+
+        if (shopManager != null)
+            shopManager.ResetOnPrestige();
 
         GameEvents.SaveGame();
         GameEvents.UpdateUI();
-    }
-
-    void PlayBuySound()
-    {
-        if (audioSource != null && buySound != null)
-        {
-            audioSource.pitch = 1f;
-            audioSource.PlayOneShot(buySound);
-        }
     }
 
     public string FormatNumber(double num)
@@ -259,7 +189,6 @@ public class ClickerManager : MonoBehaviour
             suffixIndex++;
         }
 
-        // Если число перевалило за самый большой суффикс (Dc), выводим в компактной научной нотации (например, 1.15e43)
         if (num >= 1000 && suffixIndex == suffixes.Length - 1)
         {
             return originalNum.ToString("0.00e0", System.Globalization.CultureInfo.InvariantCulture);
