@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f4c33eccdb9514b8c0dc712f9f8e8b, type: 3}
   m_Name: RareGirl
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterId: rare_girl
   characterName: "\u0420\u0435\u0434\u043A\u0430\u044F \u0434\u0435\u0432\u043E\u0447\u043A\u0430"
   portrait: {fileID: 3740525725533274880, guid: 3dc7020b81da4e11a8687d207873ddae, type: 3}
   rarity: 2
+  passiveStat: 1
+  basePassiveValue: 0.1
+  activeStat: 1
+  baseActiveValue: 0.35
+  abilityDescription: "\u0423\u0432\u0435\u043B\u0438\u0447\u0438\u0432\u0430\u0435\u0442 \u0430\u0432\u0442\u043E\u0434\u043E\u0445\u043E\u0434 \u043D\u0430 35% (\u041F\u0430\u0441\u0441\u0438\u0432\u043D\u043E: +10% \u043A \u0430\u0432\u0442\u043E\u0434\u043E\u0445\u043E\u0434\u0443)"

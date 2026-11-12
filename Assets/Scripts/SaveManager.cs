@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
@@ -9,13 +8,12 @@ public class SaveManager : MonoBehaviour
     public ClickerManager clickerManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
-    
+
     private double maxOfflineHours = 8;
     private string saveFilePath;
 
     void Awake()
     {
-        // Путь к файлу сохранения. В Windows это AppData, на Android/iOS - внутренняя память приложения.
         saveFilePath = Application.persistentDataPath + "/MyClickerSave.json";
     }
 
@@ -26,7 +24,6 @@ public class SaveManager : MonoBehaviour
     {
         GameData data = new GameData();
 
-        // 1. Собираем данные из менеджеров
         data.score = clickerManager.score;
         data.clickPower = clickerManager.clickPower;
         data.flatClickPower = clickerManager.flatClickPower;
@@ -38,26 +35,22 @@ public class SaveManager : MonoBehaviour
         data.totalCrystals = clickerManager.totalCrystals;
         data.prestigeThreshold = clickerManager.prestigeThreshold;
 
-        data.clickBoostLvl = skillTreeManager.clickBoostLvl;
-        data.autoBoostLvl = skillTreeManager.autoBoostLvl;
-        data.critBoostLvl = skillTreeManager.critBoostLvl;
+        if (skillTreeManager != null)
+            data.unlockedSkills = skillTreeManager.ExportSaveData();
 
         if (gachaManager != null)
         {
-            data.ownedCharacterNames = new List<string>(gachaManager.ownedCharacterNames);
+            data.ownedCharacters = gachaManager.ExportSaveData();
+            data.equippedCharacterId = gachaManager.equippedCharacterId;
         }
 
-        // 2. Записываем время сохранения (в формате UTC)
         data.lastExitTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 
-        // 3. Конвертируем в красивый JSON
-        string json = JsonUtility.ToJson(data, true); // true = форматирование с отступами (удобно читать)
+        string json = JsonUtility.ToJson(data, true);
 
-        // 4. Сохраняем в файл
         try
         {
             File.WriteAllText(saveFilePath, json);
-            Debug.Log("Игра сохранена в: " + saveFilePath);
         }
         catch (Exception e)
         {
@@ -70,18 +63,14 @@ public class SaveManager : MonoBehaviour
         if (!File.Exists(saveFilePath))
         {
             Debug.Log("Файл сохранения не найден. Начинаем новую игру.");
-            return; // Выходим, оставляя дефолтные значения из инспектора
+            return;
         }
 
         try
         {
-            // 1. Читаем файл
             string json = File.ReadAllText(saveFilePath);
-            
-            // 2. Конвертируем обратно в класс
             GameData data = JsonUtility.FromJson<GameData>(json);
 
-            // 3. Раздаем данные обратно менеджерам
             clickerManager.score = data.score;
             clickerManager.clickPower = data.clickPower;
             clickerManager.flatClickPower = data.flatClickPower;
@@ -93,16 +82,12 @@ public class SaveManager : MonoBehaviour
             clickerManager.totalCrystals = data.totalCrystals;
             clickerManager.prestigeThreshold = data.prestigeThreshold;
 
-            skillTreeManager.clickBoostLvl = data.clickBoostLvl;
-            skillTreeManager.autoBoostLvl = data.autoBoostLvl;
-            skillTreeManager.critBoostLvl = data.critBoostLvl;
+            if (skillTreeManager != null)
+                skillTreeManager.ImportSaveData(data.unlockedSkills);
 
-            if (gachaManager != null && data.ownedCharacterNames != null)
-            {
-                gachaManager.ownedCharacterNames = new List<string>(data.ownedCharacterNames);
-            }
+            if (gachaManager != null)
+                gachaManager.ImportSaveData(data.ownedCharacters, data.equippedCharacterId);
 
-            // 4. Считаем офлайн-доход используя время из файла
             CalculateOfflineIncome(data.lastExitTime);
         }
         catch (Exception e)
@@ -123,32 +108,24 @@ public class SaveManager : MonoBehaviour
 
             if (secondsAway > maxSeconds) secondsAway = maxSeconds;
 
-            if (secondsAway > 60) // Если прошло больше минуты
+            if (secondsAway > 60)
             {
-                double earned = secondsAway * clickerManager.autoIncome * clickerManager.PrestigeMultiplier;
+                // Теперь учитываем все актуальные множители!
+                double earned = secondsAway * clickerManager.GetTotalAutoIncomePerSecond();
                 clickerManager.score += earned;
-                
+
                 int hours = (int)(secondsAway / 3600);
                 int minutes = (int)((secondsAway % 3600) / 60);
-                
+
                 GameEvents.ShowOfflinePanel(earned, hours, minutes);
             }
         }
     }
 
-    // --- Убираем PlayerPrefs для игровых данных, но оставляем для времени выхода ---
-    // При сворачивании игры мы не хотим писать весь JSON (это может занять время), 
-    // достаточно быстро сохранить текущее время.
-    void OnApplicationQuit() 
-    { 
-        SaveGame(); // На всякий случай сохраняем всё перед выходом
-    }
-    
-    void OnApplicationPause(bool pauseStatus) 
-    { 
-        if (pauseStatus) 
-        { 
-            SaveGame(); // Сохраняем игру при сворачивании на телефоне
-        } 
+    void OnApplicationQuit() => SaveGame();
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus) SaveGame();
     }
 }

@@ -1,58 +1,90 @@
+using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class SkillTreeManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
 
-    [Header("Навыки (Уровни 0 или 1)")]
-    public int clickBoostLvl = 0;
-    public int autoBoostLvl = 0;
-    public int critBoostLvl = 0;
+    [Header("Все навыки в игре (перетащи сюда SO)")]
+    public List<SkillData> allSkills = new List<SkillData>();
 
-    [Header("Цены (в кристаллах)")]
-    public int clickBoostCost = 5;
-    public int autoBoostCost = 10;
-    public int critBoostCost = 15;
+    // Словарь для быстрого доступа в рантайме: skillId -> текущий уровень
+    private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
 
-    // Геттеры для множителей (если уровень куплен, возвращаем 1.5, иначе 1.0)
-    public double ClickMultiplier => clickBoostLvl > 0 ? 1.5 : 1.0;
-    public double AutoMultiplier => autoBoostLvl > 0 ? 1.5 : 1.0;
-    public double CritChance => critBoostLvl > 0 ? 0.25 : 0.10; // 25% вместо 10%
-
-    public void BuyClickBoost()
+    public int GetSkillLevel(string skillId)
     {
-        if (clickerManager.totalCrystals >= clickBoostCost && clickBoostLvl == 0)
-        {
-            clickerManager.totalCrystals -= clickBoostCost;
-            clickBoostLvl = 1;
-            GameEvents.SaveGame();      // <-- Ивент вместо прямого вызова
-            GameEvents.UpdateUI();      // <-- Ивент
-            GameEvents.UpdateSkillUI(); // <-- Ивент
-        }
+        return skillLevels.TryGetValue(skillId, out int lvl) ? lvl : 0;
     }
 
-    public void BuyAutoBoost()
+    public bool IsSkillUnlocked(SkillData skill)
     {
-        if (clickerManager.totalCrystals >= autoBoostCost && autoBoostLvl == 0)
-        {
-            clickerManager.totalCrystals -= autoBoostCost;
-            autoBoostLvl = 1;
-            GameEvents.SaveGame();
-            GameEvents.UpdateUI();
-            GameEvents.UpdateSkillUI();
-        }
+        if (skill.requiredSkill == null) return true;
+        return GetSkillLevel(skill.requiredSkill.skillId) >= skill.requiredSkillLevel;
     }
 
-    public void BuyCritBoost()
+    public bool CanUpgradeSkill(SkillData skill)
     {
-        if (clickerManager.totalCrystals >= critBoostCost && critBoostLvl == 0)
+        if (!IsSkillUnlocked(skill)) return false;
+        int currentLvl = GetSkillLevel(skill.skillId);
+        if (currentLvl >= skill.maxLevel) return false;
+        return clickerManager.totalCrystals >= skill.GetCost(currentLvl);
+    }
+
+    public void UpgradeSkill(SkillData skill)
+    {
+        if (!CanUpgradeSkill(skill)) return;
+
+        int currentLvl = GetSkillLevel(skill.skillId);
+        double cost = skill.GetCost(currentLvl);
+
+        clickerManager.totalCrystals -= cost;
+        skillLevels[skill.skillId] = currentLvl + 1;
+
+        GameEvents.SaveGame();
+        GameEvents.UpdateUI();
+        GameEvents.UpdateSkillUI();
+    }
+
+    // Универсальный подсчет бонуса от всех прокачанных навыков по типу стата
+    public double GetTotalStatBonus(StatType type)
+    {
+        double total = 0;
+        foreach (var skill in allSkills)
         {
-            clickerManager.totalCrystals -= critBoostCost;
-            critBoostLvl = 1;
-            GameEvents.SaveGame();
-            GameEvents.UpdateUI();
-            GameEvents.UpdateSkillUI();
+            if (skill != null && skill.statType == type)
+            {
+                int lvl = GetSkillLevel(skill.skillId);
+                if (lvl > 0) total += skill.GetBonus(lvl);
+            }
+        }
+        return total;
+    }
+
+    // Удобные геттеры для совместимости
+    public double ClickMultiplier => 1.0 + GetTotalStatBonus(StatType.ClickMultiplier);
+    public double AutoMultiplier => 1.0 + GetTotalStatBonus(StatType.AutoMultiplier);
+    public double CritChance => 0.10 + GetTotalStatBonus(StatType.CritChance);
+    public double CritDamageBonus => GetTotalStatBonus(StatType.CritDamage);
+    public double PrestigeBonusMultiplier => 1.0 + GetTotalStatBonus(StatType.PrestigeBonus);
+
+    // Методы для SaveManager
+    public List<IdLevelPair> ExportSaveData()
+    {
+        List<IdLevelPair> list = new List<IdLevelPair>();
+        foreach (var kvp in skillLevels)
+        {
+            list.Add(new IdLevelPair(kvp.Key, kvp.Value));
+        }
+        return list;
+    }
+
+    public void ImportSaveData(List<IdLevelPair> savedList)
+    {
+        skillLevels.Clear();
+        if (savedList == null) return;
+        foreach (var pair in savedList)
+        {
+            skillLevels[pair.id] = pair.level;
         }
     }
 }

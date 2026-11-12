@@ -1,28 +1,36 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using TMPro;
 
-public class GoldenButton : MonoBehaviour
+public class GoldenButton : MonoBehaviour, IPointerDownHandler
 {
     public ClickerManager clickerManager;
-    public float lifeTime = 3f; 
+    public float lifeTime = 6f; // 6 секунд вместо 3, чтобы успеть нажать на телефоне
     private bool isClicked = false;
 
     void Start()
     {
-        // Уничтожаем через 3 секунды
-        Destroy(gameObject, lifeTime); 
+        Destroy(gameObject, lifeTime);
+    }
+
+    // Срабатывает мгновенно при касании экрана пальцем, а не при отпускании
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        OnClick();
     }
 
     public void OnClick()
     {
-        if (isClicked) return;
+        if (isClicked || clickerManager == null) return;
         isClicked = true;
 
-        double reward = (clickerManager.autoIncome * clickerManager.PrestigeMultiplier * 60) + (clickerManager.clickPower * 50);
-        if (reward < 100) reward = 100; 
+        // Теперь учитываем ВСЕ множители автодохода (престиж + навыки + персонажи)
+        double totalAutoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
+        double reward = (totalAutoPerSec * 60.0) + (clickerManager.clickPower * 50.0);
+        if (reward < 100) reward = 100;
 
         clickerManager.score += reward;
-        
+
         if (clickerManager.floatingTextPrefab != null && clickerManager.canvasTransform != null)
         {
             GameObject textObj = Instantiate(clickerManager.floatingTextPrefab, clickerManager.canvasTransform);
@@ -30,15 +38,14 @@ public class GoldenButton : MonoBehaviour
             textComponent.text = "БОНУС! +" + clickerManager.FormatNumber(reward);
             textComponent.color = Color.yellow;
             textObj.transform.localScale = new Vector3(2f, 2f, 1f);
-            
+
             textObj.transform.position = transform.position;
             textObj.transform.SetAsLastSibling();
         }
 
-        // ИСПОЛЬЗУЕМ СОБЫТИЯ ВМЕСТО ПРЯМЫХ ВЫЗОВОВ
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
 
-        Destroy(gameObject); 
+        Destroy(gameObject);
     }
 }

@@ -4,13 +4,31 @@ using UnityEngine;
 public class GachaManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
-    
+
     [Header("Пул персонажей")]
-    public List<CharacterData> allCharacters; 
-    public List<string> ownedCharacterNames = new List<string>();
+    public List<CharacterData> allCharacters = new List<CharacterData>();
 
     [Header("Настройки")]
-    public int rollCost = 10; // 10 кристаллов
+    public int rollCost = 10;
+
+    // characterId -> уровень (1 = выбит 1 раз, 2 = один дубликат и т.д.)
+    private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
+    public string equippedCharacterId;
+
+    public int GetCharacterLevel(string charId)
+    {
+        return characterLevels.TryGetValue(charId, out int lvl) ? lvl : 0;
+    }
+
+    public void EquipCharacter(string charId)
+    {
+        if (GetCharacterLevel(charId) > 0)
+        {
+            equippedCharacterId = charId;
+            GameEvents.UpdateUI();
+            GameEvents.SaveGame();
+        }
+    }
 
     public void RollGacha()
     {
@@ -20,36 +38,85 @@ public class GachaManager : MonoBehaviour
             return;
         }
 
-        // Тратим кристаллы
+        if (allCharacters == null || allCharacters.Count == 0) return;
+
         clickerManager.totalCrystals -= rollCost;
 
-        // 1. Ролл редкости (70% - 1, 25% - 2, 5% - 3)
         float roll = Random.Range(0f, 100f);
         int targetRarity = 1;
         if (roll > 70f && roll <= 95f) targetRarity = 2;
         else if (roll > 95f) targetRarity = 3;
 
-        // 2. Фильтруем пул по редкости
         List<CharacterData> pool = allCharacters.FindAll(c => c.rarity == targetRarity);
-        if (pool.Count == 0) pool = allCharacters; // Защита от краша
+        if (pool.Count == 0) pool = allCharacters;
 
-        // 3. Выбираем случайного
         CharacterData result = pool[Random.Range(0, pool.Count)];
-        
-        // 4. Сохраняем в коллекцию (если такого еще нет)
-        if (!ownedCharacterNames.Contains(result.characterName))
+
+        // Прокачка уровня при дубликате
+        int currentLvl = GetCharacterLevel(result.characterId);
+        int newLvl = currentLvl + 1;
+        characterLevels[result.characterId] = newLvl;
+
+        // Если это первый выбитый персонаж — ставим его главным автоматически
+        if (string.IsNullOrEmpty(equippedCharacterId))
         {
-            ownedCharacterNames.Add(result.characterName);
+            equippedCharacterId = result.characterId;
         }
 
-        // 5. Определяем цвет текста для UI
         Color textColor = Color.white;
-        if (targetRarity == 2) textColor = new Color(0.2f, 0.6f, 1f); // Синий
-        if (targetRarity == 3) textColor = new Color(1f, 0.8f, 0f);   // Золотой
+        if (targetRarity == 2) textColor = new Color(0.2f, 0.6f, 1f);
+        if (targetRarity == 3) textColor = new Color(1f, 0.8f, 0f);
 
-        // 6. Триггерим события
-        GameEvents.ShowGachaResult(result.characterName, result.portrait, textColor);
+        string displayTitle = currentLvl > 0
+            ? $"{result.characterName} (Ур. {newLvl}!)"
+            : $"{result.characterName} (НОВЫЙ!)";
+
+        GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
+    }
+
+    // Считаем суммарный бонус от всей коллекции + активного персонажа
+    public double GetTotalCharacterBonus(StatType type)
+    {
+        double total = 0;
+        foreach (var ch in allCharacters)
+        {
+            if (ch == null) continue;
+            int lvl = GetCharacterLevel(ch.characterId);
+            if (lvl <= 0) continue;
+
+            // Пассивный бонус работает у всех открытых
+            if (ch.passiveStat == type)
+                total += ch.GetPassiveBonus(lvl);
+
+            // Активный бонус работает только у выбранного главным
+            if (ch.characterId == equippedCharacterId && ch.activeStat == type)
+                total += ch.GetActiveBonus(lvl);
+        }
+        return total;
+    }
+
+    public List<IdLevelPair> ExportSaveData()
+    {
+        List<IdLevelPair> list = new List<IdLevelPair>();
+        foreach (var kvp in characterLevels)
+        {
+            list.Add(new IdLevelPair(kvp.Key, kvp.Value));
+        }
+        return list;
+    }
+
+    public void ImportSaveData(List<IdLevelPair> savedList, string equippedId)
+    {
+        characterLevels.Clear();
+        if (savedList != null)
+        {
+            foreach (var pair in savedList)
+            {
+                characterLevels[pair.id] = pair.level;
+            }
+        }
+        equippedCharacterId = equippedId;
     }
 }

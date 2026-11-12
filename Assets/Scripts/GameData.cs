@@ -1,28 +1,40 @@
 using System.Collections.Generic;
 
 [System.Serializable]
+public class IdLevelPair
+{
+    public string id;
+    public int level;
+
+    public IdLevelPair(string id, int level)
+    {
+        this.id = id;
+        this.level = level;
+    }
+}
+
+[System.Serializable]
 public class GameData
 {
-    // Данные ClickerManager
+    // Основные ресурсы
     public double score;
-    public double clickPower;
-    public double flatClickPower;
-    public double autoIncome;
-    public double upgradeCost;
-    public double flatUpgradeCost;
-    public double autoUpgradeCost;
-    public double managerCost;
     public double totalCrystals;
-    public double prestigeThreshold;
+    public double prestigeThreshold = 10000;
 
-    // Данные SkillTreeManager
-    public int clickBoostLvl;
-    public int autoBoostLvl;
-    public int critBoostLvl;
+    // Базовые апгрейды (пока оставляем твои, на Шаге 2 тоже переведем на SO)
+    public double clickPower = 1;
+    public double flatClickPower = 0;
+    public double autoIncome = 0;
+    public double upgradeCost = 10;
+    public double flatUpgradeCost = 100;
+    public double autoUpgradeCost = 50;
+    public double managerCost = 500;
 
-    // Данные GachaManager
-    public List<string> ownedCharacterNames = new List<string>();
+    // Масштабируемые списки для RPG-навыков и Гачи
+    public List<IdLevelPair> unlockedSkills = new List<IdLevelPair>();
+    public List<IdLevelPair> ownedCharacters = new List<IdLevelPair>();
+    public string equippedCharacterId; // ID персонажа, который сейчас стоит на главном экране
 
-    // Время выхода (для офлайн-дохода)
-    public string lastExitTime; 
+    // Время выхода
+    public string lastExitTime;
 }

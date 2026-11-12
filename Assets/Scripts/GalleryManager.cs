@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class GalleryManager : MonoBehaviour
@@ -9,43 +10,56 @@ public class GalleryManager : MonoBehaviour
 
     public void OpenGallery()
     {
-        RefreshGallery(); // Обновляем карточки при каждом открытии
+        RefreshGallery();
     }
 
     public void RefreshGallery()
     {
-        // Очищаем старые карточки (если они были)
+        if (gachaManager == null || cardPrefab == null || contentContainer == null) return;
+
         foreach (Transform child in contentContainer)
         {
             Destroy(child.gameObject);
         }
 
-        // Проходимся по ВСЕМ персонажам в игре
         foreach (CharacterData character in gachaManager.allCharacters)
         {
+            if (character == null) continue;
+
             GameObject newCard = Instantiate(cardPrefab, contentContainer);
-            
-            // Настраиваем имя
+
             TextMeshProUGUI nameText = newCard.transform.Find("NameText").GetComponent<TextMeshProUGUI>();
-            nameText.text = character.characterName;
-
-            // Настраиваем картинку
-            UnityEngine.UI.Image portraitImage = newCard.transform.Find("Portrait").GetComponent<UnityEngine.UI.Image>();
+            Image portraitImage = newCard.transform.Find("Portrait").GetComponent<Image>();
             portraitImage.sprite = character.portrait;
+            portraitImage.preserveAspect = true; // Чтобы карточки в галерее тоже не плющило
 
-            // Проверяем: выбит ли этот персонаж?
-            bool isOwned = gachaManager.ownedCharacterNames.Contains(character.characterName);
+            int level = gachaManager.GetCharacterLevel(character.characterId);
+            bool isOwned = level > 0;
 
             if (!isOwned)
             {
-                // Если не выбит — делаем силуэт (черный цвет)
                 portraitImage.color = new Color(0, 0, 0, 1f);
                 nameText.text = "???";
             }
             else
             {
-                // Если выбит — показываем в цвете
                 portraitImage.color = Color.white;
+                bool isEquipped = (gachaManager.equippedCharacterId == character.characterId);
+                nameText.text = isEquipped
+                    ? $"<color=#FFD700>[АКТИВНА]</color>\n{character.characterName} [Ур.{level}]"
+                    : $"{character.characterName} [Ур.{level}]";
+
+                Button cardBtn = newCard.GetComponent<Button>();
+                if (cardBtn != null)
+                {
+                    string idCopy = character.characterId;
+                    cardBtn.onClick.RemoveAllListeners();
+                    cardBtn.onClick.AddListener(() =>
+                    {
+                        gachaManager.EquipCharacter(idCopy);
+                        RefreshGallery();
+                    });
+                }
             }
         }
     }
