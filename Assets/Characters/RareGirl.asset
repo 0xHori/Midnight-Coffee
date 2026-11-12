@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: RareGirl
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: "\u0420\u0435\u0434\u043A\u0430\u044F \u0434\u0435\u0432\u043E\u0447\u043A\u0430"
-  portrait: {fileID: 0}
+  portrait: {fileID: 3740525725533274880, guid: 3dc7020b81da4e11a8687d207873ddae, type: 3}
   rarity: 2

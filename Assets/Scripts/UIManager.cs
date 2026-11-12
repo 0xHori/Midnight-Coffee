@@ -45,6 +45,9 @@ public class UIManager : MonoBehaviour
     public void OpenGachaPanel() => gachaPanel.SetActive(true);
     public void CloseGachaPanel() => gachaPanel.SetActive(false);
 
+    public GameObject galleryPanel;
+    public GalleryManager galleryManager;
+
     // --- ПОДПИСКА НА СОБЫТИЯ ---
     void OnEnable()
     {
@@ -154,4 +157,11 @@ public class UIManager : MonoBehaviour
             gachaResultImage.gameObject.SetActive(false);
         }
     }
+
+    public void OpenGalleryPanel() 
+    { 
+        galleryPanel.SetActive(true); 
+        galleryManager.OpenGallery(); 
+    }
+    public void CloseGalleryPanel() { galleryPanel.SetActive(false); }
 }
