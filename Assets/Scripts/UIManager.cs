@@ -41,9 +41,11 @@ public class UIManager : MonoBehaviour
     [Header("Гача и Галерея")]
     public GameObject gachaPanel;
     public TextMeshProUGUI gachaResultText;
+    public TextMeshProUGUI gachaCrystalsText;
     public Image gachaResultImage;
     public GameObject galleryPanel;
     public GalleryManager galleryManager;
+    
 
     void OnEnable()
     {
@@ -141,6 +143,7 @@ public class UIManager : MonoBehaviour
         {
             gachaResultImage.gameObject.SetActive(false);
         }
+        UpdateGachaCrystalsUI();
     }
     public void CloseGachaPanel() => gachaPanel.SetActive(false);
 
@@ -161,6 +164,7 @@ public class UIManager : MonoBehaviour
         {
             gachaResultImage.gameObject.SetActive(false);
         }
+        UpdateGachaCrystalsUI();
     }
 
     public void OpenGalleryPanel()
@@ -170,4 +174,12 @@ public class UIManager : MonoBehaviour
     }
 
     public void CloseGalleryPanel() => galleryPanel.SetActive(false);
+
+    public void UpdateGachaCrystalsUI()
+    {
+        if (gachaCrystalsText != null && clickerManager != null)
+        {
+            gachaCrystalsText.text = $"Кристаллы: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
+        }
+    }
 }

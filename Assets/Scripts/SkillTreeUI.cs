@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SkillTreeUI : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class SkillTreeUI : MonoBehaviour
     public Button clickTabButton;
     public Button autoTabButton;
     public Button luckTabButton;
+
+    [Header("Баланс валюты")]
+    public TextMeshProUGUI crystalsBalanceText;
 
     private SkillBranch currentBranch = SkillBranch.Click;
     private List<SkillNodeUI> spawnedNodes = new List<SkillNodeUI>();
@@ -72,6 +76,7 @@ public class SkillTreeUI : MonoBehaviour
         }
 
         UpdateTabVisuals();
+        UpdateCrystalsText();
     }
 
     public void RefreshCurrentTab()
@@ -79,6 +84,15 @@ public class SkillTreeUI : MonoBehaviour
         foreach (var node in spawnedNodes)
         {
             if (node != null) node.Refresh();
+        }
+        UpdateCrystalsText();
+    }
+
+    private void UpdateCrystalsText()
+    {
+        if (crystalsBalanceText != null && clickerManager != null)
+        {
+            crystalsBalanceText.text = $"Кристаллы: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
         }
     }
 
