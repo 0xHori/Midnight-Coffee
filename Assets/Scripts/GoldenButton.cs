@@ -9,7 +9,7 @@ public class GoldenButton : MonoBehaviour
 
     void Start()
     {
-        // Уничтожаем через 8 секунд
+        // Уничтожаем через 3 секунды
         Destroy(gameObject, lifeTime); 
     }
 
@@ -35,9 +35,10 @@ public class GoldenButton : MonoBehaviour
             textObj.transform.SetAsLastSibling();
         }
 
-        clickerManager.uiManager.UpdateUI();
-        clickerManager.saveManager.SaveGame();
+        // ИСПОЛЬЗУЕМ СОБЫТИЯ ВМЕСТО ПРЯМЫХ ВЫЗОВОВ
+        GameEvents.UpdateUI();
+        GameEvents.SaveGame();
 
-        Destroy(gameObject); // Уничтожаем при клике
+        Destroy(gameObject); 
     }
 }

@@ -4,7 +4,8 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
-
+    public SkillTreeManager skillTreeManager;
+    
     public GameObject skillTreePanel;
 
     [Header("Тексты")]
@@ -18,7 +19,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Престиж UI")]
     public GameObject prestigePanel;
-    public GameObject dimBackground; // Добавь в переменные
+    public GameObject dimBackground;
     public TextMeshProUGUI prestigeInfoText;
     public UnityEngine.UI.Button prestigeButtonComponent;
 
@@ -29,8 +30,6 @@ public class UIManager : MonoBehaviour
     public UnityEngine.UI.Button autoButtonComponent;
     public UnityEngine.UI.Button managerButtonComponent;     
 
-    public SkillTreeManager skillTreeManager;
-    
     [Header("Дерево Навыков")]
     public TextMeshProUGUI clickBoostText;
     public TextMeshProUGUI autoBoostText;
@@ -39,20 +38,39 @@ public class UIManager : MonoBehaviour
     public UnityEngine.UI.Button autoBoostBtn;
     public UnityEngine.UI.Button critBoostBtn;
 
+    public GameObject gachaPanel;
+    public TextMeshProUGUI gachaResultText;
+    public UnityEngine.UI.Image gachaResultImage;
+
+    public void OpenGachaPanel() => gachaPanel.SetActive(true);
+    public void CloseGachaPanel() => gachaPanel.SetActive(false);
+
+    // --- ПОДПИСКА НА СОБЫТИЯ ---
+    void OnEnable()
+    {
+        GameEvents.OnUpdateUI += UpdateUI;
+        GameEvents.OnUpdateSkillUI += UpdateSkillUI;
+        GameEvents.OnShowOfflinePanel += ShowOfflinePanel;
+        GameEvents.OnGachaResult += ShowGachaResult; // <--- ДОБАВИТЬ
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnUpdateUI -= UpdateUI;
+        GameEvents.OnUpdateSkillUI -= UpdateSkillUI;
+        GameEvents.OnShowOfflinePanel -= ShowOfflinePanel;
+        GameEvents.OnGachaResult -= ShowGachaResult; // <--- ДОБАВИТЬ
+    }
+
     public void UpdateUI()
     {
-        // Показываем множитель, если есть кристаллы
         string multiplierString = clickerManager.totalCrystals > 0 ? $" (x{clickerManager.PrestigeMultiplier.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)})" : "";
-        
-        // Берем множитель из Дерева Навыков (с защитой от пустого объекта)
         double autoMult = (skillTreeManager != null) ? skillTreeManager.AutoMultiplier : 1.0;
 
-        // Показываем реальный доход с учетом престижа И навыка
         double actualAutoGain = 1 * clickerManager.PrestigeMultiplier * autoMult;
         double actualManagerGain = 10 * clickerManager.PrestigeMultiplier * autoMult;
 
         scoreText.text = "Счет: " + clickerManager.FormatNumber(clickerManager.score) + multiplierString;
-        // Добавляем autoMult в общий доход
         incomeText.text = "Доход: " + clickerManager.FormatNumber(clickerManager.autoIncome * clickerManager.PrestigeMultiplier * autoMult) + " / сек";
         
         upgradeText.text = "Улучшение x2\nЦена: " + clickerManager.FormatNumber(clickerManager.upgradeCost);
@@ -67,7 +85,6 @@ public class UIManager : MonoBehaviour
         managerText.text = "Менеджер (+" + clickerManager.FormatNumber(actualManagerGain) + "/сек)\nЦена: " + clickerManager.FormatNumber(clickerManager.managerCost);
         managerButtonComponent.interactable = (clickerManager.score >= clickerManager.managerCost);
 
-        // Обновление текста престижа
         if (prestigeInfoText != null)
         {
             double potential = clickerManager.CalculatePotentialCrystals();
@@ -76,35 +93,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowOfflinePanel(double earned, int hours, int minutes)
-    {
-        offlinePanel.SetActive(true);
-        offlineText.text = $"Пока вас не было\n({hours}ч {minutes}м),\nвы заработали:\n{clickerManager.FormatNumber(earned)}";
-    }
-
-    // Методы для кнопок престижа
-    public void OpenPrestigePanel() 
-    { 
-        prestigePanel.SetActive(true); 
-        if (dimBackground != null) dimBackground.SetActive(true); // Включаем затемнение
-    }
-    public void ClosePrestigePanel() 
-    { 
-        prestigePanel.SetActive(false); 
-        if (dimBackground != null) dimBackground.SetActive(false); // Выключаем
-    }
-    
-    public void ConfirmPrestige() 
-    { 
-        clickerManager.DoPrestige(); 
-        ClosePrestigePanel(); 
-    }
-
     public void UpdateSkillUI()
     {
         if (skillTreeManager == null) return;
 
-        // Мощный палец
         if (skillTreeManager.clickBoostLvl > 0) {
             clickBoostText.text = "Мощный палец: Куплено";
             clickBoostBtn.interactable = false;
@@ -113,7 +105,6 @@ public class UIManager : MonoBehaviour
             clickBoostBtn.interactable = (clickerManager.totalCrystals >= skillTreeManager.clickBoostCost);
         }
 
-        // Бизнес-хватка
         if (skillTreeManager.autoBoostLvl > 0) {
             autoBoostText.text = "Бизнес-хватка: Куплено";
             autoBoostBtn.interactable = false;
@@ -122,7 +113,6 @@ public class UIManager : MonoBehaviour
             autoBoostBtn.interactable = (clickerManager.totalCrystals >= skillTreeManager.autoBoostCost);
         }
 
-        // Удача
         if (skillTreeManager.critBoostLvl > 0) {
             critBoostText.text = "Удача новичка: Куплено";
             critBoostBtn.interactable = false;
@@ -132,21 +122,36 @@ public class UIManager : MonoBehaviour
         }
     }
 
-        // Открытие и закрытие Дерева Навыков
-    public void OpenSkillPanel()
+    public void ShowOfflinePanel(double earned, int hours, int minutes)
     {
-        // Если используешь затемнение (DimBackground), включи его здесь:
-        // if (dimBackground != null) dimBackground.SetActive(true); 
-        
-        // Находим панель по имени или добавь переменную public GameObject skillTreePanel;
-        // Если добавил переменную вверху, используй её:
-        skillTreePanel.SetActive(true);
-        UpdateSkillUI(); // Обновляем кнопки при открытии
+        offlinePanel.SetActive(true);
+        offlineText.text = $"Пока вас не было\n({hours}ч {minutes}м),\nвы заработали:\n{clickerManager.FormatNumber(earned)}";
     }
 
-    public void CloseSkillPanel()
+    public void OpenPrestigePanel() { prestigePanel.SetActive(true); if (dimBackground != null) dimBackground.SetActive(true); }
+    public void ClosePrestigePanel() { prestigePanel.SetActive(false); if (dimBackground != null) dimBackground.SetActive(false); }
+    public void ConfirmPrestige() { clickerManager.DoPrestige(); ClosePrestigePanel(); }
+    public void OpenSkillPanel() { skillTreePanel.SetActive(true); UpdateSkillUI(); }
+    public void CloseSkillPanel() { skillTreePanel.SetActive(false); }
+
+    private void ShowGachaResult(string name, Sprite sprite, Color color)
     {
-        skillTreePanel.SetActive(false);
-        // if (dimBackground != null) dimBackground.SetActive(false);
+        // Включаем текст и картинку, если они были выключены
+        gachaResultText.gameObject.SetActive(true);
+        gachaResultImage.gameObject.SetActive(true);
+
+        gachaResultText.text = name;
+        gachaResultText.color = color;
+        
+        if (sprite != null)
+        {
+            gachaResultImage.sprite = sprite;
+            gachaResultImage.color = Color.white; // Чтобы картинка не была прозрачной
+        }
+        else 
+        {
+            // Если картинки нет, прячем саму картинку (белый квадрат)
+            gachaResultImage.gameObject.SetActive(false);
+        }
     }
 }

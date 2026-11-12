@@ -4,8 +4,9 @@ using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
-    public SkillTreeManager skillTreeManager; // НОВОЕ
-
+    public SkillTreeManager skillTreeManager;
+    public SaveManager saveManager; // Оставляем только для загрузки в Start()
+    
     [Header("Звуки")]
     public AudioSource audioSource;
     public AudioClip clickSound;
@@ -27,14 +28,10 @@ public class ClickerManager : MonoBehaviour
     public double managerCost = 500;      
 
     [Header("Престиж")]
-    public double totalCrystals = 0; // Всего кристаллов
-    public double prestigeThreshold = 10000; // Сколько нужно очков для перерождения (для теста сделай 1000)
-    
-    // Вычисляемый множитель (1 + (кристаллы * 0.1)) -> каждый кристалл дает +10%
+    public double totalCrystals = 0; 
+    public double prestigeThreshold = 10000; 
     public double PrestigeMultiplier => 1 + (totalCrystals * 0.1); 
 
-    public UIManager uiManager;
-    public SaveManager saveManager;
     public GameObject floatingTextPrefab; 
     public Transform canvasTransform;     
 
@@ -42,7 +39,7 @@ public class ClickerManager : MonoBehaviour
     {
         saveManager.LoadGame();
         saveManager.CalculateOfflineIncome(); 
-        uiManager.UpdateUI();
+        GameEvents.UpdateUI(); // Вызываем событие вместо uiManager
         InvokeRepeating("AutoIncome", 1f, 1f); 
     }
 
@@ -50,19 +47,17 @@ public class ClickerManager : MonoBehaviour
     {
         if (autoIncome > 0)
         {
-            score += autoIncome * PrestigeMultiplier * skillTreeManager.AutoMultiplier; // НОВОЕ
-            uiManager.UpdateUI();
+            score += autoIncome * PrestigeMultiplier * skillTreeManager.AutoMultiplier;
+            GameEvents.UpdateUI(); // Событие
         }
     }
 
     public void AddScore()
     {
-        // Учитываем бонус от Дерева Навыков
         double baseClick = (clickPower + flatClickPower) * skillTreeManager.ClickMultiplier; 
         double earnedPoints = baseClick * PrestigeMultiplier; 
         bool isCrit = false;
 
-        // Используем шанс крита из Дерева Навыков
         if (UnityEngine.Random.value <= skillTreeManager.CritChance)
         {
             earnedPoints *= critMultiplier;
@@ -98,40 +93,36 @@ public class ClickerManager : MonoBehaviour
             textObj.transform.SetAsLastSibling();
         }
 
-        uiManager.UpdateUI();
-        saveManager.SaveGame();
+        GameEvents.UpdateUI(); // Событие
+        GameEvents.SaveGame(); // Событие
     }
 
     public void BuyUpgrade() // x2
     {
-        if (score >= upgradeCost) { score -= upgradeCost; clickPower *= 2; upgradeCost *= 2.5; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
+        if (score >= upgradeCost) { score -= upgradeCost; clickPower *= 2; upgradeCost *= 2.5; PlayBuySound(); GameEvents.UpdateUI(); GameEvents.SaveGame(); }
     }
 
     public void BuyFlatUpgrade() // +5
     {
-        if (score >= flatUpgradeCost) { score -= flatUpgradeCost; flatClickPower += 5; flatUpgradeCost *= 3; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
+        if (score >= flatUpgradeCost) { score -= flatUpgradeCost; flatClickPower += 5; flatUpgradeCost *= 3; PlayBuySound(); GameEvents.UpdateUI(); GameEvents.SaveGame(); }
     }
 
     public void BuyAutoClicker() // +1/сек
     {
-        if (score >= autoUpgradeCost) { score -= autoUpgradeCost; autoIncome += 1; autoUpgradeCost *= 2.5; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
+        if (score >= autoUpgradeCost) { score -= autoUpgradeCost; autoIncome += 1; autoUpgradeCost *= 2.5; PlayBuySound(); GameEvents.UpdateUI(); GameEvents.SaveGame(); }
     }
 
     public void BuyManager() // +10/сек
     {
-        if (score >= managerCost) { score -= managerCost; autoIncome += 10; managerCost *= 4; PlayBuySound(); uiManager.UpdateUI(); saveManager.SaveGame(); }
+        if (score >= managerCost) { score -= managerCost; autoIncome += 10; managerCost *= 4; PlayBuySound(); GameEvents.UpdateUI(); GameEvents.SaveGame(); }
     }
 
-    // --- НОВЫЕ МЕТОДЫ ДЛЯ ПРЕСТИЖА ---
-
-    // Сколько кристаллов игрок получит прямо сейчас
     public double CalculatePotentialCrystals()
     {
         if (score < prestigeThreshold) return 0;
         return Mathf.Floor((float)(score / prestigeThreshold)); 
     }
 
-    // Само перерождение
     public void DoPrestige()
     {
         double crystalsToAdd = CalculatePotentialCrystals();
@@ -139,41 +130,25 @@ public class ClickerManager : MonoBehaviour
 
         totalCrystals += crystalsToAdd;
 
-        // --- ВИЗУАЛЬНЫЙ ЭФФЕКТ ---
-        if (audioSource != null && buySound != null) // Используем звук покупки (или можешь добавить отдельный prestigeSound)
-        {
-            audioSource.pitch = 0.8f; // Немного понижаем тон для эпичности
-            audioSource.PlayOneShot(buySound);
-        }
+        if (audioSource != null && buySound != null) { audioSource.pitch = 0.8f; audioSource.PlayOneShot(buySound); }
 
         if (floatingTextPrefab != null && canvasTransform != null)
         {
             GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
             TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
             textComponent.text = "ПРЕСТИЖ! +" + crystalsToAdd + " КРИСТАЛЛОВ";
-            textComponent.color = new Color(0.8f, 0.2f, 1f); // Фиолетовый цвет
-            textObj.transform.localScale = new Vector3(2.5f, 2.5f, 1f); // Делаем огромным
-            
-            // Ставим ровно по центру экрана
+            textComponent.color = new Color(0.8f, 0.2f, 1f); 
+            textObj.transform.localScale = new Vector3(2.5f, 2.5f, 1f); 
             textObj.transform.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
             textObj.transform.SetAsLastSibling();
         }
 
-        // --- СБРОС ПРОГРЕССА ---
-        score = 0;           
-        clickPower = 1;      
-        flatClickPower = 0;  
-        autoIncome = 0;        
-        upgradeCost = 10;       
-        flatUpgradeCost = 100;  
-        autoUpgradeCost = 50;   
-        managerCost = 500;      
+        score = 0; clickPower = 1; flatClickPower = 0; autoIncome = 0;        
+        upgradeCost = 10; flatUpgradeCost = 100; autoUpgradeCost = 50; managerCost = 500;      
+        prestigeThreshold *= 2.5; 
 
-        // --- УСЛОЖНЕНИЕ ---
-        prestigeThreshold *= 2.5; // Каждый следующий престиж требует в 2.5 раза больше очков
-
-        saveManager.SaveGame();
-        uiManager.UpdateUI();
+        GameEvents.SaveGame();
+        GameEvents.UpdateUI();
     }
 
     void PlayBuySound() {

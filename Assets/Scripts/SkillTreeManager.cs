@@ -4,7 +4,6 @@ using TMPro;
 public class SkillTreeManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
-    public UIManager uiManager;
 
     [Header("Навыки (Уровни 0 или 1)")]
     public int clickBoostLvl = 0;
@@ -27,9 +26,9 @@ public class SkillTreeManager : MonoBehaviour
         {
             clickerManager.totalCrystals -= clickBoostCost;
             clickBoostLvl = 1;
-            clickerManager.saveManager.SaveGame();
-            uiManager.UpdateUI();
-            uiManager.UpdateSkillUI();
+            GameEvents.SaveGame();      // <-- Ивент вместо прямого вызова
+            GameEvents.UpdateUI();      // <-- Ивент
+            GameEvents.UpdateSkillUI(); // <-- Ивент
         }
     }
 
@@ -39,9 +38,9 @@ public class SkillTreeManager : MonoBehaviour
         {
             clickerManager.totalCrystals -= autoBoostCost;
             autoBoostLvl = 1;
-            clickerManager.saveManager.SaveGame();
-            uiManager.UpdateUI();
-            uiManager.UpdateSkillUI();
+            GameEvents.SaveGame();
+            GameEvents.UpdateUI();
+            GameEvents.UpdateSkillUI();
         }
     }
 
@@ -51,9 +50,9 @@ public class SkillTreeManager : MonoBehaviour
         {
             clickerManager.totalCrystals -= critBoostCost;
             critBoostLvl = 1;
-            clickerManager.saveManager.SaveGame();
-            uiManager.UpdateUI();
-            uiManager.UpdateSkillUI();
+            GameEvents.SaveGame();
+            GameEvents.UpdateUI();
+            GameEvents.UpdateSkillUI();
         }
     }
 }
