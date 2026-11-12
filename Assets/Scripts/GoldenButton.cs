@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 
 public class GoldenButton : MonoBehaviour, IPointerDownHandler
 {
@@ -31,16 +30,14 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
 
         clickerManager.score += reward;
 
-        if (clickerManager.floatingTextPrefab != null && clickerManager.canvasTransform != null)
+        if (clickerManager.floatingTextPool != null)
         {
-            GameObject textObj = Instantiate(clickerManager.floatingTextPrefab, clickerManager.canvasTransform);
-            TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
-            textComponent.text = "БОНУС! +" + clickerManager.FormatNumber(reward);
-            textComponent.color = Color.yellow;
-            textObj.transform.localScale = new Vector3(2f, 2f, 1f);
-
-            textObj.transform.position = transform.position;
-            textObj.transform.SetAsLastSibling();
+            clickerManager.floatingTextPool.SpawnText(
+                "БОНУС! +" + clickerManager.FormatNumber(reward),
+                Color.yellow,
+                transform.position,
+                2f
+            );
         }
 
         GameEvents.UpdateUI();

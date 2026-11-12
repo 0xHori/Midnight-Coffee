@@ -35,8 +35,7 @@ public class ClickerManager : MonoBehaviour
     public double PrestigeMultiplier => 1 + (totalCrystals * 0.1);
 
     [Header("UI и Эффекты")]
-    public GameObject floatingTextPrefab;
-    public Transform canvasTransform;
+    public FloatingTextPool floatingTextPool;
 
     void Start()
     {
@@ -116,29 +115,22 @@ public class ClickerManager : MonoBehaviour
 
         score += earnedPoints;
 
-        if (floatingTextPrefab != null && canvasTransform != null && Pointer.current != null)
+        if (floatingTextPool != null && Pointer.current != null)
         {
-            GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
-            TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
+            Vector2 pointerPos = Pointer.current.position.ReadValue();
+            Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
+            screenPos.y += 20f;
+            screenPos.x += UnityEngine.Random.Range(-150f, 150f);
+            screenPos.y += UnityEngine.Random.Range(-30f, 40f);
 
             if (isCrit)
             {
-                textComponent.text = "КРИТ! +" + FormatNumber(earnedPoints);
-                textComponent.color = Color.red;
-                textObj.transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                floatingTextPool.SpawnText("КРИТ! +" + FormatNumber(earnedPoints), Color.red, screenPos, 1.5f);
             }
             else
             {
-                textComponent.text = "+" + FormatNumber(earnedPoints);
+                floatingTextPool.SpawnText("+" + FormatNumber(earnedPoints), Color.white, screenPos, 1f);
             }
-
-            Vector2 pointerPos = Pointer.current.position.ReadValue();
-            Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
-            screenPos.y += 100f;
-            screenPos.x += UnityEngine.Random.Range(-150f, 150f);
-            screenPos.y += UnityEngine.Random.Range(-50f, 100f);
-            textObj.transform.position = screenPos;
-            textObj.transform.SetAsLastSibling();
         }
 
         GameEvents.UpdateUI();
@@ -219,15 +211,15 @@ public class ClickerManager : MonoBehaviour
             audioSource.PlayOneShot(buySound);
         }
 
-        if (floatingTextPrefab != null && canvasTransform != null)
+        if (floatingTextPool != null)
         {
-            GameObject textObj = Instantiate(floatingTextPrefab, canvasTransform);
-            TextMeshProUGUI textComponent = textObj.GetComponent<TextMeshProUGUI>();
-            textComponent.text = "ПРЕСТИЖ! +" + FormatNumber(crystalsToAdd) + " КРИСТАЛЛОВ";
-            textComponent.color = new Color(0.8f, 0.2f, 1f);
-            textObj.transform.localScale = new Vector3(2.5f, 2.5f, 1f);
-            textObj.transform.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
-            textObj.transform.SetAsLastSibling();
+            Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
+            floatingTextPool.SpawnText(
+                "ПРЕСТИЖ! +" + FormatNumber(crystalsToAdd) + " КРИСТАЛЛОВ",
+                new Color(0.8f, 0.2f, 1f),
+                centerPos,
+                2.5f
+            );
         }
 
         score = 0;

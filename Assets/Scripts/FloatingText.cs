@@ -1,35 +1,57 @@
+using System;
 using UnityEngine;
 using TMPro;
 
+[RequireComponent(typeof(TextMeshProUGUI))]
 public class FloatingText : MonoBehaviour
 {
-    public float moveSpeed = 150f;   // Увеличили скорость
-    public float fadeSpeed = 1.5f;   // Увеличили скорость исчезновения
-    private TextMeshProUGUI textMesh;
-    private float alpha = 1f;
-    private Vector3 moveDirection;   // Направление полета
+    public float moveSpeed = 150f;
+    public float fadeSpeed = 1.5f;
 
-    void Start()
+    private TextMeshProUGUI textMesh;
+    private float alpha;
+    private Vector3 moveDirection;
+    private Action<FloatingText> onReturnToPool;
+
+    void Awake()
     {
         textMesh = GetComponent<TextMeshProUGUI>();
-        
-        // Задаем случайное направление: всегда вверх, но немного влево или вправо
-        float randomX = Random.Range(-0.5f, 0.5f);
-        moveDirection = new Vector3(randomX, 1f, 0).normalized; 
+        textMesh.raycastTarget = false; // Гарантируем, что текст не перехватывает клики
+    }
+
+    public void Initialize(Action<FloatingText> returnAction)
+    {
+        onReturnToPool = returnAction;
+    }
+
+    public void Play(string message, Color color, Vector3 startPosition, float scale = 1f)
+    {
+        transform.position = startPosition;
+        transform.localScale = new Vector3(scale, scale, 1f);
+        transform.SetAsLastSibling();
+
+        textMesh.text = message;
+        textMesh.color = color;
+        alpha = 1f;
+        textMesh.alpha = 1f;
+
+        float randomX = UnityEngine.Random.Range(-0.5f, 0.5f);
+        moveDirection = new Vector3(randomX, 1f, 0f).normalized;
+
+        gameObject.SetActive(true);
     }
 
     void Update()
     {
-        // Двигаем текст по нашему случайному направлению
         transform.position += moveDirection * moveSpeed * Time.deltaTime;
-        
-        // Постепенно уменьшаем прозрачность
+
         alpha -= fadeSpeed * Time.deltaTime;
         textMesh.alpha = alpha;
 
-        if (alpha <= 0)
+        if (alpha <= 0f)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            onReturnToPool?.Invoke(this);
         }
     }
 }
