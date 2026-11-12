@@ -19,7 +19,8 @@ public class SaveManager : MonoBehaviour
         PlayerPrefs.SetString("SavedAutoUpgradeCost", clickerManager.autoUpgradeCost.ToString(CultureInfo.InvariantCulture));
         PlayerPrefs.SetString("SavedManagerCost", clickerManager.managerCost.ToString(CultureInfo.InvariantCulture));
         
-        PlayerPrefs.SetString("SavedCrystals", clickerManager.totalCrystals.ToString(CultureInfo.InvariantCulture)); // НОВОЕ
+        PlayerPrefs.SetString("SavedCrystals", clickerManager.totalCrystals.ToString(CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString("SavedThreshold", clickerManager.prestigeThreshold.ToString(CultureInfo.InvariantCulture));
         
         PlayerPrefs.Save(); 
     }
@@ -35,7 +36,8 @@ public class SaveManager : MonoBehaviour
         clickerManager.autoUpgradeCost = double.Parse(PlayerPrefs.GetString("SavedAutoUpgradeCost", "50"), CultureInfo.InvariantCulture);
         clickerManager.managerCost = double.Parse(PlayerPrefs.GetString("SavedManagerCost", "500"), CultureInfo.InvariantCulture);
         
-        clickerManager.totalCrystals = double.Parse(PlayerPrefs.GetString("SavedCrystals", "0"), CultureInfo.InvariantCulture); // НОВОЕ
+        clickerManager.totalCrystals = double.Parse(PlayerPrefs.GetString("SavedCrystals", "0"), CultureInfo.InvariantCulture);
+        clickerManager.prestigeThreshold = double.Parse(PlayerPrefs.GetString("SavedThreshold", "10000"), CultureInfo.InvariantCulture);
     }
 
     public void CalculateOfflineIncome()
