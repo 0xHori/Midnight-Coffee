@@ -28,6 +28,7 @@ public class ClickerManager : MonoBehaviour
 
     [Header("UI и Эффекты")]
     public FloatingTextPool floatingTextPool;
+    public TapParticlePool tapParticlePool;
 
     void Start()
     {
@@ -114,10 +115,12 @@ public class ClickerManager : MonoBehaviour
         {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
             Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
+            if (tapParticlePool != null) tapParticlePool.SpawnBurst(screenPos, isCrit);
+
             screenPos.y += 20f;
             screenPos.x += UnityEngine.Random.Range(-150f, 150f);
             screenPos.y += UnityEngine.Random.Range(-30f, 40f);
-
+            
             if (isCrit)
             {
                 floatingTextPool.SpawnText("КРИТ! +" + FormatNumber(earnedPoints), Color.red, screenPos, 1.5f);

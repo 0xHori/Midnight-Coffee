@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class UpgradeItemUI : MonoBehaviour
 {
@@ -9,9 +10,15 @@ public class UpgradeItemUI : MonoBehaviour
     public TextMeshProUGUI costText;
     public Button buyButton;
 
+    [Header("Цвета доступности")]
+    public Image backgroundImage;
+    public Color affordableColor = new Color(0.15f, 0.17f, 0.21f, 1f);
+    public Color unaffordableColor = new Color(0.10f, 0.11f, 0.14f, 0.75f);
+
     private UpgradeData data;
     private ShopManager shopManager;
     private ClickerManager clickerManager;
+    private Coroutine shakeCoroutine;
 
     public void Setup(UpgradeData upgradeData, ShopManager shop, ClickerManager clicker)
     {
@@ -19,10 +26,22 @@ public class UpgradeItemUI : MonoBehaviour
         shopManager = shop;
         clickerManager = clicker;
 
+        if (backgroundImage == null) backgroundImage = GetComponent<Image>();
+
         buyButton.onClick.RemoveAllListeners();
-        buyButton.onClick.AddListener(() => shopManager.BuyUpgrade(data));
+        buyButton.onClick.AddListener(OnCardClicked);
 
         Refresh();
+    }
+
+    private void OnCardClicked()
+    {
+        bool bought = shopManager.TryBuyUpgrade(data);
+        if (!bought)
+        {
+            if (shakeCoroutine != null) StopCoroutine(shakeCoroutine);
+            shakeCoroutine = StartCoroutine(ShakeCard());
+        }
     }
 
     public void Refresh()
@@ -36,7 +55,6 @@ public class UpgradeItemUI : MonoBehaviour
         string amountSuffix = amount > 1 ? $" (+{amount})" : "";
         titleText.text = $"{data.upgradeName} [Ур.{lvl}]{amountSuffix}";
 
-        // Считаем актуальную прибавку с учётом текущих множителей
         double autoMult = clickerManager.GetTotalAutoMultiplier();
         switch (data.upgradeType)
         {
@@ -53,7 +71,28 @@ public class UpgradeItemUI : MonoBehaviour
                 break;
         }
 
+        bool canAfford = clickerManager.score >= cost;
         costText.text = $"Цена: {clickerManager.FormatNumber(cost)}";
-        buyButton.interactable = (clickerManager.score >= cost);
+        costText.color = canAfford ? new Color(1f, 0.84f, 0f) : new Color(0.95f, 0.35f, 0.35f);
+
+        if (backgroundImage != null)
+            backgroundImage.color = canAfford ? affordableColor : unaffordableColor;
+    }
+
+    IEnumerator ShakeCard()
+    {
+        RectTransform rt = GetComponent<RectTransform>();
+        float startX = rt.anchoredPosition.x;
+        float elapsed = 0f;
+        float duration = 0.2f;
+
+        while (elapsed < duration)
+        {
+            float offset = Mathf.Sin(elapsed * 55f) * 12f * (1f - elapsed / duration);
+            rt.anchoredPosition = new Vector2(startX + offset, rt.anchoredPosition.y);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        rt.anchoredPosition = new Vector2(startX, rt.anchoredPosition.y);
     }
 }

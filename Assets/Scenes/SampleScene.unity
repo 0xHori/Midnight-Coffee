@@ -331,6 +331,7 @@ GameObject:
   - component: {fileID: 70306200}
   - component: {fileID: 70306202}
   - component: {fileID: 70306201}
+  - component: {fileID: 70306203}
   m_Layer: 5
   m_Name: OfflinePanel
   m_TagString: Untagged
@@ -397,6 +398,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 70306199}
   m_CullTransparentMesh: 1
+--- !u!114 &70306203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 70306199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094eada391800b87797698aae1d6b9fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelAnimator
+  duration: 0.18
+  startScale: 0.85
 --- !u!1 &114565158
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,6 +1123,7 @@ GameObject:
   - component: {fileID: 379202807}
   - component: {fileID: 379202806}
   - component: {fileID: 379202809}
+  - component: {fileID: 379202810}
   m_Layer: 5
   m_Name: SkillTreePanel
   m_TagString: Untagged
@@ -1196,6 +1212,20 @@ MonoBehaviour:
   autoTabButton: {fileID: 1435543562}
   luckTabButton: {fileID: 415445094}
   crystalsBalanceText: {fileID: 1377348310}
+--- !u!114 &379202810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379202805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094eada391800b87797698aae1d6b9fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelAnimator
+  duration: 0.18
+  startScale: 0.85
 --- !u!1 &383981363
 GameObject:
   m_ObjectHideFlags: 0
@@ -4756,6 +4786,7 @@ GameObject:
   - component: {fileID: 1367466622}
   - component: {fileID: 1367466624}
   - component: {fileID: 1367466623}
+  - component: {fileID: 1367466625}
   m_Layer: 5
   m_Name: PrestigePanel
   m_TagString: Untagged
@@ -4822,6 +4853,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1367466621}
   m_CullTransparentMesh: 1
+--- !u!114 &1367466625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367466621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094eada391800b87797698aae1d6b9fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelAnimator
+  duration: 0.18
+  startScale: 0.85
 --- !u!1 &1377348308
 GameObject:
   m_ObjectHideFlags: 0
@@ -4972,6 +5017,7 @@ GameObject:
   - component: {fileID: 1410147654}
   - component: {fileID: 1410147655}
   - component: {fileID: 1410147656}
+  - component: {fileID: 1410147657}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -5022,6 +5068,7 @@ MonoBehaviour:
   totalCrystals: 0
   prestigeThreshold: 10000
   floatingTextPool: {fileID: 1410147654}
+  tapParticlePool: {fileID: 1410147657}
 --- !u!114 &1410147654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5049,9 +5096,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e75fd963c53e59b98941119a48619d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
-  clickerManager: {fileID: 1410147653}
   audioSource: {fileID: 1430138572}
   buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
+  errorSound: {fileID: 0}
+  clickerManager: {fileID: 1410147653}
   allUpgrades:
   - {fileID: 11400000, guid: d78820cbad2b19fc690a6a6beff71a16, type: 2}
   - {fileID: 11400000, guid: c3e5b5ad00b7879939a8557e65351f4c, type: 2}
@@ -5075,6 +5123,21 @@ MonoBehaviour:
   upgradeItemPrefab: {fileID: 401943267112635954, guid: f2c3d80144c9d4c5e8eaa8dbea095bef, type: 3}
   buyModeButton: {fileID: 1537779090}
   buyModeText: {fileID: 1041441081}
+--- !u!114 &1410147657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410147651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f26b259f17fe1b638f3f5c99c79cb04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TapParticlePool
+  particleSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  canvasTransform: {fileID: 1212280915}
+  poolSize: 40
 --- !u!1 &1413174980
 GameObject:
   m_ObjectHideFlags: 0
@@ -5996,7 +6059,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSquish
   squishAmount: 0.9
+  overshootAmount: 1.06
   squishSpeed: 0.05
+  maxTiltAngle: 3
 --- !u!114 &1506751032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6525,6 +6590,7 @@ GameObject:
   - component: {fileID: 1583125866}
   - component: {fileID: 1583125868}
   - component: {fileID: 1583125867}
+  - component: {fileID: 1583125869}
   m_Layer: 5
   m_Name: GachaPanel
   m_TagString: Untagged
@@ -6594,6 +6660,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1583125865}
   m_CullTransparentMesh: 1
+--- !u!114 &1583125869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1583125865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094eada391800b87797698aae1d6b9fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelAnimator
+  duration: 0.18
+  startScale: 0.85
 --- !u!1 &1589854586
 GameObject:
   m_ObjectHideFlags: 0
@@ -7458,6 +7538,7 @@ GameObject:
   - component: {fileID: 1866776373}
   - component: {fileID: 1866776375}
   - component: {fileID: 1866776374}
+  - component: {fileID: 1866776376}
   m_Layer: 5
   m_Name: GalleryPanel
   m_TagString: Untagged
@@ -7525,6 +7606,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1866776372}
   m_CullTransparentMesh: 1
+--- !u!114 &1866776376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1866776372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094eada391800b87797698aae1d6b9fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelAnimator
+  duration: 0.18
+  startScale: 0.85
 --- !u!1 &1873938498
 GameObject:
   m_ObjectHideFlags: 0

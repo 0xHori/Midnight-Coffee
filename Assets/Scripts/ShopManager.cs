@@ -11,10 +11,13 @@ public enum BuyMode
 
 public class ShopManager : MonoBehaviour
 {
-    [Header("Ссылки")]
-    public ClickerManager clickerManager;
+    [Header("Звуки")]
     public AudioSource audioSource;
     public AudioClip buySound;
+    public AudioClip errorSound; // Можешь поставить тот же звук, он проиграется на низком питче 0.5
+
+    [Header("Ссылки")]
+    public ClickerManager clickerManager;
 
     [Header("Все товары магазина")]
     public List<UpgradeData> allUpgrades = new List<UpgradeData>();
@@ -73,15 +76,27 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    public void BuyUpgrade(UpgradeData upgrade)
+    public bool TryBuyUpgrade(UpgradeData upgrade)
     {
-        if (upgrade == null || clickerManager == null) return;
+        if (upgrade == null || clickerManager == null) return false;
 
         int currentLvl = GetUpgradeLevel(upgrade.upgradeId);
         int amountToBuy = GetPurchaseAmount(upgrade);
         double totalCost = upgrade.GetBulkCost(currentLvl, amountToBuy);
 
-        if (clickerManager.score < totalCost) return;
+        if (clickerManager.score < totalCost)
+        {
+            if (audioSource != null)
+            {
+                AudioClip clip = errorSound != null ? errorSound : buySound;
+                if (clip != null)
+                {
+                    audioSource.pitch = 0.5f;
+                    audioSource.PlayOneShot(clip, 0.6f);
+                }
+            }
+            return false;
+        }
 
         clickerManager.score -= totalCost;
         upgradeLevels[upgrade.upgradeId] = currentLvl + amountToBuy;
@@ -96,6 +111,7 @@ public class ShopManager : MonoBehaviour
 
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
+        return true;
     }
 
     public void RecalculateStats()

@@ -100,7 +100,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -163,6 +163,9 @@ MonoBehaviour:
   bonusText: {fileID: 410014217973784138}
   costText: {fileID: 6128777416188568631}
   buyButton: {fileID: 2032456586519237951}
+  backgroundImage: {fileID: 1995676959934607620}
+  affordableColor: {r: 0.15, g: 0.17, b: 0.21, a: 1}
+  unaffordableColor: {r: 0.1, g: 0.11, b: 0.14, a: 0.75}
 --- !u!1 &1999660442058340046
 GameObject:
   m_ObjectHideFlags: 0
