@@ -7074,7 +7074,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   clickerManager: {fileID: 1410147653}
-  skillTreeManager: {fileID: 2019083793}
   gachaManager: {fileID: 843058829}
   scoreText: {fileID: 1515975746}
   incomeText: {fileID: 1698728390}
@@ -7999,6 +7998,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 366d932c5fa1013c6b212bcb6dea3d5d, type: 2}
   - {fileID: 11400000, guid: 1087cc721be70614d987e621d5f0eda9, type: 2}
   - {fileID: 11400000, guid: e60e4742b5f274a2f9a2f0026892012b, type: 2}
+  - {fileID: 11400000, guid: 9b1f43666a1c5658baff618ab895fd2f, type: 2}
+  - {fileID: 11400000, guid: d774e7957e26f6f1ab04a4c7d6ab5e69, type: 2}
+  - {fileID: 11400000, guid: 4d9e5102494f1219194643c18330b656, type: 2}
 --- !u!224 &2019083794
 RectTransform:
   m_ObjectHideFlags: 0

@@ -5,7 +5,6 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
-    public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
 
     [Header("Главный экран - Тексты")]
@@ -39,7 +38,6 @@ public class UIManager : MonoBehaviour
     void OnEnable()
     {
         GameEvents.OnUpdateUI += UpdateUI;
-        GameEvents.OnUpdateSkillUI += UpdateSkillUI;
         GameEvents.OnShowOfflinePanel += ShowOfflinePanel;
         GameEvents.OnGachaResult += ShowGachaResult;
     }
@@ -47,7 +45,6 @@ public class UIManager : MonoBehaviour
     void OnDisable()
     {
         GameEvents.OnUpdateUI -= UpdateUI;
-        GameEvents.OnUpdateSkillUI -= UpdateSkillUI;
         GameEvents.OnShowOfflinePanel -= ShowOfflinePanel;
         GameEvents.OnGachaResult -= ShowGachaResult;
     }
@@ -85,10 +82,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateSkillUI()
-    {
-    }
-
     public void ShowOfflinePanel(double earned, int hours, int minutes)
     {
         offlinePanel.SetActive(true);
@@ -98,7 +91,7 @@ public class UIManager : MonoBehaviour
     public void OpenPrestigePanel() { prestigePanel.SetActive(true); if (dimBackground != null) dimBackground.SetActive(true); }
     public void ClosePrestigePanel() { prestigePanel.SetActive(false); if (dimBackground != null) dimBackground.SetActive(false); }
     public void ConfirmPrestige() { clickerManager.DoPrestige(); ClosePrestigePanel(); }
-    public void OpenSkillPanel() { skillTreePanel.SetActive(true); UpdateSkillUI(); }
+    public void OpenSkillPanel() { skillTreePanel.SetActive(true); }
     public void CloseSkillPanel() { skillTreePanel.SetActive(false); }
 
     public void OpenGachaPanel()
