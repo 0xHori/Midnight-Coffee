@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 14234523}
   - component: {fileID: 14234522}
   m_Layer: 5
-  m_Name: TitleText
+  m_Name: StatsTitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -819,7 +819,7 @@ GameObject:
   - component: {fileID: 114565161}
   - component: {fileID: 114565160}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: PrestigeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1094,7 +1094,7 @@ GameObject:
   - component: {fileID: 181022656}
   - component: {fileID: 181022655}
   m_Layer: 5
-  m_Name: Scroll View
+  m_Name: GalleryScrollView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1200,7 +1200,7 @@ GameObject:
   - component: {fileID: 183189836}
   - component: {fileID: 183189835}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseSettingsButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1470,7 +1470,7 @@ GameObject:
   - component: {fileID: 202518731}
   - component: {fileID: 202518730}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseOfflineText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1952,7 +1952,7 @@ GameObject:
   - component: {fileID: 247665215}
   - component: {fileID: 247665214}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: LuckTabText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3754,7 +3754,7 @@ GameObject:
   - component: {fileID: 687893244}
   - component: {fileID: 687893243}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ConfirmPrestigeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3891,7 +3891,7 @@ GameObject:
   - component: {fileID: 691804819}
   - component: {fileID: 691804818}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: SettingsIconText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4369,7 +4369,7 @@ GameObject:
   - component: {fileID: 747937994}
   - component: {fileID: 747937993}
   m_Layer: 5
-  m_Name: TitleText
+  m_Name: SettingsTitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4632,7 +4632,7 @@ GameObject:
   - component: {fileID: 801609403}
   - component: {fileID: 801609402}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: GalleryText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4805,7 +4805,7 @@ GameObject:
   - component: {fileID: 809896632}
   - component: {fileID: 809896631}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseSkillTreeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5476,7 +5476,7 @@ GameObject:
   - component: {fileID: 974742406}
   - component: {fileID: 974742405}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseStatsButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5613,7 +5613,7 @@ GameObject:
   - component: {fileID: 998181694}
   - component: {fileID: 998181693}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: NextTrackButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5750,7 +5750,7 @@ GameObject:
   - component: {fileID: 1012240893}
   - component: {fileID: 1012240892}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ClickTabText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6173,7 +6173,7 @@ GameObject:
   - component: {fileID: 1041441082}
   - component: {fileID: 1041441081}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: BuyModeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6520,7 +6520,7 @@ GameObject:
   - component: {fileID: 1111767118}
   - component: {fileID: 1111767117}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseGachaText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7433,7 +7433,7 @@ GameObject:
   - component: {fileID: 1293851559}
   - component: {fileID: 1293851558}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: OpenStatsButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7645,7 +7645,7 @@ GameObject:
   - component: {fileID: 1309790434}
   - component: {fileID: 1309790433}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CloseGalleryText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8382,7 +8382,7 @@ GameObject:
   - component: {fileID: 1413174983}
   - component: {fileID: 1413174982}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: GachaText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9461,7 +9461,7 @@ GameObject:
   - component: {fileID: 1506751031}
   - component: {fileID: 1506751032}
   m_Layer: 5
-  m_Name: Button
+  m_Name: MainClickButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9760,7 +9760,7 @@ GameObject:
   - component: {fileID: 1535529246}
   - component: {fileID: 1535529245}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: SkillTreeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10019,7 +10019,7 @@ GameObject:
   - component: {fileID: 1545114638}
   - component: {fileID: 1545114637}
   m_Layer: 5
-  m_Name: Scroll View
+  m_Name: SkillTreeScrollView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11151,7 +11151,7 @@ GameObject:
   - component: {fileID: 1836497912}
   - component: {fileID: 1836497911}
   m_Layer: 5
-  m_Name: CloseButton
+  m_Name: CloseOfflineButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11283,7 +11283,7 @@ GameObject:
   - component: {fileID: 1852051649}
   - component: {fileID: 1852051648}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CancelPrestigeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12440,7 +12440,7 @@ GameObject:
   - component: {fileID: 2022925548}
   - component: {fileID: 2022925547}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: AutoTabText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12663,7 +12663,7 @@ GameObject:
   - component: {fileID: 2141879633}
   - component: {fileID: 2141879632}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: RollButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
