@@ -5207,6 +5207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GachaManager
   clickerManager: {fileID: 1410147653}
+  emotionController: {fileID: 1506751033}
   allCharacters:
   - {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
   - {fileID: 11400000, guid: cac11df4bbf0ae1fbbdaac747aaa7a13, type: 2}
@@ -8257,27 +8258,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88437016a6241be4ca0953797d829ceb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClickerManager
+  balanceConfig: {fileID: 11400000, guid: 4d97abd49aafd727095ae66a8a16327b, type: 2}
   shopManager: {fileID: 1410147655}
   skillTreeManager: {fileID: 2019083793}
   gachaManager: {fileID: 843058829}
   saveManager: {fileID: 1758446583}
   feverManager: {fileID: 1410147658}
-  audioSource: {fileID: 1430138572}
-  clickSound: {fileID: 8300000, guid: 8aaf60dff8a2c1a248a3cb192a7700cc, type: 3}
-  critSound: {fileID: 8300000, guid: 03709160e2d1a9dc380748db6bdb6f27, type: 3}
-  buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   score: 0
-  baseClickPower: 1
-  critChance: 0.1
-  critMultiplier: 10
+  totalCrystals: 0
+  prestigeThreshold: 100000
   totalClicks: 0
   totalCritClicks: 0
   lifetimeScore: 0
   totalPrestiges: 0
-  totalCrystals: 0
-  prestigeThreshold: 100000
   floatingTextPool: {fileID: 1410147654}
-  tapParticlePool: {fileID: 1410147657}
 --- !u!114 &1410147654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8309,6 +8303,7 @@ MonoBehaviour:
   buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   errorSound: {fileID: 0}
   clickerManager: {fileID: 1410147653}
+  emotionController: {fileID: 1506751033}
   allUpgrades:
   - {fileID: 11400000, guid: d78820cbad2b19fc690a6a6beff71a16, type: 2}
   - {fileID: 11400000, guid: c3e5b5ad00b7879939a8557e65351f4c, type: 2}
@@ -8359,6 +8354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a61d8d7f7417b36da810036b1c148efd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FeverManager
+  balanceConfig: {fileID: 11400000, guid: 4d97abd49aafd727095ae66a8a16327b, type: 2}
   chargePerTap: 0.03
   decayDelay: 0.8
   decaySpeed: 0.25
@@ -8370,6 +8366,56 @@ MonoBehaviour:
   feverBarColor: {r: 1, g: 0.55, b: 0, a: 1}
   isFeverActive: 0
   currentCharge: 0
+--- !u!1 &1411491550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1411491552}
+  - component: {fileID: 1411491551}
+  m_Layer: 0
+  m_Name: FeedbackController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1411491551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411491550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006ced7c08a8e5ab0ad13c9d2ed7aab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TapFeedbackController
+  audioSource: {fileID: 1430138572}
+  clickSound: {fileID: 8300000, guid: 8aaf60dff8a2c1a248a3cb192a7700cc, type: 3}
+  critSound: {fileID: 8300000, guid: 03709160e2d1a9dc380748db6bdb6f27, type: 3}
+  prestigeSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
+  floatingTextPool: {fileID: 1410147654}
+  tapParticlePool: {fileID: 1410147657}
+--- !u!4 &1411491552
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411491550}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1413174980
 GameObject:
   m_ObjectHideFlags: 0
@@ -9460,6 +9506,7 @@ GameObject:
   - component: {fileID: 1506751028}
   - component: {fileID: 1506751031}
   - component: {fileID: 1506751032}
+  - component: {fileID: 1506751033}
   m_Layer: 5
   m_Name: MainClickButton
   m_TagString: Untagged
@@ -9542,6 +9589,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1506751033}
+        m_TargetAssemblyTypeName: CharacterEmotionController, Assembly-CSharp
+        m_MethodName: OnCharacterTapped
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1506751029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9611,6 +9670,23 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5882353}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1506751033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506751026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69d0f9aa3f21d2ef4bffc379238e3341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterEmotionController
+  characterImage: {fileID: 1506751029}
+  feverManager: {fileID: 1410147658}
+  currentCharacter: {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
+  emotionResetDelay: 1.2
+  comboThresholdForExcited: 6
 --- !u!1 &1515975745
 GameObject:
   m_ObjectHideFlags: 0
@@ -10922,7 +10998,6 @@ MonoBehaviour:
   scoreText: {fileID: 1515975746}
   incomeText: {fileID: 1698728390}
   offlineText: {fileID: 1873938500}
-  mainCharacterImage: {fileID: 1506751029}
   prestigePanel: {fileID: 1367466621}
   dimBackground: {fileID: 1906155937}
   prestigeInfoText: {fileID: 1439834754}
@@ -11092,6 +11167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 958149ae4607be6599b3189422177053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  balanceConfig: {fileID: 11400000, guid: 4d97abd49aafd727095ae66a8a16327b, type: 2}
   clickerManager: {fileID: 1410147653}
   shopManager: {fileID: 1410147655}
   skillTreeManager: {fileID: 2019083793}
@@ -12803,3 +12879,4 @@ SceneRoots:
   - {fileID: 843058828}
   - {fileID: 348007083}
   - {fileID: 1954411162}
+  - {fileID: 1411491552}

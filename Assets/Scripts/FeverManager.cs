@@ -4,18 +4,21 @@ using TMPro;
 
 public class FeverManager : MonoBehaviour
 {
-    [Header("Настройки баланса")]
-    public float chargePerTap = 0.03f;       // +3% за клик (~34 тапа до активации)
-    public float decayDelay = 0.8f;          // Пауза без тапов перед спадом шкалы
-    public float decaySpeed = 0.25f;         // Скорость спада в секунду
-    public float feverDuration = 10f;        // Длительность лихорадки в секундах
-    public double feverMultiplier = 3.0;     // Множитель дохода во время лихорадки
+    [Header("Конфиг баланса")]
+    public BalanceConfig balanceConfig;
+
+    [Header("Настройки баланса (если не задан BalanceConfig)")]
+    public float chargePerTap = 0.03f;
+    public float decayDelay = 0.8f;
+    public float decaySpeed = 0.25f;
+    public float feverDuration = 10f;
+    public double feverMultiplier = 3.0;
 
     [Header("UI Элементы")]
-    public Image feverFillImage;             // Полоска заполнения (Image Type: Filled)
-    public TextMeshProUGUI feverStatusText;  // Подпись на шкале ("КОМБО" / "FEVER x3!")
-    public Color normalBarColor = new Color(0.22f, 0.74f, 0.97f, 1f); // Голубой
-    public Color feverBarColor = new Color(1f, 0.55f, 0.0f, 1f);      // Огненно-оранжевый
+    public Image feverFillImage;
+    public TextMeshProUGUI feverStatusText;
+    public Color normalBarColor = new Color(0.22f, 0.74f, 0.97f, 1f);
+    public Color feverBarColor = new Color(1f, 0.55f, 0.0f, 1f);
 
     [Header("Состояние (только чтение)")]
     public bool isFeverActive = false;
@@ -25,6 +28,18 @@ public class FeverManager : MonoBehaviour
     private float feverTimer = 0f;
 
     public double CurrentMultiplier => isFeverActive ? feverMultiplier : 1.0;
+
+    void Awake()
+    {
+        if (balanceConfig != null)
+        {
+            chargePerTap = balanceConfig.feverChargePerTap;
+            decayDelay = balanceConfig.feverDecayDelay;
+            decaySpeed = balanceConfig.feverDecaySpeed;
+            feverDuration = balanceConfig.feverDuration;
+            feverMultiplier = balanceConfig.feverMultiplier;
+        }
+    }
 
     void Start()
     {
@@ -58,19 +73,13 @@ public class FeverManager : MonoBehaviour
     public void RegisterTap()
     {
         timeSinceLastTap = 0f;
-
         if (isFeverActive) return;
 
         currentCharge = Mathf.Clamp01(currentCharge + chargePerTap);
-
         if (currentCharge >= 1f)
-        {
             StartFever();
-        }
         else
-        {
             UpdateFeverUI();
-        }
     }
 
     private void StartFever()

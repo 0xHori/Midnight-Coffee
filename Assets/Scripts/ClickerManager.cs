@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class ClickerManager : MonoBehaviour
 {
+    [Header("Конфиг баланса")]
+    public BalanceConfig balanceConfig;
+
     [Header("Менеджеры")]
     public ShopManager shopManager;
     public SkillTreeManager skillTreeManager;
@@ -11,9 +14,8 @@ public class ClickerManager : MonoBehaviour
 
     [Header("Данные игрока")]
     public double score = 0;
-    public double baseClickPower = 1;
-    public double critChance = 0.1;
-    public double critMultiplier = 10;
+    public double totalCrystals = 0;
+    public double prestigeThreshold = 100000;
 
     [Header("Статистика")]
     public long totalClicks = 0;
@@ -21,15 +23,21 @@ public class ClickerManager : MonoBehaviour
     public double lifetimeScore = 0;
     public int totalPrestiges = 0;
 
-    [Header("Престиж")]
-    public double totalCrystals = 0;
-    public double prestigeThreshold = 100000;
-    public double PrestigeMultiplier => 1 + (totalCrystals * 0.02);
-
     [Header("UI и Эффекты (для бонусов)")]
     public FloatingTextPool floatingTextPool;
 
+    public GameStatsCalculator Stats { get; private set; }
+    public double PrestigeMultiplier => Stats.GetPrestigeMultiplier(totalCrystals);
+
     private const double MAX_SAFE_DOUBLE = 1e300;
+
+    void Awake()
+    {
+        if (balanceConfig != null)
+            prestigeThreshold = balanceConfig.initialPrestigeThreshold;
+
+        Stats = new GameStatsCalculator(balanceConfig, shopManager, skillTreeManager, gachaManager, feverManager);
+    }
 
     void Start()
     {
@@ -43,66 +51,26 @@ public class ClickerManager : MonoBehaviour
 
     private void SanitizeNumbers()
     {
-        if (double.IsNaN(score) || double.IsInfinity(score) || score > MAX_SAFE_DOUBLE)
-            score = MAX_SAFE_DOUBLE;
-        else if (score < 0)
-            score = 0;
+        score = SanitizeDouble(score);
+        totalCrystals = SanitizeDouble(totalCrystals);
+        lifetimeScore = SanitizeDouble(lifetimeScore);
+    }
 
-        if (double.IsNaN(totalCrystals) || double.IsInfinity(totalCrystals) || totalCrystals > MAX_SAFE_DOUBLE)
-            totalCrystals = MAX_SAFE_DOUBLE;
-        else if (totalCrystals < 0)
-            totalCrystals = 0;
-
-        if (double.IsNaN(lifetimeScore) || double.IsInfinity(lifetimeScore) || lifetimeScore > MAX_SAFE_DOUBLE)
-            lifetimeScore = MAX_SAFE_DOUBLE;
-        else if (lifetimeScore < 0)
-            lifetimeScore = 0;
+    private double SanitizeDouble(double val)
+    {
+        if (double.IsNaN(val) || double.IsInfinity(val) || val > MAX_SAFE_DOUBLE) return MAX_SAFE_DOUBLE;
+        return val < 0 ? 0 : val;
     }
 
     void AutoSave() => GameEvents.SaveGame();
 
-    public double GetFeverMultiplier() => feverManager != null ? feverManager.CurrentMultiplier : 1.0;
-
-    public double GetTotalClickPower()
-    {
-        double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
-        double shopMult = shopManager != null ? shopManager.TotalClickMultiplier : 1.0;
-        double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
-        double charClickMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
-
-        return (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult * PrestigeMultiplier * GetFeverMultiplier();
-    }
-
-    public double GetTotalCritChance()
-    {
-        double chance = (skillTreeManager != null ? skillTreeManager.CritChance : critChance)
-                      + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritChance) : 0.0);
-        return System.Math.Min(1.0, chance);
-    }
-
-    public double GetTotalCritMultiplier()
-    {
-        return critMultiplier
-             + (skillTreeManager != null ? skillTreeManager.CritDamageBonus : 0.0)
-             + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritDamage) : 0.0);
-    }
-
-    public double GetTotalAutoIncomePerSecond()
-    {
-        double baseAuto = shopManager != null ? shopManager.TotalBaseAutoIncome : 0;
-        if (baseAuto <= 0) return 0;
-
-        double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
-        double charMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.AutoMultiplier)) : 1.0;
-        return baseAuto * PrestigeMultiplier * skillMult * charMult * GetFeverMultiplier();
-    }
-
-    public double GetTotalAutoMultiplier()
-    {
-        double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
-        double charMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.AutoMultiplier)) : 1.0;
-        return PrestigeMultiplier * skillMult * charMult * GetFeverMultiplier();
-    }
+    public double GetFeverMultiplier() => Stats.GetFeverMultiplier();
+    public double GetTotalClickPower() => Stats.GetTotalClickPower(totalCrystals);
+    public double GetTotalCritChance() => Stats.GetTotalCritChance();
+    public double GetTotalCritMultiplier() => Stats.GetTotalCritMultiplier();
+    public double GetTotalAutoIncomePerSecond() => Stats.GetTotalAutoIncomePerSecond(totalCrystals);
+    public double GetTotalAutoMultiplier() => Stats.GetTotalAutoMultiplier(totalCrystals);
+    public double CalculatePotentialCrystals() => Stats.CalculatePotentialCrystals(score, prestigeThreshold);
 
     public void AddEarnedScore(double amount)
     {
@@ -117,10 +85,7 @@ public class ClickerManager : MonoBehaviour
     void AutoIncome()
     {
         double income = GetTotalAutoIncomePerSecond();
-        if (income > 0)
-        {
-            AddEarnedScore(income);
-        }
+        if (income > 0) AddEarnedScore(income);
     }
 
     public void AddScore()
@@ -153,17 +118,6 @@ public class ClickerManager : MonoBehaviour
         GameEvents.UpdateUI();
     }
 
-    public double CalculatePotentialCrystals()
-    {
-        if (score < prestigeThreshold) return 0;
-
-        double prestigeMult = (skillTreeManager != null ? skillTreeManager.PrestigeBonusMultiplier : 1.0)
-                            + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.PrestigeBonus) : 0.0);
-
-        double rawCrystals = System.Math.Pow(score / prestigeThreshold, 0.4) * 5.0;
-        return System.Math.Floor(rawCrystals * prestigeMult);
-    }
-
     public void DoPrestige()
     {
         double crystalsToAdd = CalculatePotentialCrystals();
@@ -176,7 +130,8 @@ public class ClickerManager : MonoBehaviour
         GameEvents.PrestigeCompleted(crystalsToAdd);
 
         score = 0;
-        prestigeThreshold *= 2.5;
+        double growth = balanceConfig != null ? balanceConfig.prestigeThresholdGrowth : 2.5;
+        prestigeThreshold *= growth;
 
         if (shopManager != null)
             shopManager.ResetOnPrestige();

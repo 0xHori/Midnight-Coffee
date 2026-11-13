@@ -5,12 +5,12 @@ using System.Globalization;
 
 public class SaveManager : MonoBehaviour
 {
+    public BalanceConfig balanceConfig;
     public ClickerManager clickerManager;
     public ShopManager shopManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
 
-    private double maxOfflineHours = 8;
     private string saveFilePath;
 
     void Awake()
@@ -49,11 +49,9 @@ public class SaveManager : MonoBehaviour
 
         data.lastExitTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 
-        string json = JsonUtility.ToJson(data, true);
-
         try
         {
-            File.WriteAllText(saveFilePath, json);
+            File.WriteAllText(saveFilePath, JsonUtility.ToJson(data, true));
         }
         catch (Exception e)
         {
@@ -76,7 +74,8 @@ public class SaveManager : MonoBehaviour
 
             clickerManager.score = data.score;
             clickerManager.totalCrystals = data.totalCrystals;
-            clickerManager.prestigeThreshold = data.prestigeThreshold;
+            if (data.prestigeThreshold > 0)
+                clickerManager.prestigeThreshold = data.prestigeThreshold;
 
             clickerManager.totalClicks = data.totalClicks;
             clickerManager.totalCritClicks = data.totalCritClicks;
@@ -108,13 +107,12 @@ public class SaveManager : MonoBehaviour
         double autoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
         if (string.IsNullOrEmpty(lastExitTimeStr) || autoPerSec <= 0) return;
 
+        double maxHours = balanceConfig != null ? balanceConfig.maxOfflineHours : 8.0;
+
         if (DateTime.TryParse(lastExitTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime lastTime))
         {
             TimeSpan timeAway = DateTime.UtcNow - lastTime;
-            double secondsAway = timeAway.TotalSeconds;
-            double maxSeconds = maxOfflineHours * 60 * 60;
-
-            if (secondsAway > maxSeconds) secondsAway = maxSeconds;
+            double secondsAway = Math.Min(timeAway.TotalSeconds, maxHours * 3600.0);
 
             if (secondsAway > 60)
             {

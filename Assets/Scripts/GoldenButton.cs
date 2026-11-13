@@ -22,12 +22,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         if (isClicked || clickerManager == null) return;
         isClicked = true;
 
-        double totalAutoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
-        double currentClickPower = clickerManager.GetTotalClickPower();
-
-        double reward = (totalAutoPerSec * 60.0) + (currentClickPower * 50.0);
-        if (reward < 100) reward = 100;
-
+        double reward = clickerManager.Stats.CalculateGoldenButtonReward(clickerManager.totalCrystals);
         clickerManager.AddEarnedScore(reward);
 
         if (clickerManager.floatingTextPool != null)

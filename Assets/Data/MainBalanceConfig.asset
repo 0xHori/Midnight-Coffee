@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a88334a45b06c2cb3a8a82b57b3478c0, type: 3}
+  m_Name: MainBalanceConfig
+  m_EditorClassIdentifier: Assembly-CSharp::BalanceConfig
+  baseClickPower: 1
+  baseCritChance: 0.1
+  baseCritMultiplier: 10
+  initialPrestigeThreshold: 100000
+  prestigeThresholdGrowth: 2.5
+  crystalBonusPerUnit: 0.02
+  prestigeFormulaExponent: 0.4
+  prestigeFormulaScale: 5
+  feverChargePerTap: 0.03
+  feverDecayDelay: 0.8
+  feverDecaySpeed: 0.25
+  feverDuration: 10
+  feverMultiplier: 3
+  maxOfflineHours: 8
+  goldenButtonAutoSeconds: 60
+  goldenButtonClickMult: 50
+  goldenButtonMinReward: 100
+  characterDuplicateBonusPerLevel: 0.2
