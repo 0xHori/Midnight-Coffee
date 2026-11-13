@@ -16,6 +16,16 @@ MonoBehaviour:
   characterName: "\u0420\u0435\u0434\u043A\u0430\u044F \u0434\u0435\u0432\u043E\u0447\u043A\u0430"
   portrait: {fileID: 3740525725533274880, guid: 3dc7020b81da4e11a8687d207873ddae, type: 3}
   rarity: 2
+  emotions:
+  - emotion: 0
+    sprite: {fileID: 2282361371410372843, guid: 700107236c94bb30486d490a08864b2a, type: 3}
+  - emotion: 3
+    sprite: {fileID: -8233345944370440582, guid: 700107236c94bb30486d490a08864b2a, type: 3}
+  - emotion: 1
+    sprite: {fileID: 1932537283113574939, guid: 700107236c94bb30486d490a08864b2a, type: 3}
+  - emotion: 2
+    sprite: {fileID: -7038065751933149095, guid: 700107236c94bb30486d490a08864b2a, type: 3}
+  maxAffectionLevel: 10
   passiveStat: 1
   basePassiveValue: 0.1
   activeStat: 1

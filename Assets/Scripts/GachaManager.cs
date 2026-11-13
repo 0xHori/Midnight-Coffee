@@ -4,6 +4,7 @@ using UnityEngine;
 public class GachaManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
+    public CharacterEmotionController emotionController;
 
     [Header("Пул персонажей")]
     public List<CharacterData> allCharacters = new List<CharacterData>();
@@ -16,9 +17,20 @@ public class GachaManager : MonoBehaviour
     private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
     public string equippedCharacterId;
 
+    void Start()
+    {
+        SyncEquippedCharacterVisual();
+    }
+
     public int GetCharacterLevel(string charId)
     {
         return characterLevels.TryGetValue(charId, out int lvl) ? lvl : 0;
+    }
+
+    public CharacterData GetEquippedCharacter()
+    {
+        if (string.IsNullOrEmpty(equippedCharacterId) || allCharacters == null) return null;
+        return allCharacters.Find(c => c != null && c.characterId == equippedCharacterId);
     }
 
     public void EquipCharacter(string charId)
@@ -26,8 +38,19 @@ public class GachaManager : MonoBehaviour
         if (GetCharacterLevel(charId) > 0)
         {
             equippedCharacterId = charId;
+            SyncEquippedCharacterVisual();
             GameEvents.UpdateUI();
             GameEvents.SaveGame();
+        }
+    }
+
+    private void SyncEquippedCharacterVisual()
+    {
+        if (emotionController == null) return;
+        CharacterData equipped = GetEquippedCharacter();
+        if (equipped != null)
+        {
+            emotionController.SetCharacter(equipped);
         }
     }
 
@@ -35,6 +58,7 @@ public class GachaManager : MonoBehaviour
     {
         if (clickerManager.totalCrystals < rollCost)
         {
+            emotionController?.OnNotEnoughCurrency();
             GameEvents.ShowGachaResult("Не хватает кристаллов!", null, Color.red);
             return;
         }
@@ -63,6 +87,7 @@ public class GachaManager : MonoBehaviour
         if (string.IsNullOrEmpty(equippedCharacterId))
         {
             equippedCharacterId = result.characterId;
+            SyncEquippedCharacterVisual();
         }
 
         Color textColor = Color.white;
@@ -73,6 +98,7 @@ public class GachaManager : MonoBehaviour
             ? $"{result.characterName} (Ур. {newLvl}!)"
             : $"{result.characterName} (НОВЫЙ!)";
 
+        // В баннере гачи показываем основной portrait (9:16), а на главном экране остаются стикеры
         GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
@@ -120,5 +146,6 @@ public class GachaManager : MonoBehaviour
             }
         }
         equippedCharacterId = equippedId;
+        SyncEquippedCharacterVisual();
     }
 }

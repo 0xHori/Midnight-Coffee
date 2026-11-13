@@ -14,10 +14,11 @@ public class ShopManager : MonoBehaviour
     [Header("Звуки")]
     public AudioSource audioSource;
     public AudioClip buySound;
-    public AudioClip errorSound; // Можешь поставить тот же звук, он проиграется на низком питче 0.5
+    public AudioClip errorSound;
 
     [Header("Ссылки")]
     public ClickerManager clickerManager;
+    public CharacterEmotionController emotionController;
 
     [Header("Все товары магазина")]
     public List<UpgradeData> allUpgrades = new List<UpgradeData>();
@@ -26,7 +27,6 @@ public class ShopManager : MonoBehaviour
 
     private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>();
 
-    // Итоговые бонусы для ClickerManager (пересчитываются при изменении уровней)
     public double TotalFlatClick { get; private set; } = 0;
     public double TotalClickMultiplier { get; private set; } = 1.0;
     public double TotalBaseAutoIncome { get; private set; } = 0;
@@ -58,7 +58,6 @@ public class ShopManager : MonoBehaviour
         GameEvents.UpdateUI();
     }
 
-    // Возвращает, сколько уровней будет куплено в текущем режиме (для Max минимум 1, чтобы показать цену 1-го уровня, если денег не хватает)
     public int GetPurchaseAmount(UpgradeData upgrade)
     {
         int currentLvl = GetUpgradeLevel(upgrade.upgradeId);
@@ -86,6 +85,8 @@ public class ShopManager : MonoBehaviour
 
         if (clickerManager.score < totalCost)
         {
+            emotionController?.OnNotEnoughCurrency();
+
             if (audioSource != null)
             {
                 AudioClip clip = errorSound != null ? errorSound : buySound;
@@ -145,7 +146,6 @@ public class ShopManager : MonoBehaviour
         TotalBaseAutoIncome = baseAuto;
     }
 
-    // Вызывается при Престиже (сбрасывает купленные за очки апгрейды)
     public void ResetOnPrestige()
     {
         upgradeLevels.Clear();

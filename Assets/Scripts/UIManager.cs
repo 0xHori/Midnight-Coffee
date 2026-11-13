@@ -12,9 +12,6 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI incomeText;
     public TextMeshProUGUI offlineText;
 
-    [Header("Главный персонаж на экране (опционально)")]
-    public Image mainCharacterImage;
-
     [Header("Престиж UI")]
     public GameObject prestigePanel;
     public GameObject dimBackground;
@@ -65,20 +62,6 @@ public class UIManager : MonoBehaviour
             double potential = clickerManager.CalculatePotentialCrystals();
             prestigeInfoText.text = $"Перерождение\nВы получите: {clickerManager.FormatNumber(potential)} кристаллов\n(Каждый дает +2% к доходу)\nВсего: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
             prestigeButtonComponent.interactable = (potential > 0);
-        }
-
-        UpdateMainCharacterVisual();
-    }
-
-    private void UpdateMainCharacterVisual()
-    {
-        if (mainCharacterImage == null || gachaManager == null) return;
-        if (string.IsNullOrEmpty(gachaManager.equippedCharacterId)) return;
-
-        CharacterData equipped = gachaManager.allCharacters.Find(c => c != null && c.characterId == gachaManager.equippedCharacterId);
-        if (equipped != null && equipped.portrait != null)
-        {
-            mainCharacterImage.sprite = equipped.portrait;
         }
     }
 
