@@ -8,6 +8,7 @@ public class ClickerManager : MonoBehaviour
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
     public SaveManager saveManager;
+    public FeverManager feverManager;
 
     [Header("Звуки")]
     public AudioSource audioSource;
@@ -71,6 +72,11 @@ public class ClickerManager : MonoBehaviour
         GameEvents.SaveGame();
     }
 
+    public double GetFeverMultiplier()
+    {
+        return feverManager != null ? feverManager.CurrentMultiplier : 1.0;
+    }
+
     public double GetTotalClickPower()
     {
         double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
@@ -78,7 +84,7 @@ public class ClickerManager : MonoBehaviour
         double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
         double charClickMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
 
-        return (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult * PrestigeMultiplier;
+        return (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult * PrestigeMultiplier * GetFeverMultiplier();
     }
 
     public double GetTotalCritChance()
@@ -102,14 +108,24 @@ public class ClickerManager : MonoBehaviour
 
         double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
         double charMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.AutoMultiplier)) : 1.0;
-        return baseAuto * PrestigeMultiplier * skillMult * charMult;
+        return baseAuto * PrestigeMultiplier * skillMult * charMult * GetFeverMultiplier();
     }
 
     public double GetTotalAutoMultiplier()
     {
         double skillMult = skillTreeManager != null ? skillTreeManager.AutoMultiplier : 1.0;
         double charMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.AutoMultiplier)) : 1.0;
-        return PrestigeMultiplier * skillMult * charMult;
+        return PrestigeMultiplier * skillMult * charMult * GetFeverMultiplier();
+    }
+
+    public void AddEarnedScore(double amount)
+    {
+        if (double.IsNaN(amount) || double.IsInfinity(amount) || amount <= 0) return;
+
+        score += amount;
+        lifetimeScore += amount;
+        SanitizeNumbers();
+        GameEvents.UpdateUI();
     }
 
     void AutoIncome()
@@ -128,32 +144,25 @@ public class ClickerManager : MonoBehaviour
     {
         totalClicks++;
 
-        double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
-        double shopMult = shopManager != null ? shopManager.TotalClickMultiplier : 1.0;
-        double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
-        double charClickMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
+        bool wasFeverActive = feverManager != null && feverManager.isFeverActive;
+        if (feverManager != null)
+            feverManager.RegisterTap();
 
-        double baseClick = (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult;
-        double earnedPoints = baseClick * PrestigeMultiplier;
+        bool isFeverNow = feverManager != null && feverManager.isFeverActive;
+
+        double earnedPoints = GetTotalClickPower();
         bool isCrit = false;
 
-        double totalCritChance = (skillTreeManager != null ? skillTreeManager.CritChance : critChance)
-                               + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritChance) : 0.0);
-
-        if (UnityEngine.Random.value <= totalCritChance)
+        if (UnityEngine.Random.value <= GetTotalCritChance())
         {
-            double totalCritMult = critMultiplier
-                                 + (skillTreeManager != null ? skillTreeManager.CritDamageBonus : 0.0)
-                                 + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritDamage) : 0.0);
-
-            earnedPoints *= totalCritMult;
+            earnedPoints *= GetTotalCritMultiplier();
             isCrit = true;
             totalCritClicks++;
             AudioManager.TriggerHaptic();
 
             if (audioSource != null && critSound != null)
             {
-                audioSource.pitch = 1f;
+                audioSource.pitch = isFeverNow ? 1.15f : 1f;
                 audioSource.PlayOneShot(critSound);
             }
         }
@@ -161,7 +170,8 @@ public class ClickerManager : MonoBehaviour
         {
             if (audioSource != null && clickSound != null)
             {
-                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                float basePitch = isFeverNow ? 1.15f : 1.0f;
+                audioSource.pitch = UnityEngine.Random.Range(basePitch - 0.1f, basePitch + 0.1f);
                 audioSource.PlayOneShot(clickSound);
             }
         }
@@ -174,7 +184,13 @@ public class ClickerManager : MonoBehaviour
         {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
             Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
-            if (tapParticlePool != null) tapParticlePool.SpawnBurst(screenPos, isCrit);
+            if (tapParticlePool != null) tapParticlePool.SpawnBurst(screenPos, isCrit || isFeverNow);
+
+            if (!wasFeverActive && isFeverNow)
+            {
+                Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height * 0.65f, 0);
+                floatingTextPool.SpawnText("FEVER MODE x3!", new Color(1f, 0.65f, 0f), centerPos, 2.2f);
+            }
 
             screenPos.y += 20f;
             screenPos.x += UnityEngine.Random.Range(-150f, 150f);
@@ -186,7 +202,8 @@ public class ClickerManager : MonoBehaviour
             }
             else
             {
-                floatingTextPool.SpawnText("+" + FormatNumber(earnedPoints), Color.white, screenPos, 1f);
+                Color textColor = isFeverNow ? new Color(1f, 0.85f, 0.2f) : Color.white;
+                floatingTextPool.SpawnText("+" + FormatNumber(earnedPoints), textColor, screenPos, isFeverNow ? 1.15f : 1f);
             }
         }
 
@@ -262,15 +279,5 @@ public class ClickerManager : MonoBehaviour
         }
 
         return num.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suffixes[suffixIndex];
-    }
-
-    public void AddEarnedScore(double amount)
-    {
-        if (double.IsNaN(amount) || double.IsInfinity(amount) || amount <= 0) return;
-
-        score += amount;
-        lifetimeScore += amount;
-        SanitizeNumbers();
-        GameEvents.UpdateUI();
     }
 }
