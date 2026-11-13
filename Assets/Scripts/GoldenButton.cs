@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 public class GoldenButton : MonoBehaviour, IPointerDownHandler
 {
     public ClickerManager clickerManager;
-    public float lifeTime = 6f; // 6 секунд вместо 3, чтобы успеть нажать на телефоне
+    public float lifeTime = 6f;
     private bool isClicked = false;
 
     void Start()
@@ -12,7 +12,6 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         Destroy(gameObject, lifeTime);
     }
 
-    // Срабатывает мгновенно при касании экрана пальцем, а не при отпускании
     public void OnPointerDown(PointerEventData eventData)
     {
         OnClick();
@@ -23,16 +22,13 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         if (isClicked || clickerManager == null) return;
         isClicked = true;
 
-        // Теперь учитываем ВСЕ множители автодохода и актуальную силу клика из магазина
         double totalAutoPerSec = clickerManager.GetTotalAutoIncomePerSecond();
-        double currentClickPower = clickerManager.shopManager != null
-            ? (clickerManager.baseClickPower + clickerManager.shopManager.TotalFlatClick) * clickerManager.shopManager.TotalClickMultiplier
-            : clickerManager.baseClickPower;
+        double currentClickPower = clickerManager.GetTotalClickPower();
 
         double reward = (totalAutoPerSec * 60.0) + (currentClickPower * 50.0);
         if (reward < 100) reward = 100;
 
-        clickerManager.score += reward;
+        clickerManager.AddEarnedScore(reward);
 
         if (clickerManager.floatingTextPool != null)
         {
@@ -44,7 +40,6 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
             );
         }
 
-        GameEvents.UpdateUI();
         GameEvents.SaveGame();
 
         Destroy(gameObject);

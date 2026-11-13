@@ -63,7 +63,7 @@ public class UIManager : MonoBehaviour
         if (prestigeInfoText != null)
         {
             double potential = clickerManager.CalculatePotentialCrystals();
-            prestigeInfoText.text = $"Перерождение\nВы получите: {clickerManager.FormatNumber(potential)} кристаллов\n(Каждый дает +10% к доходу)\nВсего: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
+            prestigeInfoText.text = $"Перерождение\nВы получите: {clickerManager.FormatNumber(potential)} кристаллов\n(Каждый дает +2% к доходу)\nВсего: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
             prestigeButtonComponent.interactable = (potential > 0);
         }
 

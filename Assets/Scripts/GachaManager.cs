@@ -10,6 +10,7 @@ public class GachaManager : MonoBehaviour
 
     [Header("Настройки")]
     public int rollCost = 10;
+    public int totalGachaRolls = 0;
 
     // characterId -> уровень (1 = выбит 1 раз, 2 = один дубликат и т.д.)
     private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
@@ -41,6 +42,7 @@ public class GachaManager : MonoBehaviour
         if (allCharacters == null || allCharacters.Count == 0) return;
 
         clickerManager.totalCrystals -= rollCost;
+        totalGachaRolls++;
 
         float roll = Random.Range(0f, 100f);
         int targetRarity = 1;

@@ -16,6 +16,7 @@ MonoBehaviour:
   upgradeName: "\u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440"
   orderInShop: 3
   upgradeType: 2
+  maxLevel: 500
   baseCost: 500
-  costGrowthRate: 4
-  baseValue: 10
+  costGrowthRate: 1.22
+  baseValue: 25

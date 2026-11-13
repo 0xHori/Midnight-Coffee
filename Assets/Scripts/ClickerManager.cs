@@ -21,27 +21,78 @@ public class ClickerManager : MonoBehaviour
     public double critChance = 0.1;
     public double critMultiplier = 10;
 
+    [Header("Статистика")]
+    public long totalClicks = 0;
+    public long totalCritClicks = 0;
+    public double lifetimeScore = 0;
+    public int totalPrestiges = 0;
+
     [Header("Престиж")]
     public double totalCrystals = 0;
-    public double prestigeThreshold = 10000;
-    public double PrestigeMultiplier => 1 + (totalCrystals * 0.1);
+    public double prestigeThreshold = 100000;
+    public double PrestigeMultiplier => 1 + (totalCrystals * 0.02);
 
     [Header("UI и Эффекты")]
     public FloatingTextPool floatingTextPool;
     public TapParticlePool tapParticlePool;
 
+    private const double MAX_SAFE_DOUBLE = 1e300;
+
     void Start()
     {
         if (saveManager != null) saveManager.LoadGame();
+        SanitizeNumbers();
         GameEvents.UpdateUI();
 
         InvokeRepeating(nameof(AutoIncome), 1f, 1f);
         InvokeRepeating(nameof(AutoSave), 20f, 20f);
     }
 
+    private void SanitizeNumbers()
+    {
+        if (double.IsNaN(score) || double.IsInfinity(score) || score > MAX_SAFE_DOUBLE)
+            score = MAX_SAFE_DOUBLE;
+        else if (score < 0)
+            score = 0;
+
+        if (double.IsNaN(totalCrystals) || double.IsInfinity(totalCrystals) || totalCrystals > MAX_SAFE_DOUBLE)
+            totalCrystals = MAX_SAFE_DOUBLE;
+        else if (totalCrystals < 0)
+            totalCrystals = 0;
+
+        if (double.IsNaN(lifetimeScore) || double.IsInfinity(lifetimeScore) || lifetimeScore > MAX_SAFE_DOUBLE)
+            lifetimeScore = MAX_SAFE_DOUBLE;
+        else if (lifetimeScore < 0)
+            lifetimeScore = 0;
+    }
+
     void AutoSave()
     {
         GameEvents.SaveGame();
+    }
+
+    public double GetTotalClickPower()
+    {
+        double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
+        double shopMult = shopManager != null ? shopManager.TotalClickMultiplier : 1.0;
+        double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
+        double charClickMult = gachaManager != null ? (1.0 + gachaManager.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
+
+        return (baseClickPower + shopFlat) * shopMult * skillClickMult * charClickMult * PrestigeMultiplier;
+    }
+
+    public double GetTotalCritChance()
+    {
+        double chance = (skillTreeManager != null ? skillTreeManager.CritChance : critChance)
+                      + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritChance) : 0.0);
+        return System.Math.Min(1.0, chance);
+    }
+
+    public double GetTotalCritMultiplier()
+    {
+        return critMultiplier
+             + (skillTreeManager != null ? skillTreeManager.CritDamageBonus : 0.0)
+             + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.CritDamage) : 0.0);
     }
 
     public double GetTotalAutoIncomePerSecond()
@@ -67,12 +118,16 @@ public class ClickerManager : MonoBehaviour
         if (income > 0)
         {
             score += income;
+            lifetimeScore += income;
+            SanitizeNumbers();
             GameEvents.UpdateUI();
         }
     }
 
     public void AddScore()
     {
+        totalClicks++;
+
         double shopFlat = shopManager != null ? shopManager.TotalFlatClick : 0;
         double shopMult = shopManager != null ? shopManager.TotalClickMultiplier : 1.0;
         double skillClickMult = skillTreeManager != null ? skillTreeManager.ClickMultiplier : 1.0;
@@ -93,6 +148,8 @@ public class ClickerManager : MonoBehaviour
 
             earnedPoints *= totalCritMult;
             isCrit = true;
+            totalCritClicks++;
+            AudioManager.TriggerHaptic();
 
             if (audioSource != null && critSound != null)
             {
@@ -110,6 +167,8 @@ public class ClickerManager : MonoBehaviour
         }
 
         score += earnedPoints;
+        lifetimeScore += earnedPoints;
+        SanitizeNumbers();
 
         if (floatingTextPool != null && Pointer.current != null)
         {
@@ -141,7 +200,8 @@ public class ClickerManager : MonoBehaviour
         double prestigeMult = (skillTreeManager != null ? skillTreeManager.PrestigeBonusMultiplier : 1.0)
                             + (gachaManager != null ? gachaManager.GetTotalCharacterBonus(StatType.PrestigeBonus) : 0.0);
 
-        return System.Math.Floor((score / prestigeThreshold) * prestigeMult);
+        double rawCrystals = System.Math.Pow(score / prestigeThreshold, 0.4) * 5.0;
+        return System.Math.Floor(rawCrystals * prestigeMult);
     }
 
     public void DoPrestige()
@@ -150,6 +210,8 @@ public class ClickerManager : MonoBehaviour
         if (crystalsToAdd <= 0) return;
 
         totalCrystals += crystalsToAdd;
+        totalPrestiges++;
+        SanitizeNumbers();
 
         if (audioSource != null && buySound != null)
         {
@@ -180,6 +242,8 @@ public class ClickerManager : MonoBehaviour
 
     public string FormatNumber(double num)
     {
+        if (double.IsNaN(num)) return "0";
+        if (double.IsPositiveInfinity(num)) return "MAX";
         if (num < 1000) return num.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
 
         string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
@@ -198,5 +262,15 @@ public class ClickerManager : MonoBehaviour
         }
 
         return num.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suffixes[suffixIndex];
+    }
+
+    public void AddEarnedScore(double amount)
+    {
+        if (double.IsNaN(amount) || double.IsInfinity(amount) || amount <= 0) return;
+
+        score += amount;
+        lifetimeScore += amount;
+        SanitizeNumbers();
+        GameEvents.UpdateUI();
     }
 }

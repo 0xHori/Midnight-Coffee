@@ -19,7 +19,14 @@ public class GameData
     // Основные ресурсы
     public double score;
     public double totalCrystals;
-    public double prestigeThreshold = 10000;
+    public double prestigeThreshold = 100000;
+
+    // Статистика игрока за всё время
+    public long totalClicks;
+    public long totalCritClicks;
+    public double lifetimeScore;
+    public int totalPrestiges;
+    public int totalGachaRolls;
 
     // Масштабируемые списки для Магазина, RPG-навыков и Гачи
     public List<IdLevelPair> purchasedUpgrades = new List<IdLevelPair>();

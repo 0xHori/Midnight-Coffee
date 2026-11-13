@@ -29,6 +29,11 @@ public class SaveManager : MonoBehaviour
         data.totalCrystals = clickerManager.totalCrystals;
         data.prestigeThreshold = clickerManager.prestigeThreshold;
 
+        data.totalClicks = clickerManager.totalClicks;
+        data.totalCritClicks = clickerManager.totalCritClicks;
+        data.lifetimeScore = clickerManager.lifetimeScore;
+        data.totalPrestiges = clickerManager.totalPrestiges;
+
         if (shopManager != null)
             data.purchasedUpgrades = shopManager.ExportSaveData();
 
@@ -39,6 +44,7 @@ public class SaveManager : MonoBehaviour
         {
             data.ownedCharacters = gachaManager.ExportSaveData();
             data.equippedCharacterId = gachaManager.equippedCharacterId;
+            data.totalGachaRolls = gachaManager.totalGachaRolls;
         }
 
         data.lastExitTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
@@ -72,6 +78,11 @@ public class SaveManager : MonoBehaviour
             clickerManager.totalCrystals = data.totalCrystals;
             clickerManager.prestigeThreshold = data.prestigeThreshold;
 
+            clickerManager.totalClicks = data.totalClicks;
+            clickerManager.totalCritClicks = data.totalCritClicks;
+            clickerManager.lifetimeScore = data.lifetimeScore;
+            clickerManager.totalPrestiges = data.totalPrestiges;
+
             if (shopManager != null)
                 shopManager.ImportSaveData(data.purchasedUpgrades);
 
@@ -79,7 +90,10 @@ public class SaveManager : MonoBehaviour
                 skillTreeManager.ImportSaveData(data.unlockedSkills);
 
             if (gachaManager != null)
+            {
                 gachaManager.ImportSaveData(data.ownedCharacters, data.equippedCharacterId);
+                gachaManager.totalGachaRolls = data.totalGachaRolls;
+            }
 
             CalculateOfflineIncome(data.lastExitTime);
         }
@@ -106,6 +120,7 @@ public class SaveManager : MonoBehaviour
             {
                 double earned = secondsAway * autoPerSec;
                 clickerManager.score += earned;
+                clickerManager.lifetimeScore += earned;
 
                 int hours = (int)(secondsAway / 3600);
                 int minutes = (int)((secondsAway % 3600) / 60);
