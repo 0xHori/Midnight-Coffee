@@ -51,16 +51,16 @@ public class UIManager : MonoBehaviour
         if (clickerManager == null) return;
 
         string multiplierString = clickerManager.totalCrystals > 0
-            ? $" (x{clickerManager.FormatNumber(clickerManager.PrestigeMultiplier)})"
+            ? $" (x{clickerManager.PrestigeMultiplier.ToCompactString()})"
             : "";
 
-        scoreText.text = "Счет: " + clickerManager.FormatNumber(clickerManager.score) + multiplierString;
-        incomeText.text = "Доход: " + clickerManager.FormatNumber(clickerManager.GetTotalAutoIncomePerSecond()) + " / сек";
+        scoreText.text = $"Счет: {clickerManager.score.ToCompactString()}{multiplierString}";
+        incomeText.text = $"Доход: {clickerManager.GetTotalAutoIncomePerSecond().ToCompactString()} / сек";
 
         if (prestigeInfoText != null)
         {
             double potential = clickerManager.CalculatePotentialCrystals();
-            prestigeInfoText.text = $"Перерождение\nВы получите: {clickerManager.FormatNumber(potential)} кристаллов\n(Каждый дает +2% к доходу)\nВсего: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
+            prestigeInfoText.text = $"Перерождение\nВы получите: {potential.ToCompactString()} кристаллов\n(Каждый дает +2% к доходу)\nВсего: {clickerManager.totalCrystals.ToCompactString()}";
             prestigeButtonComponent.interactable = (potential > 0);
         }
     }
@@ -68,7 +68,7 @@ public class UIManager : MonoBehaviour
     public void ShowOfflinePanel(double earned, int hours, int minutes)
     {
         offlinePanel.SetActive(true);
-        offlineText.text = $"Пока вас не было\n({hours}ч {minutes}м),\nвы заработали:\n{clickerManager.FormatNumber(earned)}";
+        offlineText.text = $"Пока вас не было\n({hours}ч {minutes}м),\nвы заработали:\n{earned.ToCompactString()}";
     }
 
     public void OpenPrestigePanel() { prestigePanel.SetActive(true); if (dimBackground != null) dimBackground.SetActive(true); }
@@ -129,7 +129,7 @@ public class UIManager : MonoBehaviour
     {
         if (gachaCrystalsText != null && clickerManager != null)
         {
-            gachaCrystalsText.text = $"Кристаллы: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
+            gachaCrystalsText.text = $"Кристаллы: {clickerManager.totalCrystals.ToCompactString()}";
         }
     }
 }

@@ -33,7 +33,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         if (clickerManager.floatingTextPool != null)
         {
             clickerManager.floatingTextPool.SpawnText(
-                "БОНУС! +" + clickerManager.FormatNumber(reward),
+                $"БОНУС! +{reward.ToCompactString()}",
                 Color.yellow,
                 transform.position,
                 2f
@@ -41,7 +41,6 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         }
 
         GameEvents.SaveGame();
-
         Destroy(gameObject);
     }
 }

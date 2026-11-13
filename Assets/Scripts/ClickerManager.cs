@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class ClickerManager : MonoBehaviour
 {
@@ -9,12 +8,6 @@ public class ClickerManager : MonoBehaviour
     public GachaManager gachaManager;
     public SaveManager saveManager;
     public FeverManager feverManager;
-
-    [Header("Звуки")]
-    public AudioSource audioSource;
-    public AudioClip clickSound;
-    public AudioClip critSound;
-    public AudioClip buySound;
 
     [Header("Данные игрока")]
     public double score = 0;
@@ -33,9 +26,8 @@ public class ClickerManager : MonoBehaviour
     public double prestigeThreshold = 100000;
     public double PrestigeMultiplier => 1 + (totalCrystals * 0.02);
 
-    [Header("UI и Эффекты")]
+    [Header("UI и Эффекты (для бонусов)")]
     public FloatingTextPool floatingTextPool;
-    public TapParticlePool tapParticlePool;
 
     private const double MAX_SAFE_DOUBLE = 1e300;
 
@@ -67,15 +59,9 @@ public class ClickerManager : MonoBehaviour
             lifetimeScore = 0;
     }
 
-    void AutoSave()
-    {
-        GameEvents.SaveGame();
-    }
+    void AutoSave() => GameEvents.SaveGame();
 
-    public double GetFeverMultiplier()
-    {
-        return feverManager != null ? feverManager.CurrentMultiplier : 1.0;
-    }
+    public double GetFeverMultiplier() => feverManager != null ? feverManager.CurrentMultiplier : 1.0;
 
     public double GetTotalClickPower()
     {
@@ -133,10 +119,7 @@ public class ClickerManager : MonoBehaviour
         double income = GetTotalAutoIncomePerSecond();
         if (income > 0)
         {
-            score += income;
-            lifetimeScore += income;
-            SanitizeNumbers();
-            GameEvents.UpdateUI();
+            AddEarnedScore(income);
         }
     }
 
@@ -149,64 +132,24 @@ public class ClickerManager : MonoBehaviour
             feverManager.RegisterTap();
 
         bool isFeverNow = feverManager != null && feverManager.isFeverActive;
+        if (!wasFeverActive && isFeverNow)
+            GameEvents.FeverTriggered();
 
         double earnedPoints = GetTotalClickPower();
-        bool isCrit = false;
+        bool isCrit = UnityEngine.Random.value <= GetTotalCritChance();
 
-        if (UnityEngine.Random.value <= GetTotalCritChance())
+        if (isCrit)
         {
             earnedPoints *= GetTotalCritMultiplier();
-            isCrit = true;
             totalCritClicks++;
             AudioManager.TriggerHaptic();
-
-            if (audioSource != null && critSound != null)
-            {
-                audioSource.pitch = isFeverNow ? 1.15f : 1f;
-                audioSource.PlayOneShot(critSound);
-            }
-        }
-        else
-        {
-            if (audioSource != null && clickSound != null)
-            {
-                float basePitch = isFeverNow ? 1.15f : 1.0f;
-                audioSource.pitch = UnityEngine.Random.Range(basePitch - 0.1f, basePitch + 0.1f);
-                audioSource.PlayOneShot(clickSound);
-            }
         }
 
         score += earnedPoints;
         lifetimeScore += earnedPoints;
         SanitizeNumbers();
 
-        if (floatingTextPool != null && Pointer.current != null)
-        {
-            Vector2 pointerPos = Pointer.current.position.ReadValue();
-            Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
-            if (tapParticlePool != null) tapParticlePool.SpawnBurst(screenPos, isCrit || isFeverNow);
-
-            if (!wasFeverActive && isFeverNow)
-            {
-                Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height * 0.65f, 0);
-                floatingTextPool.SpawnText("FEVER MODE x3!", new Color(1f, 0.65f, 0f), centerPos, 2.2f);
-            }
-
-            screenPos.y += 20f;
-            screenPos.x += UnityEngine.Random.Range(-150f, 150f);
-            screenPos.y += UnityEngine.Random.Range(-30f, 40f);
-            
-            if (isCrit)
-            {
-                floatingTextPool.SpawnText("КРИТ! +" + FormatNumber(earnedPoints), Color.red, screenPos, 1.5f);
-            }
-            else
-            {
-                Color textColor = isFeverNow ? new Color(1f, 0.85f, 0.2f) : Color.white;
-                floatingTextPool.SpawnText("+" + FormatNumber(earnedPoints), textColor, screenPos, isFeverNow ? 1.15f : 1f);
-            }
-        }
-
+        GameEvents.PlayerTapped(earnedPoints, isCrit, isFeverNow);
         GameEvents.UpdateUI();
     }
 
@@ -230,22 +173,7 @@ public class ClickerManager : MonoBehaviour
         totalPrestiges++;
         SanitizeNumbers();
 
-        if (audioSource != null && buySound != null)
-        {
-            audioSource.pitch = 0.8f;
-            audioSource.PlayOneShot(buySound);
-        }
-
-        if (floatingTextPool != null)
-        {
-            Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
-            floatingTextPool.SpawnText(
-                "ПРЕСТИЖ! +" + FormatNumber(crystalsToAdd) + " КРИСТАЛЛОВ",
-                new Color(0.8f, 0.2f, 1f),
-                centerPos,
-                2.5f
-            );
-        }
+        GameEvents.PrestigeCompleted(crystalsToAdd);
 
         score = 0;
         prestigeThreshold *= 2.5;
@@ -255,29 +183,5 @@ public class ClickerManager : MonoBehaviour
 
         GameEvents.SaveGame();
         GameEvents.UpdateUI();
-    }
-
-    public string FormatNumber(double num)
-    {
-        if (double.IsNaN(num)) return "0";
-        if (double.IsPositiveInfinity(num)) return "MAX";
-        if (num < 1000) return num.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
-
-        string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
-        int suffixIndex = 0;
-        double originalNum = num;
-
-        while (num >= 1000 && suffixIndex < suffixes.Length - 1)
-        {
-            num /= 1000;
-            suffixIndex++;
-        }
-
-        if (num >= 1000 && suffixIndex == suffixes.Length - 1)
-        {
-            return originalNum.ToString("0.00e0", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        return num.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suffixes[suffixIndex];
     }
 }

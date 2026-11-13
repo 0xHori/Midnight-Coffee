@@ -44,9 +44,9 @@ public class StatsUI : MonoBehaviour
     {
         if (statsContentText == null || clickerManager == null) return;
 
-        string lifetimeStr = clickerManager.FormatNumber(clickerManager.lifetimeScore);
-        string clickPowerStr = clickerManager.FormatNumber(clickerManager.GetTotalClickPower());
-        string autoIncomeStr = clickerManager.FormatNumber(clickerManager.GetTotalAutoIncomePerSecond());
+        string lifetimeStr = clickerManager.lifetimeScore.ToCompactString();
+        string clickPowerStr = clickerManager.GetTotalClickPower().ToCompactString();
+        string autoIncomeStr = clickerManager.GetTotalAutoIncomePerSecond().ToCompactString();
 
         double critChancePct = clickerManager.GetTotalCritChance() * 100.0;
         double critMult = clickerManager.GetTotalCritMultiplier();

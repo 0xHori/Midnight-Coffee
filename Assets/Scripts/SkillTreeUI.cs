@@ -92,7 +92,7 @@ public class SkillTreeUI : MonoBehaviour
     {
         if (crystalsBalanceText != null && clickerManager != null)
         {
-            crystalsBalanceText.text = $"Кристаллы: {clickerManager.FormatNumber(clickerManager.totalCrystals)}";
+            crystalsBalanceText.text = $"Кристаллы: {clickerManager.totalCrystals.ToCompactString()}";
         }
     }
 

@@ -58,7 +58,7 @@ public class SkillNodeUI : MonoBehaviour
         {
             double cost = skillData.GetCost(currentLvl);
             descriptionText.text = skillData.description;
-            costText.text = $"Улучшить: {clickerManager.FormatNumber(cost)} кр.";
+            costText.text = $"Улучшить: {cost.ToCompactString()} кр.";
             upgradeButton.interactable = (clickerManager.totalCrystals >= cost);
         }
     }

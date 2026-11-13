@@ -59,20 +59,20 @@ public class UpgradeItemUI : MonoBehaviour
         switch (data.upgradeType)
         {
             case UpgradeType.FlatClick:
-                bonusText.text = $"+{clickerManager.FormatNumber(data.baseValue * amount)} к клику";
+                bonusText.text = $"+{(data.baseValue * amount).ToCompactString()} к клику";
                 break;
             case UpgradeType.ClickMultiplier:
                 double multGain = System.Math.Pow(data.baseValue, amount);
-                bonusText.text = $"Сила клика x{clickerManager.FormatNumber(multGain)}";
+                bonusText.text = $"Сила клика x{multGain.ToCompactString()}";
                 break;
             case UpgradeType.AutoIncome:
                 double incomeGain = data.baseValue * amount * autoMult;
-                bonusText.text = $"+{clickerManager.FormatNumber(incomeGain)} / сек";
+                bonusText.text = $"+{incomeGain.ToCompactString()} / сек";
                 break;
         }
 
         bool canAfford = clickerManager.score >= cost;
-        costText.text = $"Цена: {clickerManager.FormatNumber(cost)}";
+        costText.text = $"Цена: {cost.ToCompactString()}";
         costText.color = canAfford ? new Color(1f, 0.84f, 0f) : new Color(0.95f, 0.35f, 0.35f);
 
         if (backgroundImage != null)
