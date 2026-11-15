@@ -39,6 +39,8 @@ public class ClickerManager : MonoBehaviour
 
     private const double MAX_SAFE_DOUBLE = 1e300;
     private float _autoTapTimer;
+    private float _guaranteedCritTimer;
+    public bool IsCritRushActive => _guaranteedCritTimer > 0f;
 
     void Awake()
     {
@@ -60,6 +62,9 @@ public class ClickerManager : MonoBehaviour
 
     void Update()
     {
+        if (_guaranteedCritTimer > 0f)
+            _guaranteedCritTimer -= Time.deltaTime;
+
         ProcessAutoTaps();
     }
 
@@ -104,7 +109,7 @@ public class ClickerManager : MonoBehaviour
 
     public double GetFeverMultiplier() => Stats.GetFeverMultiplier();
     public double GetTotalClickPower() => Stats.GetTotalClickPower(lifetimeCrystals);
-    public double GetTotalCritChance() => Stats.GetTotalCritChance();
+    public double GetTotalCritChance() => IsCritRushActive ? 1.0 : Stats.GetTotalCritChance();
     public double GetTotalCritMultiplier() => Stats.GetTotalCritMultiplier();
     public double GetTotalAutoIncomePerSecond() => Stats.GetTotalAutoIncomePerSecond(lifetimeCrystals);
     public double GetTotalAutoMultiplier() => Stats.GetTotalAutoMultiplier(lifetimeCrystals);
@@ -183,5 +188,10 @@ public class ClickerManager : MonoBehaviour
 
         GameEvents.SaveGame();
         GameEvents.UpdateUI();
+    }
+
+    public void ActivateCritRush(float duration)
+    {
+        _guaranteedCritTimer = Mathf.Max(_guaranteedCritTimer, duration);
     }
 }

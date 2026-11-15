@@ -8135,6 +8135,11 @@ MonoBehaviour:
   goldenButtonPrefab: {fileID: 4670432795099256609, guid: 7b214d461364f0b0583dc2c183e889dd, type: 3}
   clickerManager: {fileID: 1410147653}
   canvasTransform: {fileID: 1212280915}
+  minSpawnDelay: 35
+  maxSpawnDelay: 70
+  horizontalPadding: 110
+  topPadding: 260
+  bottomPadding: 380
 --- !u!1 &1284581487
 GameObject:
   m_ObjectHideFlags: 0
@@ -9369,6 +9374,7 @@ MonoBehaviour:
   buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   errorSound: {fileID: 0}
   clickerManager: {fileID: 1410147653}
+  milestoneStep: 25
   allUpgrades:
   - {fileID: 11400000, guid: d78820cbad2b19fc690a6a6beff71a16, type: 2}
   - {fileID: 11400000, guid: c3e5b5ad00b7879939a8557e65351f4c, type: 2}

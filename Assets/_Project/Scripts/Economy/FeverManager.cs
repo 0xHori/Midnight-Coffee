@@ -92,6 +92,16 @@ public class FeverManager : MonoBehaviour
         GameEvents.UpdateUI();
     }
 
+    public void ForceActivateFever()
+    {
+        bool wasActive = isFeverActive;
+        StartFever();
+        if (!wasActive)
+        {
+            GameEvents.FeverTriggered();
+        }
+    }
+
     private void EndFever()
     {
         isFeverActive = false;
