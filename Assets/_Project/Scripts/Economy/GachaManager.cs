@@ -102,6 +102,8 @@ public class GachaManager : MonoBehaviour
     public double GetTotalCharacterBonus(StatType type)
     {
         double total = 0;
+        BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
+
         foreach (var ch in allCharacters)
         {
             if (ch == null) continue;
@@ -111,10 +113,10 @@ public class GachaManager : MonoBehaviour
             int affectionLvl = affectionManager != null ? affectionManager.GetAffectionLevel(ch.characterId) : 1;
 
             if (ch.passiveStat == type)
-                total += ch.GetPassiveBonus(lvl, affectionLvl);
+                total += ch.GetPassiveBonus(lvl, affectionLvl, balance);
 
             if (ch.characterId == equippedCharacterId && ch.activeStat == type)
-                total += ch.GetActiveBonus(lvl, affectionLvl);
+                total += ch.GetActiveBonus(lvl, affectionLvl, balance);
         }
         return total;
     }

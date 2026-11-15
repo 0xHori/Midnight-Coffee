@@ -30,4 +30,24 @@ public class BalanceConfig : ScriptableObject
 
     [Header("Персонажи")]
     public double characterDuplicateBonusPerLevel = 0.2; // +20% за каждый дубликат
+
+    [Header("Близость (Affection)")]
+    [Tooltip("Базовый опыт для перехода с 1 на 2 уровень близости")]
+    public int baseAffectionXp = 150;
+    [Tooltip("Множитель роста требуемого опыта на каждый следующий уровень")]
+    public float affectionXpGrowth = 1.6f;
+    [Tooltip("Бонус к статам персонажа за каждый уровень близости (0.03 = +3%)")]
+    public double affectionBonusPerLevel = 0.03;
+
+    public int GetRequiredAffectionXp(int currentLevel, int maxLevel)
+    {
+        if (currentLevel >= maxLevel) return 0;
+        return Mathf.RoundToInt(baseAffectionXp * Mathf.Pow(affectionXpGrowth, Mathf.Max(0, currentLevel - 1)));
+    }
+
+    public double GetAffectionMultiplier(int affectionLevel)
+    {
+        if (affectionLevel <= 1) return 1.0;
+        return 1.0 + (affectionLevel - 1) * affectionBonusPerLevel;
+    }
 }

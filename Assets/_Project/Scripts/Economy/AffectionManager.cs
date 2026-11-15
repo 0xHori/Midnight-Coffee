@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AffectionManager : MonoBehaviour
 {
+    public BalanceConfig balanceConfig;
     public GachaManager gachaManager;
 
     [Header("Настройки начисления")]
@@ -52,7 +53,7 @@ public class AffectionManager : MonoBehaviour
         int lvl = GetAffectionLevel(character.characterId);
         if (lvl >= character.maxAffectionLevel) return 1f;
 
-        int required = character.GetRequiredAffectionXp(lvl);
+        int required = character.GetRequiredAffectionXp(lvl, balanceConfig);
         if (required <= 0) return 1f;
 
         return Mathf.Clamp01((float)GetAffectionXp(character.characterId) / required);
@@ -69,7 +70,6 @@ public class AffectionManager : MonoBehaviour
 
         AddAffectionXp(equipped, gain);
 
-        // Случайная реплика при тапе
         if (Time.time - _lastSpeakTime >= speakCooldown && Random.value <= speakChanceOnTap)
         {
             int lvl = GetAffectionLevel(equipped.characterId);
@@ -98,7 +98,7 @@ public class AffectionManager : MonoBehaviour
 
         while (state.level < character.maxAffectionLevel)
         {
-            int req = character.GetRequiredAffectionXp(state.level);
+            int req = character.GetRequiredAffectionXp(state.level, balanceConfig);
             if (req <= 0 || state.xp < req) break;
 
             state.xp -= req;

@@ -29,12 +29,6 @@ public class CharacterData : ScriptableObject
 
     [Header("Близость (Affection)")]
     public int maxAffectionLevel = 10;
-    [Tooltip("Базовый опыт для перехода с 1 на 2 уровень близости")]
-    public int baseAffectionXp = 50;
-    [Tooltip("Множитель роста требуемого опыта на каждый следующий уровень")]
-    public float affectionXpGrowth = 1.35f;
-    [Tooltip("Бонус к статам персонажа за каждый уровень близости (0.05 = +5%)")]
-    public double affectionBonusPerLevel = 0.05;
     [Tooltip("Реплики, открывающиеся по мере роста близости (индекс 0 = 1 ур. и т.д.)")]
     [TextArea] public string[] affectionQuotes;
 
@@ -70,16 +64,22 @@ public class CharacterData : ScriptableObject
         return portrait;
     }
 
-    public int GetRequiredAffectionXp(int currentLevel)
+    public int GetRequiredAffectionXp(int currentLevel, BalanceConfig balance = null)
     {
+        if (balance != null)
+            return balance.GetRequiredAffectionXp(currentLevel, maxAffectionLevel);
+
         if (currentLevel >= maxAffectionLevel) return 0;
-        return Mathf.RoundToInt(baseAffectionXp * Mathf.Pow(affectionXpGrowth, Mathf.Max(0, currentLevel - 1)));
+        return Mathf.RoundToInt(150 * Mathf.Pow(1.6f, Mathf.Max(0, currentLevel - 1)));
     }
 
-    public double GetAffectionMultiplier(int affectionLevel)
+    public double GetAffectionMultiplier(int affectionLevel, BalanceConfig balance = null)
     {
+        if (balance != null)
+            return balance.GetAffectionMultiplier(affectionLevel);
+
         if (affectionLevel <= 1) return 1.0;
-        return 1.0 + (affectionLevel - 1) * affectionBonusPerLevel;
+        return 1.0 + (affectionLevel - 1) * 0.03;
     }
 
     public string GetQuoteForLevel(int affectionLevel)
@@ -97,17 +97,19 @@ public class CharacterData : ScriptableObject
         return affectionQuotes[Random.Range(minIndex, maxIndex + 1)];
     }
 
-    public double GetPassiveBonus(int duplicateLevel, int affectionLevel = 1)
+    public double GetPassiveBonus(int duplicateLevel, int affectionLevel = 1, BalanceConfig balance = null)
     {
         if (duplicateLevel <= 0) return 0;
-        double baseVal = basePassiveValue * (1.0 + (duplicateLevel - 1) * 0.2);
-        return baseVal * GetAffectionMultiplier(affectionLevel);
+        double dupBonus = balance != null ? balance.characterDuplicateBonusPerLevel : 0.2;
+        double baseVal = basePassiveValue * (1.0 + (duplicateLevel - 1) * dupBonus);
+        return baseVal * GetAffectionMultiplier(affectionLevel, balance);
     }
 
-    public double GetActiveBonus(int duplicateLevel, int affectionLevel = 1)
+    public double GetActiveBonus(int duplicateLevel, int affectionLevel = 1, BalanceConfig balance = null)
     {
         if (duplicateLevel <= 0) return 0;
-        double baseVal = baseActiveValue * (1.0 + (duplicateLevel - 1) * 0.2);
-        return baseVal * GetAffectionMultiplier(affectionLevel);
+        double dupBonus = balance != null ? balance.characterDuplicateBonusPerLevel : 0.2;
+        double baseVal = baseActiveValue * (1.0 + (duplicateLevel - 1) * dupBonus);
+        return baseVal * GetAffectionMultiplier(affectionLevel, balance);
     }
 }

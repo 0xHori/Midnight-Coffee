@@ -84,7 +84,7 @@ public class AffectionUI : MonoBehaviour
 
         int lvl = affectionManager.GetAffectionLevel(equipped.characterId);
         float progress = affectionManager.GetNormalizedProgress(equipped);
-        double bonusPercent = (equipped.GetAffectionMultiplier(lvl) - 1.0) * 100.0;
+        double bonusPercent = (equipped.GetAffectionMultiplier(lvl, affectionManager.balanceConfig) - 1.0) * 100.0;
 
         if (fillBar != null)
             fillBar.fillAmount = progress;
