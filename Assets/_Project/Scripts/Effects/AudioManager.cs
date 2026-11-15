@@ -7,8 +7,8 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance { get; private set; }
 
     [Header("Источники звука")]
-    public AudioSource musicSource; // Отдельный AudioSource для фоновой музыки
-    public AudioSource sfxSource;   // Твой существующий AudioSource для кликов, покупок и гачи
+    public AudioSource musicSource;
+    public AudioSource sfxSource;
 
     [Header("Плейлист фоновой музыки (Lo-Fi / Cafe)")]
     public List<AudioClip> musicPlaylist = new List<AudioClip>();
@@ -19,8 +19,16 @@ public class AudioManager : MonoBehaviour
     public float SfxVolume { get; private set; } = 1.0f;
     public bool VibrationEnabled { get; private set; } = true;
 
+    public bool IsMusicMuted => MusicVolume <= 0.001f;
+    public bool IsSfxMuted => SfxVolume <= 0.001f;
+
+    private float _lastNonZeroMusicVol = 0.6f;
+    private float _lastNonZeroSfxVol = 1.0f;
+
     private const string PREF_MUSIC_VOL = "Settings_MusicVolume";
     private const string PREF_SFX_VOL = "Settings_SfxVolume";
+    private const string PREF_LAST_MUSIC_VOL = "Settings_LastMusicVolume";
+    private const string PREF_LAST_SFX_VOL = "Settings_LastSfxVolume";
     private const string PREF_VIBRATION = "Settings_Vibration";
 
     private int currentTrackIndex = -1;
@@ -50,6 +58,8 @@ public class AudioManager : MonoBehaviour
     {
         MusicVolume = PlayerPrefs.GetFloat(PREF_MUSIC_VOL, 0.6f);
         SfxVolume = PlayerPrefs.GetFloat(PREF_SFX_VOL, 1.0f);
+        _lastNonZeroMusicVol = Mathf.Max(0.1f, PlayerPrefs.GetFloat(PREF_LAST_MUSIC_VOL, MusicVolume > 0.01f ? MusicVolume : 0.6f));
+        _lastNonZeroSfxVol = Mathf.Max(0.1f, PlayerPrefs.GetFloat(PREF_LAST_SFX_VOL, SfxVolume > 0.01f ? SfxVolume : 1.0f));
         VibrationEnabled = PlayerPrefs.GetInt(PREF_VIBRATION, 1) == 1;
 
         ApplyVolumes();
@@ -58,6 +68,12 @@ public class AudioManager : MonoBehaviour
     public void SetMusicVolume(float value)
     {
         MusicVolume = Mathf.Clamp01(value);
+        if (MusicVolume > 0.01f)
+        {
+            _lastNonZeroMusicVol = MusicVolume;
+            PlayerPrefs.SetFloat(PREF_LAST_MUSIC_VOL, _lastNonZeroMusicVol);
+        }
+
         PlayerPrefs.SetFloat(PREF_MUSIC_VOL, MusicVolume);
         PlayerPrefs.Save();
         ApplyVolumes();
@@ -66,9 +82,31 @@ public class AudioManager : MonoBehaviour
     public void SetSfxVolume(float value)
     {
         SfxVolume = Mathf.Clamp01(value);
+        if (SfxVolume > 0.01f)
+        {
+            _lastNonZeroSfxVol = SfxVolume;
+            PlayerPrefs.SetFloat(PREF_LAST_SFX_VOL, _lastNonZeroSfxVol);
+        }
+
         PlayerPrefs.SetFloat(PREF_SFX_VOL, SfxVolume);
         PlayerPrefs.Save();
         ApplyVolumes();
+    }
+
+    public void ToggleMusicMute()
+    {
+        if (IsMusicMuted)
+            SetMusicVolume(_lastNonZeroMusicVol);
+        else
+            SetMusicVolume(0f);
+    }
+
+    public void ToggleSfxMute()
+    {
+        if (IsSfxMuted)
+            SetSfxVolume(_lastNonZeroSfxVol);
+        else
+            SetSfxVolume(0f);
     }
 
     public void SetVibration(bool enabled)
@@ -119,7 +157,6 @@ public class AudioManager : MonoBehaviour
     {
         if (nextClip == null) yield break;
 
-        // 1. Плавное затухание текущего трека
         if (musicSource.isPlaying && musicSource.volume > 0.01f)
         {
             float startVol = musicSource.volume;
@@ -132,7 +169,6 @@ public class AudioManager : MonoBehaviour
             }
         }
 
-        // 2. Переключение клипа и плавное нарастание громкости
         musicSource.Stop();
         musicSource.clip = nextClip;
         musicSource.loop = false;
@@ -147,7 +183,6 @@ public class AudioManager : MonoBehaviour
         }
         musicSource.volume = MusicVolume;
 
-        // 3. Ожидание конца трека с запасом на затухание и автоматический переход к следующему
         while (musicSource.isPlaying && musicSource.time < nextClip.length - fadeDuration)
         {
             yield return null;

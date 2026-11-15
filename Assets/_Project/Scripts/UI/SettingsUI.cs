@@ -9,13 +9,19 @@ public class SettingsUI : MonoBehaviour
     [Header("Панель настроек")]
     public GameObject settingsPanel;
 
-    [Header("Элементы управления")]
+    [Header("Музыка")]
+    public TextMeshProUGUI musicLabelText;
     public Slider musicSlider;
     public TextMeshProUGUI musicValueText;
+    public Button musicMuteButton;
 
+    [Header("Звуки и эффекты (SFX)")]
+    public TextMeshProUGUI sfxLabelText;
     public Slider sfxSlider;
     public TextMeshProUGUI sfxValueText;
+    public Button sfxMuteButton;
 
+    [Header("Вибрация")]
     public Toggle vibrationToggle;
 
     [Header("Плеер")]
@@ -25,6 +31,9 @@ public class SettingsUI : MonoBehaviour
     [Header("Сброс прогресса")]
     public Button resetProgressButton;
     public TextMeshProUGUI resetButtonText;
+
+    private TextMeshProUGUI _musicMuteBtnText;
+    private TextMeshProUGUI _sfxMuteBtnText;
 
     private bool confirmResetArmed = false;
     private float resetArmTimer = 0f;
@@ -45,6 +54,18 @@ public class SettingsUI : MonoBehaviour
 
         if (resetProgressButton != null)
             resetProgressButton.onClick.AddListener(OnResetButtonClicked);
+
+        if (musicMuteButton != null)
+        {
+            musicMuteButton.onClick.AddListener(OnMusicMuteClicked);
+            _musicMuteBtnText = musicMuteButton.GetComponentInChildren<TextMeshProUGUI>();
+        }
+
+        if (sfxMuteButton != null)
+        {
+            sfxMuteButton.onClick.AddListener(OnSfxMuteClicked);
+            _sfxMuteBtnText = sfxMuteButton.GetComponentInChildren<TextMeshProUGUI>();
+        }
     }
 
     void Update()
@@ -89,6 +110,20 @@ public class SettingsUI : MonoBehaviour
         UpdateTrackLabel();
     }
 
+    private void OnMusicMuteClicked()
+    {
+        if (AudioManager.Instance == null) return;
+        AudioManager.Instance.ToggleMusicMute();
+        SyncUIWithManager();
+    }
+
+    private void OnSfxMuteClicked()
+    {
+        if (AudioManager.Instance == null) return;
+        AudioManager.Instance.ToggleSfxMute();
+        SyncUIWithManager();
+    }
+
     private void OnMusicSliderChanged(float val)
     {
         if (AudioManager.Instance != null) AudioManager.Instance.SetMusicVolume(val);
@@ -121,12 +156,46 @@ public class SettingsUI : MonoBehaviour
 
     private void UpdateMusicLabel(float val)
     {
-        if (musicValueText != null) musicValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+        bool muted = val <= 0.001f;
+        if (musicValueText != null)
+        {
+            musicValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            musicValueText.color = muted ? new Color(0.95f, 0.4f, 0.4f) : Color.white;
+        }
+        if (musicLabelText != null)
+            musicLabelText.color = muted ? new Color(0.7f, 0.7f, 0.7f) : Color.white;
+
+        UpdateMuteButtonVisual(musicMuteButton, _musicMuteBtnText, muted);
     }
 
     private void UpdateSfxLabel(float val)
     {
-        if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+        bool muted = val <= 0.001f;
+        if (sfxValueText != null)
+        {
+            sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            sfxValueText.color = muted ? new Color(0.95f, 0.4f, 0.4f) : Color.white;
+        }
+        if (sfxLabelText != null)
+            sfxLabelText.color = muted ? new Color(0.7f, 0.7f, 0.7f) : Color.white;
+
+        UpdateMuteButtonVisual(sfxMuteButton, _sfxMuteBtnText, muted);
+    }
+
+    private void UpdateMuteButtonVisual(Button btn, TextMeshProUGUI btnText, bool muted)
+    {
+        if (btn == null) return;
+        if (btnText != null)
+        {
+            btnText.text = muted ? "Вкл" : "Выкл";
+            btnText.color = muted ? Color.white : new Color(0.12f, 0.14f, 0.17f);
+        }
+        if (btn.targetGraphic != null)
+        {
+            btn.targetGraphic.color = muted
+                ? new Color(0.75f, 0.25f, 0.25f) // Красная, когда звук выключен
+                : new Color(0.92f, 0.92f, 0.92f); // Светлая в стиле твоих кнопок, когда включен
+        }
     }
 
     private void UpdateTrackLabel()
@@ -147,14 +216,12 @@ public class SettingsUI : MonoBehaviour
             return;
         }
 
-        // Удаляем все json-файлы сохранений в persistentDataPath
         string[] saveFiles = Directory.GetFiles(Application.persistentDataPath, "*.json");
         foreach (string file in saveFiles)
         {
             File.Delete(file);
         }
 
-        // Перезагружаем текущую сцену с чистого листа
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
