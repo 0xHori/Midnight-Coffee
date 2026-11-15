@@ -5,6 +5,7 @@ using TMPro;
 public class GalleryManager : MonoBehaviour
 {
     public GachaManager gachaManager;
+    public AffectionManager affectionManager;
     public GameObject cardPrefab;
     public Transform contentContainer;
 
@@ -34,6 +35,8 @@ public class GalleryManager : MonoBehaviour
 
             TextMeshProUGUI nameText = newCard.transform.Find("NameText").GetComponent<TextMeshProUGUI>();
             Image portraitImage = newCard.transform.Find("Portrait").GetComponent<Image>();
+            Image cardBg = newCard.GetComponent<Image>();
+
             portraitImage.sprite = character.portrait;
             portraitImage.preserveAspect = true;
 
@@ -44,6 +47,9 @@ public class GalleryManager : MonoBehaviour
 
             if (!isOwned)
             {
+                if (cardBg != null)
+                    cardBg.color = new Color(0.16f, 0.16f, 0.18f, 1f);
+
                 portraitImage.color = new Color(0, 0, 0, 1f);
                 nameText.text = "???";
 
@@ -58,9 +64,26 @@ public class GalleryManager : MonoBehaviour
             {
                 portraitImage.color = Color.white;
                 bool isEquipped = (gachaManager.equippedCharacterId == character.characterId);
-                nameText.text = isEquipped
-                    ? $"<color=#FFD700>[АКТИВНА]</color>\n{character.characterName} [Ур.{level}]"
-                    : $"{character.characterName} [Ур.{level}]";
+
+                if (cardBg != null)
+                {
+                    cardBg.color = isEquipped
+                        ? new Color(0.28f, 0.24f, 0.14f, 1f)
+                        : new Color(0.16f, 0.16f, 0.18f, 1f);
+                }
+
+                int affectionLvl = affectionManager != null
+                    ? affectionManager.GetAffectionLevel(character.characterId)
+                    : 1;
+                string affectionTag = affectionLvl >= character.maxAffectionLevel
+                    ? "<color=#FF6B9E>♥ MAX</color>"
+                    : $"<color=#FF6B9E>♥ Ур.{affectionLvl}</color>";
+
+                string nameLine = isEquipped
+                    ? $"<color=#FFD700>✦ {character.characterName}</color>"
+                    : character.characterName;
+
+                nameText.text = $"{nameLine}\nУр.{level}  •  {affectionTag}";
 
                 if (cardBtn != null)
                 {
@@ -76,7 +99,6 @@ public class GalleryManager : MonoBehaviour
             }
         }
     }
-
     private void ShowEquippedOrDefaultDetails()
     {
         if (gachaManager != null && !string.IsNullOrEmpty(gachaManager.equippedCharacterId))
@@ -109,17 +131,27 @@ public class GalleryManager : MonoBehaviour
             return;
         }
 
-        double passiveBonus = character.GetPassiveBonus(level) * 100.0;
-        double activeBonus = character.GetActiveBonus(level) * 100.0;
+        BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
+        int affectionLvl = affectionManager != null
+            ? affectionManager.GetAffectionLevel(character.characterId)
+            : 1;
+
+        double affectionBonusPct = (character.GetAffectionMultiplier(affectionLvl, balance) - 1.0) * 100.0;
+        double passiveBonus = character.GetPassiveBonus(level, affectionLvl, balance) * 100.0;
+        double activeBonus = character.GetActiveBonus(level, affectionLvl, balance) * 100.0;
 
         string passiveDesc = GetStatDescription(character.passiveStat);
         string activeDesc = GetStatDescription(character.activeStat);
+
+        string affectionLine = affectionLvl >= character.maxAffectionLevel
+            ? $"<color=#FF6B9E>♥ Близость: MAX (+{affectionBonusPct:0.#}% к статам)</color>"
+            : $"<color=#FF6B9E>♥ Близость: Ур. {affectionLvl}/{character.maxAffectionLevel} (+{affectionBonusPct:0.#}% к статам)</color>";
 
         string abilityLine = !string.IsNullOrEmpty(character.abilityDescription)
             ? $"\n<i><color=#CCCCCC>{character.abilityDescription}</color></i>"
             : "";
 
-        detailsText.text = $"<b>{character.characterName}</b> (Ур. {level})\n" +
+        detailsText.text = $"<b>{character.characterName}</b> (Ур. {level})  |  {affectionLine}\n" +
                            $"<color=#A3E635>Пассивно: +{passiveBonus:0.#}% {passiveDesc}</color>  |  " +
                            $"<color=#38BDF8>Активна: +{activeBonus:0.#}% {activeDesc}</color>" +
                            abilityLine;
