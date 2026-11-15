@@ -1,6 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+[Serializable]
+public class MusicTrack
+{
+    public string trackTitle;
+    public AudioClip clip;
+}
 
 public class AudioManager : MonoBehaviour
 {
@@ -11,7 +19,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
 
     [Header("Плейлист фоновой музыки (Lo-Fi / Cafe)")]
-    public List<AudioClip> musicPlaylist = new List<AudioClip>();
+    public List<MusicTrack> musicPlaylist = new List<MusicTrack>();
     public bool shufflePlaylist = true;
     public float fadeDuration = 1.5f;
 
@@ -131,7 +139,7 @@ public class AudioManager : MonoBehaviour
             int nextIndex = currentTrackIndex;
             while (nextIndex == currentTrackIndex)
             {
-                nextIndex = Random.Range(0, musicPlaylist.Count);
+                nextIndex = UnityEngine.Random.Range(0, musicPlaylist.Count);
             }
             currentTrackIndex = nextIndex;
         }
@@ -141,14 +149,21 @@ public class AudioManager : MonoBehaviour
         }
 
         if (trackRoutine != null) StopCoroutine(trackRoutine);
-        trackRoutine = StartCoroutine(CrossfadeToTrack(musicPlaylist[currentTrackIndex]));
+        trackRoutine = StartCoroutine(CrossfadeToTrack(musicPlaylist[currentTrackIndex]?.clip));
     }
 
     public string GetCurrentTrackName()
     {
-        if (currentTrackIndex >= 0 && currentTrackIndex < musicPlaylist.Count && musicPlaylist[currentTrackIndex] != null)
+        if (currentTrackIndex >= 0 && currentTrackIndex < musicPlaylist.Count)
         {
-            return musicPlaylist[currentTrackIndex].name;
+            MusicTrack track = musicPlaylist[currentTrackIndex];
+            if (track != null)
+            {
+                if (!string.IsNullOrWhiteSpace(track.trackTitle))
+                    return track.trackTitle;
+                if (track.clip != null)
+                    return track.clip.name;
+            }
         }
         return "Нет треков";
     }

@@ -511,7 +511,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -540}
+  m_AnchoredPosition: {x: 0, y: -560}
   m_SizeDelta: {x: 460, y: 65}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &57233519
@@ -2109,7 +2109,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -475}
+  m_AnchoredPosition: {x: 0, y: -495}
   m_SizeDelta: {x: 740, y: 55}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &247665212
@@ -2497,7 +2497,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -620}
+  m_AnchoredPosition: {x: 0, y: -640}
   m_SizeDelta: {x: 460, y: 65}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &337002160
@@ -9445,7 +9445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Effects::FeverVisualFeedback
   canvasTransform: {fileID: 1212280915}
   feverGlowColor: {r: 1, g: 0.58, b: 0.1, a: 0.55}
-  flashColor: {r: 1, g: 0.85, b: 0.35, a: 0.45}
+  borderThickness: 0.16
   pulseSpeed: 5
   fadeSpeed: 4
 --- !u!1 &1411491550
@@ -13361,10 +13361,14 @@ MonoBehaviour:
   musicSource: {fileID: 1954411161}
   sfxSource: {fileID: 1430138572}
   musicPlaylist:
-  - {fileID: 8300000, guid: 09d1b14fd617f8c46b4e5beb32ecb47a, type: 3}
-  - {fileID: 8300000, guid: 7c0b09b81ccb3acb7b9642da62097e45, type: 3}
-  - {fileID: 8300000, guid: 5f40ffa5fdefb1bfa9f5af5732794fd1, type: 3}
-  - {fileID: 8300000, guid: 4c0ee8fbcec174b919282ec312746158, type: 3}
+  - trackTitle: "\u0422\u0440\u0435\u043A 1"
+    clip: {fileID: 8300000, guid: 09d1b14fd617f8c46b4e5beb32ecb47a, type: 3}
+  - trackTitle: "\u0422\u0440\u0435\u043A 2"
+    clip: {fileID: 8300000, guid: 7c0b09b81ccb3acb7b9642da62097e45, type: 3}
+  - trackTitle: "\u0422\u0440\u0435\u043A 3"
+    clip: {fileID: 8300000, guid: 5f40ffa5fdefb1bfa9f5af5732794fd1, type: 3}
+  - trackTitle: "\u0422\u0440\u0435\u043A 4"
+    clip: {fileID: 8300000, guid: 4c0ee8fbcec174b919282ec312746158, type: 3}
   shufflePlaylist: 1
   fadeDuration: 1.5
 --- !u!82 &1954411161
