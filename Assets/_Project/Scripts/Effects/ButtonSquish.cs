@@ -35,10 +35,21 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     private bool _isPointerHeld = false;
     private float _holdTimer = 0f;
     private float _holdRepeatTimer = 0f;
+    private bool _isFeverActive = false;
 
     void Awake()
     {
         _button = GetComponent<Button>();
+    }
+
+    void OnDisable()
+    {
+        _isFeverActive = false;
+    }
+
+    public void SetFeverActive(bool active)
+    {
+        _isFeverActive = active;
     }
 
     void Start()
@@ -53,16 +64,19 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
         if (!enableIdleBreathing || isAnimatingTap) return;
 
-        idlePhase += Time.deltaTime * breatheSpeed;
+        float speedMult = _isFeverActive ? 1.85f : 1f;
+        float ampMult = _isFeverActive ? 1.4f : 1f;
+
+        idlePhase += Time.deltaTime * breatheSpeed * speedMult;
         float wave = Mathf.Sin(idlePhase);
 
-        float scaleX = originalScale.x * (1f - wave * breatheScaleX);
-        float scaleY = originalScale.y * (1f + wave * breatheScaleY);
+        float scaleX = originalScale.x * (1f - wave * breatheScaleX * ampMult);
+        float scaleY = originalScale.y * (1f + wave * breatheScaleY * ampMult);
         transform.localScale = new Vector3(scaleX, scaleY, originalScale.z);
 
         if (idleSwayAngle > 0f)
         {
-            float sway = Mathf.Sin(idlePhase * 0.5f) * idleSwayAngle;
+            float sway = Mathf.Sin(idlePhase * 0.5f) * idleSwayAngle * ampMult;
             transform.localRotation = originalRotation * Quaternion.Euler(0f, 0f, sway);
         }
     }
@@ -82,7 +96,6 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             _holdRepeatTimer -= interval;
             _button.onClick?.Invoke();
 
-            // Лёгкая пульсация стикера в такт зажатию
             if (animCoroutine != null) StopCoroutine(animCoroutine);
             animCoroutine = StartCoroutine(AnimateHoldPulse());
         }

@@ -13,6 +13,7 @@ public static class GameEvents
     public static event Action<double, bool, bool> OnPlayerTapped;
     public static event Action<double, bool, bool, bool> OnPlayerTappedDetailed; // + bool isManual
     public static Action OnFeverTriggered;
+    public static Action OnFeverEnded;
     public static Action<double> OnPrestigeCompleted;
     public static Action OnNotEnoughCurrency;
     public static Action<CharacterData> OnCharacterEquipped;
@@ -31,6 +32,7 @@ public static class GameEvents
         OnPlayerTappedDetailed?.Invoke(earnedPoints, isCrit, isFever, isManual);
     }
     public static void FeverTriggered() => OnFeverTriggered?.Invoke();
+    public static void FeverEnded() => OnFeverEnded?.Invoke();
     public static void PrestigeCompleted(double crystalsGained) => OnPrestigeCompleted?.Invoke(crystalsGained);
     public static void NotEnoughCurrency() => OnNotEnoughCurrency?.Invoke();
     public static void CharacterEquipped(CharacterData character) => OnCharacterEquipped?.Invoke(character);

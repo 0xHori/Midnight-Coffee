@@ -97,6 +97,7 @@ public class FeverManager : MonoBehaviour
         isFeverActive = false;
         currentCharge = 0f;
         UpdateFeverUI();
+        GameEvents.FeverEnded();
         GameEvents.UpdateUI();
     }
 

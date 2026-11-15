@@ -55,7 +55,13 @@ public class UIManager : MonoBehaviour
             : "";
 
         scoreText.text = $"Счет: {clickerManager.score.ToCompactString()}{multiplierString}";
-        incomeText.text = $"Доход: {clickerManager.GetTotalAutoIncomePerSecond().ToCompactString()} / сек";
+        double passiveIncome = clickerManager.GetTotalAutoIncomePerSecond();
+        float autoTaps = clickerManager.GetAutoTapsPerSecond();
+        double avgCritBonus = 1.0 + clickerManager.GetTotalCritChance() * (clickerManager.GetTotalCritMultiplier() - 1.0);
+        double autoTapIncome = autoTaps * clickerManager.GetTotalClickPower() * avgCritBonus;
+        double totalShownIncome = passiveIncome + autoTapIncome;
+
+        incomeText.text = $"Доход: {totalShownIncome.ToCompactString()} / сек";
 
         if (prestigeInfoText != null)
         {
