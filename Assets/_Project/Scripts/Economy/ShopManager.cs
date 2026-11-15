@@ -19,6 +19,10 @@ public class ShopManager : MonoBehaviour
     [Header("Ссылки")]
     public ClickerManager clickerManager;
 
+    [Header("Вехи уровней (Milestones)")]
+    [Tooltip("Каждые N уровней эффективность улучшения удваивается (x2)")]
+    public int milestoneStep = 25;
+
     [Header("Все товары магазина")]
     public List<UpgradeData> allUpgrades = new List<UpgradeData>();
 
@@ -38,6 +42,25 @@ public class ShopManager : MonoBehaviour
     public int GetUpgradeLevel(string upgradeId)
     {
         return upgradeLevels.TryGetValue(upgradeId, out int lvl) ? lvl : 0;
+    }
+
+    public int GetMilestoneCount(int level)
+    {
+        if (milestoneStep <= 0 || level <= 0) return 0;
+        return level / milestoneStep;
+    }
+
+    public double GetMilestoneMultiplier(int level)
+    {
+        int milestones = GetMilestoneCount(level);
+        return milestones > 0 ? Math.Pow(2.0, milestones) : 1.0;
+    }
+
+    public int GetLevelsToNextMilestone(int level)
+    {
+        if (milestoneStep <= 0) return 0;
+        int remainder = level % milestoneStep;
+        return milestoneStep - remainder;
     }
 
     public void CycleBuyMode()
@@ -98,15 +121,35 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
+        int oldMilestones = GetMilestoneCount(currentLvl);
+        int newLvl = currentLvl + amountToBuy;
+        int newMilestones = GetMilestoneCount(newLvl);
+        bool reachedNewMilestone = newMilestones > oldMilestones;
+
         clickerManager.score -= totalCost;
-        upgradeLevels[upgrade.upgradeId] = currentLvl + amountToBuy;
+        upgradeLevels[upgrade.upgradeId] = newLvl;
 
         RecalculateStats();
 
         if (audioSource != null && buySound != null)
         {
-            audioSource.pitch = 1f;
+            audioSource.pitch = reachedNewMilestone ? 1.35f : 1f;
             audioSource.PlayOneShot(buySound);
+        }
+
+        if (reachedNewMilestone)
+        {
+            AudioManager.TriggerHaptic();
+            if (clickerManager.floatingTextPool != null)
+            {
+                Vector3 pos = new Vector3(Screen.width / 2f, Screen.height * 0.45f, 0);
+                clickerManager.floatingTextPool.SpawnText(
+                    $"ВЕХА УР.{newLvl}! {upgrade.upgradeName} x2!",
+                    new Color(1f, 0.84f, 0f),
+                    pos,
+                    1.6f
+                );
+            }
         }
 
         GameEvents.UpdateUI();
@@ -126,16 +169,19 @@ public class ShopManager : MonoBehaviour
             int lvl = GetUpgradeLevel(upgrade.upgradeId);
             if (lvl <= 0) continue;
 
+            double milestoneMult = GetMilestoneMultiplier(lvl);
+
             switch (upgrade.upgradeType)
             {
                 case UpgradeType.FlatClick:
-                    flatClick += upgrade.baseValue * lvl;
+                    flatClick += upgrade.baseValue * lvl * milestoneMult;
                     break;
                 case UpgradeType.ClickMultiplier:
-                    clickMult *= Math.Pow(upgrade.baseValue, lvl);
+                    double effectiveBase = 1.0 + (upgrade.baseValue - 1.0) * milestoneMult;
+                    clickMult *= Math.Pow(effectiveBase, lvl);
                     break;
                 case UpgradeType.AutoIncome:
-                    baseAuto += upgrade.baseValue * lvl;
+                    baseAuto += upgrade.baseValue * lvl * milestoneMult;
                     break;
             }
         }

@@ -14,11 +14,14 @@ public class UpgradeItemUI : MonoBehaviour
     public Image backgroundImage;
     public Color affordableColor = new Color(0.15f, 0.17f, 0.21f, 1f);
     public Color unaffordableColor = new Color(0.10f, 0.11f, 0.14f, 0.75f);
+    public Color milestoneFlashColor = new Color(0.85f, 0.65f, 0.12f, 1f);
 
     private UpgradeData data;
     private ShopManager shopManager;
     private ClickerManager clickerManager;
     private Coroutine shakeCoroutine;
+    private Coroutine flashCoroutine;
+    private int _lastKnownMilestones = -1;
 
     public void Setup(UpgradeData upgradeData, ShopManager shop, ClickerManager clicker)
     {
@@ -52,34 +55,57 @@ public class UpgradeItemUI : MonoBehaviour
         int amount = shopManager.GetPurchaseAmount(data);
         double cost = data.GetBulkCost(lvl, amount);
 
+        int milestones = shopManager.GetMilestoneCount(lvl);
+        double currentMilestoneMult = shopManager.GetMilestoneMultiplier(lvl);
+        int toNextMilestone = shopManager.GetLevelsToNextMilestone(lvl);
+
+        if (_lastKnownMilestones >= 0 && milestones > _lastKnownMilestones && backgroundImage != null)
+        {
+            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+            flashCoroutine = StartCoroutine(FlashMilestoneCard());
+        }
+        _lastKnownMilestones = milestones;
+
         string amountSuffix = amount > 1 ? $" (+{amount})" : "";
-        titleText.text = $"{data.upgradeName} [Ур.{lvl}]{amountSuffix}";
+        string multBadge = milestones > 0 ? $" <color=#FFD700>[x{currentMilestoneMult:0.##}]</color>" : "";
+        titleText.text = $"{data.upgradeName} [Ур.{lvl}]{amountSuffix}{multBadge}";
+
+        string milestoneHint = $" <color=#9AA5B4>(до x2: {toNextMilestone} ур.)</color>";
+        bool willHitMilestone = (lvl + amount) / Mathf.Max(1, shopManager.milestoneStep) > milestones;
+        if (willHitMilestone)
+            milestoneHint = " <color=#FFD700>(ВЕХА x2!)</color>";
 
         double autoMult = clickerManager.GetTotalAutoMultiplier();
+        double nextMilestoneMult = shopManager.GetMilestoneMultiplier(lvl + amount);
+
         switch (data.upgradeType)
         {
             case UpgradeType.FlatClick:
-                bonusText.text = $"+{(data.baseValue * amount).ToCompactString()} к клику";
+                double flatGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
+                bonusText.text = $"+{flatGain.ToCompactString()} к клику{milestoneHint}";
                 break;
             case UpgradeType.ClickMultiplier:
-                double multGain = System.Math.Pow(data.baseValue, amount);
-                bonusText.text = $"Сила клика x{multGain.ToCompactString()}";
+                double effNext = 1.0 + (data.baseValue - 1.0) * nextMilestoneMult;
+                double effCurr = 1.0 + (data.baseValue - 1.0) * currentMilestoneMult;
+                double multGain = System.Math.Pow(effNext, lvl + amount) / System.Math.Max(1.0, System.Math.Pow(effCurr, lvl));
+                bonusText.text = $"Сила клика x{multGain.ToCompactString()}{milestoneHint}";
                 break;
             case UpgradeType.AutoIncome:
-                double incomeGain = data.baseValue * amount * autoMult;
+                double baseGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
+                double incomeGain = baseGain * autoMult;
                 if (data.upgradeId == "manager")
                 {
                     float currentTaps = clickerManager.GetAutoTapsPerSecond();
                     float maxTaps = clickerManager.maxAutoTapsPerSecond;
                     float addedTaps = Mathf.Max(0f, Mathf.Min(maxTaps, (lvl + amount) * clickerManager.autoTapsPerManagerLevel) - currentTaps);
                     string tapInfo = addedTaps > 0.001f
-                        ? $" (+{addedTaps:F1} авто-тап/с)"
-                        : $" (макс. {maxTaps:F1} авто-тап/с)";
-                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{tapInfo}";
+                        ? $" (+{addedTaps:F1} тап/с)"
+                        : "";
+                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{tapInfo}{milestoneHint}";
                 }
                 else
                 {
-                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек";
+                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{milestoneHint}";
                 }
                 break;
         }
@@ -88,9 +114,25 @@ public class UpgradeItemUI : MonoBehaviour
         costText.text = $"Цена: {cost.ToCompactString()}";
         costText.color = canAfford ? new Color(1f, 0.84f, 0f) : new Color(0.95f, 0.35f, 0.35f);
 
-        if (backgroundImage != null)
+        if (backgroundImage != null && flashCoroutine == null)
             backgroundImage.color = canAfford ? affordableColor : unaffordableColor;
     }
+
+    IEnumerator FlashMilestoneCard()
+    {
+        float elapsed = 0f;
+        float duration = 0.55f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            backgroundImage.color = Color.Lerp(milestoneFlashColor, affordableColor, t);
+            yield return null;
+        }
+        flashCoroutine = null;
+        Refresh();
+    }
+
     IEnumerator ShakeCard()
     {
         RectTransform rt = GetComponent<RectTransform>();

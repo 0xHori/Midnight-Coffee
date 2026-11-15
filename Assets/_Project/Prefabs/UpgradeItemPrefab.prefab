@@ -166,6 +166,7 @@ MonoBehaviour:
   backgroundImage: {fileID: 1995676959934607620}
   affordableColor: {r: 0.15, g: 0.17, b: 0.21, a: 1}
   unaffordableColor: {r: 0.1, g: 0.11, b: 0.14, a: 0.75}
+  milestoneFlashColor: {r: 0.85, g: 0.65, b: 0.12, a: 1}
 --- !u!1 &1999660442058340046
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,12 +533,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 34
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 34
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -549,7 +550,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
