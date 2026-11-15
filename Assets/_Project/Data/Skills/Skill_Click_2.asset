@@ -20,8 +20,8 @@ MonoBehaviour:
   orderInBranch: 1
   requiredSkill: {fileID: 11400000, guid: 366d932c5fa1013c6b212bcb6dea3d5d, type: 2}
   requiredSkillLevel: 2
-  maxLevel: 5
-  baseCost: 25
-  costMultiplier: 1.8
+  maxLevel: 10
+  baseCost: 20
+  costMultiplier: 1.75
   statType: 0
   valuePerLevel: 1

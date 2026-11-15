@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Upgrade_FlatClick
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeId: click_flat
-  upgradeName: "\u041A\u043B\u0438\u043A +5"
+  upgradeName: "\u0423\u0441\u0438\u043B\u0435\u043D\u0438\u0435 \u0442\u0430\u043F\u0430"
   orderInShop: 2
   upgradeType: 0
   maxLevel: 500
-  baseCost: 25
-  costGrowthRate: 1.18
-  baseValue: 2
+  baseCost: 15
+  costGrowthRate: 1.15
+  baseValue: 3

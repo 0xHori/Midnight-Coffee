@@ -17,6 +17,6 @@ MonoBehaviour:
   orderInShop: 3
   upgradeType: 2
   maxLevel: 500
-  baseCost: 500
-  costGrowthRate: 1.22
-  baseValue: 25
+  baseCost: 300
+  costGrowthRate: 1.15
+  baseValue: 50

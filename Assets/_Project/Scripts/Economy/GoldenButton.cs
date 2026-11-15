@@ -22,7 +22,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         if (isClicked || clickerManager == null) return;
         isClicked = true;
 
-        double reward = clickerManager.Stats.CalculateGoldenButtonReward(clickerManager.totalCrystals);
+        double reward = clickerManager.Stats.CalculateGoldenButtonReward(clickerManager.lifetimeCrystals);
         clickerManager.AddEarnedScore(reward);
 
         if (clickerManager.floatingTextPool != null)

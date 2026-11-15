@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ClickerManager : MonoBehaviour
@@ -15,7 +16,8 @@ public class ClickerManager : MonoBehaviour
     [Header("Данные игрока")]
     public double score = 0;
     public double totalCrystals = 0;
-    public double prestigeThreshold = 100000;
+    public double lifetimeCrystals = 0;
+    public double prestigeThreshold = 50000;
 
     [Header("Статистика")]
     public long totalClicks = 0;
@@ -27,7 +29,7 @@ public class ClickerManager : MonoBehaviour
     public FloatingTextPool floatingTextPool;
 
     public GameStatsCalculator Stats { get; private set; }
-    public double PrestigeMultiplier => Stats.GetPrestigeMultiplier(totalCrystals);
+    public double PrestigeMultiplier => Stats.GetPrestigeMultiplier(lifetimeCrystals);
 
     private const double MAX_SAFE_DOUBLE = 1e300;
 
@@ -53,6 +55,7 @@ public class ClickerManager : MonoBehaviour
     {
         score = SanitizeDouble(score);
         totalCrystals = SanitizeDouble(totalCrystals);
+        lifetimeCrystals = SanitizeDouble(Math.Max(lifetimeCrystals, totalCrystals));
         lifetimeScore = SanitizeDouble(lifetimeScore);
     }
 
@@ -65,11 +68,11 @@ public class ClickerManager : MonoBehaviour
     void AutoSave() => GameEvents.SaveGame();
 
     public double GetFeverMultiplier() => Stats.GetFeverMultiplier();
-    public double GetTotalClickPower() => Stats.GetTotalClickPower(totalCrystals);
+    public double GetTotalClickPower() => Stats.GetTotalClickPower(lifetimeCrystals);
     public double GetTotalCritChance() => Stats.GetTotalCritChance();
     public double GetTotalCritMultiplier() => Stats.GetTotalCritMultiplier();
-    public double GetTotalAutoIncomePerSecond() => Stats.GetTotalAutoIncomePerSecond(totalCrystals);
-    public double GetTotalAutoMultiplier() => Stats.GetTotalAutoMultiplier(totalCrystals);
+    public double GetTotalAutoIncomePerSecond() => Stats.GetTotalAutoIncomePerSecond(lifetimeCrystals);
+    public double GetTotalAutoMultiplier() => Stats.GetTotalAutoMultiplier(lifetimeCrystals);
     public double CalculatePotentialCrystals() => Stats.CalculatePotentialCrystals(score, prestigeThreshold);
 
     public void AddEarnedScore(double amount)
@@ -124,13 +127,14 @@ public class ClickerManager : MonoBehaviour
         if (crystalsToAdd <= 0) return;
 
         totalCrystals += crystalsToAdd;
+        lifetimeCrystals += crystalsToAdd;
         totalPrestiges++;
         SanitizeNumbers();
 
         GameEvents.PrestigeCompleted(crystalsToAdd);
 
         score = 0;
-        double growth = balanceConfig != null ? balanceConfig.prestigeThresholdGrowth : 2.5;
+        double growth = balanceConfig != null ? balanceConfig.prestigeThresholdGrowth : 1.65;
         prestigeThreshold *= growth;
 
         if (shopManager != null)

@@ -28,6 +28,7 @@ public class SaveManager : MonoBehaviour
 
         data.score = clickerManager.score;
         data.totalCrystals = clickerManager.totalCrystals;
+        data.lifetimeCrystals = clickerManager.lifetimeCrystals;
         data.prestigeThreshold = clickerManager.prestigeThreshold;
 
         data.totalClicks = clickerManager.totalClicks;
@@ -101,12 +102,39 @@ public class SaveManager : MonoBehaviour
                 gachaManager.totalGachaRolls = data.totalGachaRolls;
             }
 
+            // Миграция старых сохранений, где lifetimeCrystals ещё не записывался
+            if (data.lifetimeCrystals > 0)
+            {
+                clickerManager.lifetimeCrystals = Math.Max(data.lifetimeCrystals, data.totalCrystals);
+            }
+            else
+            {
+                double spentOnGacha = gachaManager != null ? data.totalGachaRolls * gachaManager.rollCost : 0;
+                double spentOnSkills = CalculateSpentSkillCrystals();
+                clickerManager.lifetimeCrystals = data.totalCrystals + spentOnGacha + spentOnSkills;
+            }
+
             CalculateOfflineIncome(data.lastExitTime);
         }
         catch (Exception e)
         {
             Debug.LogError("Ошибка при загрузке файла: " + e.Message);
         }
+    }
+
+    private double CalculateSpentSkillCrystals()
+    {
+        if (skillTreeManager == null || skillTreeManager.allSkills == null) return 0;
+
+        double totalSpent = 0;
+        foreach (var skill in skillTreeManager.allSkills)
+        {
+            if (skill == null) continue;
+            int lvl = skillTreeManager.GetSkillLevel(skill.skillId);
+            for (int i = 0; i < lvl; i++)
+                totalSpent += skill.GetCost(i);
+        }
+        return totalSpent;
     }
 
     private void CalculateOfflineIncome(string lastExitTimeStr)

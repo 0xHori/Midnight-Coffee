@@ -20,8 +20,8 @@ MonoBehaviour:
   orderInBranch: 0
   requiredSkill: {fileID: 0}
   requiredSkillLevel: 0
-  maxLevel: 5
-  baseCost: 10
+  maxLevel: 10
+  baseCost: 4
   costMultiplier: 1.5
   statType: 1
-  valuePerLevel: 0.5
+  valuePerLevel: 0.6
