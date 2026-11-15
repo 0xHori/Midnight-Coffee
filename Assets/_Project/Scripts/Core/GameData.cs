@@ -14,6 +14,21 @@ public class IdLevelPair
 }
 
 [System.Serializable]
+public class IdProgressPair
+{
+    public string id;
+    public int level;
+    public int xp;
+
+    public IdProgressPair(string id, int level, int xp)
+    {
+        this.id = id;
+        this.level = level;
+        this.xp = xp;
+    }
+}
+
+[System.Serializable]
 public class GameData
 {
     // Основные ресурсы
@@ -28,10 +43,11 @@ public class GameData
     public int totalPrestiges;
     public int totalGachaRolls;
 
-    // Масштабируемые списки для Магазина, RPG-навыков и Гачи
+    // Масштабируемые списки для Магазина, RPG-навыков, Гачи и Близости
     public List<IdLevelPair> purchasedUpgrades = new List<IdLevelPair>();
     public List<IdLevelPair> unlockedSkills = new List<IdLevelPair>();
     public List<IdLevelPair> ownedCharacters = new List<IdLevelPair>();
+    public List<IdProgressPair> characterAffections = new List<IdProgressPair>();
     public string equippedCharacterId;
 
     // Время выхода

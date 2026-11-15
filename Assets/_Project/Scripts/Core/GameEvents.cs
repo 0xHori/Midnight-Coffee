@@ -9,10 +9,14 @@ public static class GameEvents
     public static Action<double, int, int> OnShowOfflinePanel;
     public static Action<string, Sprite, Color> OnGachaResult;
 
-    // События игрового процесса для визуала, звука и будущих ачивок
-    public static Action<double, bool, bool> OnPlayerTapped; // earnedPoints, isCrit, isFever
+    // События игрового процесса для визуала, звука и реакций персонажа
+    public static Action<double, bool, bool> OnPlayerTapped;
     public static Action OnFeverTriggered;
-    public static Action<double> OnPrestigeCompleted;        // crystalsGained
+    public static Action<double> OnPrestigeCompleted;
+    public static Action OnNotEnoughCurrency;
+    public static Action<CharacterData> OnCharacterEquipped;
+    public static Action<CharacterData, int> OnAffectionLevelUp;
+    public static Action<string> OnCharacterSpeak;
 
     public static void UpdateUI() => OnUpdateUI?.Invoke();
     public static void UpdateSkillUI() => OnUpdateSkillUI?.Invoke();
@@ -23,4 +27,8 @@ public static class GameEvents
     public static void PlayerTapped(double earnedPoints, bool isCrit, bool isFever) => OnPlayerTapped?.Invoke(earnedPoints, isCrit, isFever);
     public static void FeverTriggered() => OnFeverTriggered?.Invoke();
     public static void PrestigeCompleted(double crystalsGained) => OnPrestigeCompleted?.Invoke(crystalsGained);
+    public static void NotEnoughCurrency() => OnNotEnoughCurrency?.Invoke();
+    public static void CharacterEquipped(CharacterData character) => OnCharacterEquipped?.Invoke(character);
+    public static void AffectionLevelUp(CharacterData character, int newLevel) => OnAffectionLevelUp?.Invoke(character, newLevel);
+    public static void CharacterSpeak(string quote) => OnCharacterSpeak?.Invoke(quote);
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class GachaManager : MonoBehaviour
 {
     public ClickerManager clickerManager;
-    public CharacterEmotionController emotionController;
+    public AffectionManager affectionManager;
 
     [Header("Пул персонажей")]
     public List<CharacterData> allCharacters = new List<CharacterData>();
@@ -13,7 +13,6 @@ public class GachaManager : MonoBehaviour
     public int rollCost = 10;
     public int totalGachaRolls = 0;
 
-    // characterId -> уровень (1 = выбит 1 раз, 2 = один дубликат и т.д.)
     private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
     public string equippedCharacterId;
 
@@ -46,11 +45,10 @@ public class GachaManager : MonoBehaviour
 
     private void SyncEquippedCharacterVisual()
     {
-        if (emotionController == null) return;
         CharacterData equipped = GetEquippedCharacter();
         if (equipped != null)
         {
-            emotionController.SetCharacter(equipped);
+            GameEvents.CharacterEquipped(equipped);
         }
     }
 
@@ -58,7 +56,7 @@ public class GachaManager : MonoBehaviour
     {
         if (clickerManager.totalCrystals < rollCost)
         {
-            emotionController?.OnNotEnoughCurrency();
+            GameEvents.NotEnoughCurrency();
             GameEvents.ShowGachaResult("Не хватает кристаллов!", null, Color.red);
             return;
         }
@@ -78,12 +76,10 @@ public class GachaManager : MonoBehaviour
 
         CharacterData result = pool[Random.Range(0, pool.Count)];
 
-        // Прокачка уровня при дубликате
         int currentLvl = GetCharacterLevel(result.characterId);
         int newLvl = currentLvl + 1;
         characterLevels[result.characterId] = newLvl;
 
-        // Если это первый выбитый персонаж — ставим его главным автоматически
         if (string.IsNullOrEmpty(equippedCharacterId))
         {
             equippedCharacterId = result.characterId;
@@ -98,13 +94,11 @@ public class GachaManager : MonoBehaviour
             ? $"{result.characterName} (Ур. {newLvl}!)"
             : $"{result.characterName} (НОВЫЙ!)";
 
-        // В баннере гачи показываем основной portrait (9:16), а на главном экране остаются стикеры
         GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
     }
 
-    // Считаем суммарный бонус от всей коллекции + активного персонажа
     public double GetTotalCharacterBonus(StatType type)
     {
         double total = 0;
@@ -114,13 +108,13 @@ public class GachaManager : MonoBehaviour
             int lvl = GetCharacterLevel(ch.characterId);
             if (lvl <= 0) continue;
 
-            // Пассивный бонус работает у всех открытых
-            if (ch.passiveStat == type)
-                total += ch.GetPassiveBonus(lvl);
+            int affectionLvl = affectionManager != null ? affectionManager.GetAffectionLevel(ch.characterId) : 1;
 
-            // Активный бонус работает только у выбранного главным
+            if (ch.passiveStat == type)
+                total += ch.GetPassiveBonus(lvl, affectionLvl);
+
             if (ch.characterId == equippedCharacterId && ch.activeStat == type)
-                total += ch.GetActiveBonus(lvl);
+                total += ch.GetActiveBonus(lvl, affectionLvl);
         }
         return total;
     }

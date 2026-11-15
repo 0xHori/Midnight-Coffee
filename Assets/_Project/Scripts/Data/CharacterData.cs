@@ -29,6 +29,14 @@ public class CharacterData : ScriptableObject
 
     [Header("Близость (Affection)")]
     public int maxAffectionLevel = 10;
+    [Tooltip("Базовый опыт для перехода с 1 на 2 уровень близости")]
+    public int baseAffectionXp = 50;
+    [Tooltip("Множитель роста требуемого опыта на каждый следующий уровень")]
+    public float affectionXpGrowth = 1.35f;
+    [Tooltip("Бонус к статам персонажа за каждый уровень близости (0.05 = +5%)")]
+    public double affectionBonusPerLevel = 0.05;
+    [Tooltip("Реплики, открывающиеся по мере роста близости (индекс 0 = 1 ур. и т.д.)")]
+    [TextArea] public string[] affectionQuotes;
 
     [Header("Пассивный бонус (работает всегда из коллекции)")]
     public StatType passiveStat;
@@ -39,7 +47,6 @@ public class CharacterData : ScriptableObject
     public double baseActiveValue;  // Например: 0.25 (+25% к доходу или шансу крита)
     [TextArea] public string abilityDescription;
 
-    // Возвращает спрайт нужной эмоции (если не задан — откатывается на Normal или portrait)
     public Sprite GetEmotionSprite(CharacterEmotion targetEmotion)
     {
         if (emotions != null)
@@ -50,7 +57,6 @@ public class CharacterData : ScriptableObject
                     return emotions[i].sprite;
             }
 
-            // Если запрошенной эмоции нет, пробуем вернуть Normal
             if (targetEmotion != CharacterEmotion.Normal)
             {
                 for (int i = 0; i < emotions.Length; i++)
@@ -64,16 +70,44 @@ public class CharacterData : ScriptableObject
         return portrait;
     }
 
-    // Уровень растет от дубликатов (1 - базовый, 2 - один дубликат и т.д.)
-    public double GetPassiveBonus(int level)
+    public int GetRequiredAffectionXp(int currentLevel)
     {
-        if (level <= 0) return 0;
-        return basePassiveValue * (1.0 + (level - 1) * 0.2);
+        if (currentLevel >= maxAffectionLevel) return 0;
+        return Mathf.RoundToInt(baseAffectionXp * Mathf.Pow(affectionXpGrowth, Mathf.Max(0, currentLevel - 1)));
     }
 
-    public double GetActiveBonus(int level)
+    public double GetAffectionMultiplier(int affectionLevel)
     {
-        if (level <= 0) return 0;
-        return baseActiveValue * (1.0 + (level - 1) * 0.2);
+        if (affectionLevel <= 1) return 1.0;
+        return 1.0 + (affectionLevel - 1) * affectionBonusPerLevel;
+    }
+
+    public string GetQuoteForLevel(int affectionLevel)
+    {
+        if (affectionQuotes == null || affectionQuotes.Length == 0) return string.Empty;
+        int index = Mathf.Clamp(affectionLevel - 1, 0, affectionQuotes.Length - 1);
+        return affectionQuotes[index];
+    }
+
+    public string GetRandomUnlockedQuote(int affectionLevel)
+    {
+        if (affectionQuotes == null || affectionQuotes.Length == 0) return string.Empty;
+        int maxIndex = Mathf.Clamp(affectionLevel - 1, 0, affectionQuotes.Length - 1);
+        int minIndex = maxIndex > 0 ? 1 : 0;
+        return affectionQuotes[Random.Range(minIndex, maxIndex + 1)];
+    }
+
+    public double GetPassiveBonus(int duplicateLevel, int affectionLevel = 1)
+    {
+        if (duplicateLevel <= 0) return 0;
+        double baseVal = basePassiveValue * (1.0 + (duplicateLevel - 1) * 0.2);
+        return baseVal * GetAffectionMultiplier(affectionLevel);
+    }
+
+    public double GetActiveBonus(int duplicateLevel, int affectionLevel = 1)
+    {
+        if (duplicateLevel <= 0) return 0;
+        double baseVal = baseActiveValue * (1.0 + (duplicateLevel - 1) * 0.2);
+        return baseVal * GetAffectionMultiplier(affectionLevel);
     }
 }

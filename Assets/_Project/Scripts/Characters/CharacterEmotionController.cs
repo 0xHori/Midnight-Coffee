@@ -6,6 +6,7 @@ public class CharacterEmotionController : MonoBehaviour
     [Header("Ссылки")]
     public Image characterImage;
     public FeverManager feverManager;
+    public GachaManager gachaManager;
     public CharacterData currentCharacter;
 
     [Header("Тайминги")]
@@ -19,15 +20,39 @@ public class CharacterEmotionController : MonoBehaviour
     private int _rapidTapCount = 0;
     private float _lastTapTime = 0f;
 
+    void OnEnable()
+    {
+        GameEvents.OnNotEnoughCurrency += OnNotEnoughCurrency;
+        GameEvents.OnCharacterEquipped += SetCharacter;
+        GameEvents.OnAffectionLevelUp += HandleAffectionLevelUp;
+
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnNotEnoughCurrency -= OnNotEnoughCurrency;
+        GameEvents.OnCharacterEquipped -= SetCharacter;
+        GameEvents.OnAffectionLevelUp += HandleAffectionLevelUp;
+    }
+
     void Start()
     {
+        if (gachaManager != null)
+        {
+            CharacterData equipped = gachaManager.GetEquippedCharacter();
+            if (equipped != null)
+            {
+                SetCharacter(equipped);
+                return;
+            }
+        }
+
         if (currentCharacter != null)
             SetCharacter(currentCharacter);
     }
 
     void Update()
     {
-        // Если активен Fever Mode — держим эмоцию сердечек (Love)
         if (feverManager != null && feverManager.isFeverActive)
         {
             if (_currentEmotion != CharacterEmotion.Love)
@@ -35,7 +60,6 @@ public class CharacterEmotionController : MonoBehaviour
             return;
         }
 
-        // Таймер возврата в обычное состояние
         if (_currentEmotion != CharacterEmotion.Normal)
         {
             _resetTimer -= Time.deltaTime;
@@ -47,20 +71,21 @@ public class CharacterEmotionController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Вызывай этот метод из GachaManager / GalleryManager при смене активного персонажа
-    /// </summary>
     public void SetCharacter(CharacterData newCharacter)
     {
+        if (newCharacter == null) return;
         currentCharacter = newCharacter;
         _rapidTapCount = 0;
         _resetTimer = 0f;
         ApplyEmotion(CharacterEmotion.Normal);
     }
 
-    /// <summary>
-    /// Вызывай при каждом клике по персонажу (можно повесить прямо на Button.OnClick или вызывать из ClickerManager)
-    /// </summary>
+    private void HandleAffectionLevelUp(CharacterData character, int newLevel)
+    {
+        if (currentCharacter == character)
+            SetTemporaryEmotion(CharacterEmotion.Love, 2.0f);
+    }
+
     public void OnCharacterTapped()
     {
         if (feverManager != null && feverManager.isFeverActive)
@@ -82,9 +107,6 @@ public class CharacterEmotionController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Вызывай из ShopManager / GachaManager / SkillTreeManager, когда игроку не хватило валюты
-    /// </summary>
     public void OnNotEnoughCurrency()
     {
         if (feverManager != null && feverManager.isFeverActive) return;

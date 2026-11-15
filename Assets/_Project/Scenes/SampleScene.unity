@@ -5207,7 +5207,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GachaManager
   clickerManager: {fileID: 1410147653}
-  emotionController: {fileID: 1506751033}
   allCharacters:
   - {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
   - {fileID: 11400000, guid: cac11df4bbf0ae1fbbdaac747aaa7a13, type: 2}
@@ -8303,7 +8302,6 @@ MonoBehaviour:
   buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   errorSound: {fileID: 0}
   clickerManager: {fileID: 1410147653}
-  emotionController: {fileID: 1506751033}
   allUpgrades:
   - {fileID: 11400000, guid: d78820cbad2b19fc690a6a6beff71a16, type: 2}
   - {fileID: 11400000, guid: c3e5b5ad00b7879939a8557e65351f4c, type: 2}
@@ -9684,6 +9682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEmotionController
   characterImage: {fileID: 1506751029}
   feverManager: {fileID: 1410147658}
+  gachaManager: {fileID: 0}
   currentCharacter: {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
   emotionResetDelay: 1.2
   comboThresholdForExcited: 6
