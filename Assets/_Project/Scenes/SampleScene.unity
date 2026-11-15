@@ -1704,7 +1704,7 @@ MonoBehaviour:
   skillTreeManager: {fileID: 2019083793}
   gachaManager: {fileID: 843058829}
   affectionManager: {fileID: 1023419841}
-  resetSaveOnStart: 1
+  resetSaveOnStart: 0
   snapshotIntervalSeconds: 15
 --- !u!4 &220505730
 Transform:
@@ -6324,8 +6324,8 @@ MonoBehaviour:
   gachaManager: {fileID: 843058829}
   xpPerTap: 1
   xpPerCritTap: 3
-  speakChanceOnTap: 0.08
-  speakCooldown: 6
+  speakChanceOnTap: 0.015
+  speakCooldown: 20
 --- !u!4 &1023419842
 Transform:
   m_ObjectHideFlags: 0
@@ -8808,6 +8808,8 @@ MonoBehaviour:
   totalCrystals: 0
   lifetimeCrystals: 0
   prestigeThreshold: 100000
+  autoTapsPerManagerLevel: 0.1
+  maxAutoTapsPerSecond: 5
   totalClicks: 0
   totalCritClicks: 0
   lifetimeScore: 0
@@ -8941,6 +8943,8 @@ MonoBehaviour:
   prestigeSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   floatingTextPool: {fileID: 1410147654}
   tapParticlePool: {fileID: 1410147657}
+  textVerticalOffset: -45
+  sideHorizontalOffset: 160
 --- !u!4 &1411491552
 Transform:
   m_ObjectHideFlags: 0
@@ -10195,6 +10199,9 @@ MonoBehaviour:
   overshootAmount: 1.06
   squishSpeed: 0.05
   maxTiltAngle: 3
+  enableHoldToTap: 1
+  holdDelay: 0.25
+  holdTapsPerSecond: 5
   enableIdleBreathing: 1
   breatheSpeed: 2.2
   breatheScaleY: 0.025

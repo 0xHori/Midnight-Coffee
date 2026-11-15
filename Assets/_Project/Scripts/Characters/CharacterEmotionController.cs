@@ -20,12 +20,15 @@ public class CharacterEmotionController : MonoBehaviour
     private float _resetTimer = 0f;
     private int _rapidTapCount = 0;
     private float _lastTapTime = 0f;
+    private int _lastProcessedTapFrame = -1;
 
     void OnEnable()
     {
         GameEvents.OnNotEnoughCurrency += OnNotEnoughCurrency;
         GameEvents.OnCharacterEquipped += SetCharacter;
         GameEvents.OnAffectionLevelUp += HandleAffectionLevelUp;
+        GameEvents.OnPlayerTappedDetailed += HandlePlayerTapped;
+        GameEvents.OnGachaResult += HandleGachaResult;
     }
 
     void OnDisable()
@@ -33,6 +36,8 @@ public class CharacterEmotionController : MonoBehaviour
         GameEvents.OnNotEnoughCurrency -= OnNotEnoughCurrency;
         GameEvents.OnCharacterEquipped -= SetCharacter;
         GameEvents.OnAffectionLevelUp -= HandleAffectionLevelUp;
+        GameEvents.OnPlayerTappedDetailed -= HandlePlayerTapped;
+        GameEvents.OnGachaResult -= HandleGachaResult;
     }
 
     void Start()
@@ -55,21 +60,24 @@ public class CharacterEmotionController : MonoBehaviour
 
     void Update()
     {
-        if (feverManager != null && feverManager.isFeverActive)
-        {
-            if (_currentEmotion != CharacterEmotion.Love)
-                ApplyEmotion(CharacterEmotion.Love);
-            return;
-        }
+        bool isFever = feverManager != null && feverManager.isFeverActive;
 
-        if (_currentEmotion != CharacterEmotion.Normal)
+        if (_resetTimer > 0f)
         {
             _resetTimer -= Time.deltaTime;
             if (_resetTimer <= 0f)
             {
-                ApplyEmotion(CharacterEmotion.Normal);
                 _rapidTapCount = 0;
+                ApplyEmotion(isFever ? CharacterEmotion.Love : CharacterEmotion.Normal);
             }
+            return;
+        }
+
+        // Базовое состояние, когда нет активной временной реакции
+        CharacterEmotion baseEmotion = isFever ? CharacterEmotion.Love : CharacterEmotion.Normal;
+        if (_currentEmotion != baseEmotion)
+        {
+            ApplyEmotion(baseEmotion);
         }
     }
 
@@ -85,7 +93,8 @@ public class CharacterEmotionController : MonoBehaviour
             return;
         }
 
-        ApplyEmotion(CharacterEmotion.Normal);
+        bool isFever = feverManager != null && feverManager.isFeverActive;
+        ApplyEmotion(isFever ? CharacterEmotion.Love : CharacterEmotion.Normal);
     }
 
     private void HandleAffectionLevelUp(CharacterData character, int newLevel)
@@ -94,13 +103,24 @@ public class CharacterEmotionController : MonoBehaviour
             SetTemporaryEmotion(CharacterEmotion.Love, 2.0f);
     }
 
+    private void HandleGachaResult(string charName, Sprite sprite, Color color)
+    {
+        SetTemporaryEmotion(CharacterEmotion.Love, 2.0f);
+    }
+
+    private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever, bool isManual)
+    {
+        if (!isManual) return;
+        OnCharacterTapped();
+    }
+
     public void OnCharacterTapped()
     {
-        if (feverManager != null && feverManager.isFeverActive)
-        {
-            ApplyEmotion(CharacterEmotion.Love);
-            return;
-        }
+        // Защита от двойного вызова, если метод также привязан в Button.onClick
+        if (_lastProcessedTapFrame == Time.frameCount) return;
+        _lastProcessedTapFrame = Time.frameCount;
+
+        if (feverManager != null && feverManager.isFeverActive) return;
 
         if (Time.time - _lastTapTime <= 0.45f)
             _rapidTapCount++;
@@ -117,7 +137,6 @@ public class CharacterEmotionController : MonoBehaviour
 
     public void OnNotEnoughCurrency()
     {
-        if (feverManager != null && feverManager.isFeverActive) return;
         SetTemporaryEmotion(CharacterEmotion.Angry, 1.5f);
     }
 

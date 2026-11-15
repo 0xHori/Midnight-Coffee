@@ -67,7 +67,20 @@ public class UpgradeItemUI : MonoBehaviour
                 break;
             case UpgradeType.AutoIncome:
                 double incomeGain = data.baseValue * amount * autoMult;
-                bonusText.text = $"+{incomeGain.ToCompactString()} / сек";
+                if (data.upgradeId == "manager")
+                {
+                    float currentTaps = clickerManager.GetAutoTapsPerSecond();
+                    float maxTaps = clickerManager.maxAutoTapsPerSecond;
+                    float addedTaps = Mathf.Max(0f, Mathf.Min(maxTaps, (lvl + amount) * clickerManager.autoTapsPerManagerLevel) - currentTaps);
+                    string tapInfo = addedTaps > 0.001f
+                        ? $" (+{addedTaps:F1} авто-тап/с)"
+                        : $" (макс. {maxTaps:F1} авто-тап/с)";
+                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{tapInfo}";
+                }
+                else
+                {
+                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек";
+                }
                 break;
         }
 
@@ -78,7 +91,6 @@ public class UpgradeItemUI : MonoBehaviour
         if (backgroundImage != null)
             backgroundImage.color = canAfford ? affordableColor : unaffordableColor;
     }
-
     IEnumerator ShakeCard()
     {
         RectTransform rt = GetComponent<RectTransform>();
