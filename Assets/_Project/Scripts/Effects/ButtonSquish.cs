@@ -4,15 +4,24 @@ using System.Collections;
 
 public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [Header("Настройки пружинки")]
-    public float squishAmount = 0.88f;   // Сжатие при нажатии
+    [Header("Настройки пружинки при клике")]
+    public float squishAmount = 0.88f;    // Сжатие при нажатии
     public float overshootAmount = 1.06f; // Пружинящий отскок при отпускании
     public float squishSpeed = 0.05f;
     public float maxTiltAngle = 3f;       // Лёгкий случайный наклон при клике (0 = отключить)
 
+    [Header("Дыхание в покое (для персонажа)")]
+    public bool enableIdleBreathing = false;
+    public float breatheSpeed = 2.2f;     // Скорость цикла дыхания
+    public float breatheScaleY = 0.025f;  // Растяжение по вертикали (2.5%)
+    public float breatheScaleX = 0.012f;  // Лёгкое сжатие по горизонтали для сохранения объёма
+    public float idleSwayAngle = 1.2f;    // Мягкое покачивание в градусах
+
     private Vector3 originalScale;
     private Quaternion originalRotation;
     private Coroutine animCoroutine;
+    private bool isAnimatingTap = false;
+    private float idlePhase = 0f;
 
     void Start()
     {
@@ -20,9 +29,31 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         originalRotation = transform.localRotation;
     }
 
+    void Update()
+    {
+        if (!enableIdleBreathing || isAnimatingTap) return;
+
+        idlePhase += Time.deltaTime * breatheSpeed;
+        float wave = Mathf.Sin(idlePhase);
+
+        // Мягкий squash & stretch (вдох-выдох)
+        float scaleX = originalScale.x * (1f - wave * breatheScaleX);
+        float scaleY = originalScale.y * (1f + wave * breatheScaleY);
+        transform.localScale = new Vector3(scaleX, scaleY, originalScale.z);
+
+        // Лёгкое покачивание с половинной частотой
+        if (idleSwayAngle > 0f)
+        {
+            float sway = Mathf.Sin(idlePhase * 0.5f) * idleSwayAngle;
+            transform.localRotation = originalRotation * Quaternion.Euler(0f, 0f, sway);
+        }
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
+        isAnimatingTap = true;
         if (animCoroutine != null) StopCoroutine(animCoroutine);
+
         float randomTilt = Random.Range(-maxTiltAngle, maxTiltAngle);
         Quaternion targetRot = originalRotation * Quaternion.Euler(0, 0, randomTilt);
         animCoroutine = StartCoroutine(AnimateDown(originalScale * squishAmount, targetRot, squishSpeed));
@@ -54,7 +85,7 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     IEnumerator AnimateBounceBack()
     {
-        // Фаза 1: быстрый отскок чуть больше оригинала (1.06)
+        // Фаза 1: быстрый отскок чуть больше оригинала
         float upDuration = squishSpeed * 1.2f;
         float time = 0f;
         Vector3 startScale = transform.localScale;
@@ -83,5 +114,7 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
         transform.localScale = originalScale;
         transform.localRotation = originalRotation;
+        idlePhase = 0f; // Чтобы вдох начался плавно из нейтрального положения
+        isAnimatingTap = false;
     }
 }
