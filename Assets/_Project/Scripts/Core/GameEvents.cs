@@ -10,7 +10,8 @@ public static class GameEvents
     public static Action<string, Sprite, Color> OnGachaResult;
 
     // События игрового процесса для визуала, звука и реакций персонажа
-    public static Action<double, bool, bool> OnPlayerTapped;
+    public static event Action<double, bool, bool> OnPlayerTapped;
+    public static event Action<double, bool, bool, bool> OnPlayerTappedDetailed; // + bool isManual
     public static Action OnFeverTriggered;
     public static Action<double> OnPrestigeCompleted;
     public static Action OnNotEnoughCurrency;
@@ -24,7 +25,11 @@ public static class GameEvents
     public static void ShowOfflinePanel(double earned, int hours, int minutes) => OnShowOfflinePanel?.Invoke(earned, hours, minutes);
     public static void ShowGachaResult(string name, Sprite sprite, Color color) => OnGachaResult?.Invoke(name, sprite, color);
 
-    public static void PlayerTapped(double earnedPoints, bool isCrit, bool isFever) => OnPlayerTapped?.Invoke(earnedPoints, isCrit, isFever);
+    public static void PlayerTapped(double earnedPoints, bool isCrit, bool isFever, bool isManual = true)
+    {
+        OnPlayerTapped?.Invoke(earnedPoints, isCrit, isFever);
+        OnPlayerTappedDetailed?.Invoke(earnedPoints, isCrit, isFever, isManual);
+    }
     public static void FeverTriggered() => OnFeverTriggered?.Invoke();
     public static void PrestigeCompleted(double crystalsGained) => OnPrestigeCompleted?.Invoke(crystalsGained);
     public static void NotEnoughCurrency() => OnNotEnoughCurrency?.Invoke();

@@ -13,22 +13,30 @@ public class TapFeedbackController : MonoBehaviour
     public FloatingTextPool floatingTextPool;
     public TapParticlePool tapParticlePool;
 
+    [Header("Позиционирование текста (чтобы не перекрывать реплики)")]
+    [Tooltip("Смещение текста по вертикали от точки клика (отрицательное = ниже головы)")]
+    public float textVerticalOffset = -45f;
+    [Tooltip("Разброс по горизонтали по бокам от персонажа")]
+    public float sideHorizontalOffset = 160f;
+
     void OnEnable()
     {
-        GameEvents.OnPlayerTapped += HandlePlayerTapped;
+        GameEvents.OnPlayerTappedDetailed += HandlePlayerTapped;
         GameEvents.OnFeverTriggered += HandleFeverTriggered;
         GameEvents.OnPrestigeCompleted += HandlePrestigeCompleted;
     }
 
     void OnDisable()
     {
-        GameEvents.OnPlayerTapped -= HandlePlayerTapped;
+        GameEvents.OnPlayerTappedDetailed -= HandlePlayerTapped;
         GameEvents.OnFeverTriggered -= HandleFeverTriggered;
         GameEvents.OnPrestigeCompleted -= HandlePrestigeCompleted;
     }
 
-    private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever)
+    private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever, bool isManual)
     {
+        if (!isManual) return; // Фоновые авто-тапы Менеджера не спамят звуком и цифрами
+
         PlayTapAudio(isCrit, isFever);
         SpawnTapVisuals(earnedPoints, isCrit, isFever);
     }
@@ -36,7 +44,7 @@ public class TapFeedbackController : MonoBehaviour
     private void HandleFeverTriggered()
     {
         if (floatingTextPool == null) return;
-        Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height * 0.65f, 0);
+        Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height * 0.72f, 0);
         floatingTextPool.SpawnText("FEVER MODE x3!", new Color(1f, 0.65f, 0f), centerPos, 2.2f);
     }
 
@@ -79,17 +87,21 @@ public class TapFeedbackController : MonoBehaviour
 
     private void SpawnTapVisuals(double earnedPoints, bool isCrit, bool isFever)
     {
-        if (floatingTextPool == null || Pointer.current == null) return;
+        if (floatingTextPool == null) return;
 
-        Vector2 pointerPos = Pointer.current.position.ReadValue();
+        Vector2 pointerPos = Pointer.current != null
+            ? Pointer.current.position.ReadValue()
+            : new Vector2(Screen.width / 2f, Screen.height * 0.52f);
+
         Vector3 screenPos = new Vector3(pointerPos.x, pointerPos.y, 0);
 
         if (tapParticlePool != null)
             tapParticlePool.SpawnBurst(screenPos, isCrit || isFever);
 
-        screenPos.y += 20f;
-        screenPos.x += Random.Range(-150f, 150f);
-        screenPos.y += Random.Range(-30f, 40f);
+        // Выносим цифры левее или правее центра персонажа и чуть ниже плашки диалога
+        float side = Random.value < 0.5f ? -1f : 1f;
+        screenPos.x = (Screen.width / 2f) + side * Random.Range(sideHorizontalOffset * 0.7f, sideHorizontalOffset * 1.35f);
+        screenPos.y += textVerticalOffset + Random.Range(-35f, 25f);
 
         if (isCrit)
         {

@@ -19,6 +19,12 @@ public class ClickerManager : MonoBehaviour
     public double lifetimeCrystals = 0;
     public double prestigeThreshold = 50000;
 
+    [Header("Авто-тапы (от Менеджеров)")]
+    [Tooltip("Сколько авто-тапов в секунду даёт 1 уровень Менеджера")]
+    public float autoTapsPerManagerLevel = 0.1f;
+    [Tooltip("Максимум авто-тапов в секунду")]
+    public float maxAutoTapsPerSecond = 5f;
+
     [Header("Статистика")]
     public long totalClicks = 0;
     public long totalCritClicks = 0;
@@ -32,6 +38,7 @@ public class ClickerManager : MonoBehaviour
     public double PrestigeMultiplier => Stats.GetPrestigeMultiplier(lifetimeCrystals);
 
     private const double MAX_SAFE_DOUBLE = 1e300;
+    private float _autoTapTimer;
 
     void Awake()
     {
@@ -49,6 +56,34 @@ public class ClickerManager : MonoBehaviour
 
         InvokeRepeating(nameof(AutoIncome), 1f, 1f);
         InvokeRepeating(nameof(AutoSave), 20f, 20f);
+    }
+
+    void Update()
+    {
+        ProcessAutoTaps();
+    }
+
+    private void ProcessAutoTaps()
+    {
+        float tapsPerSec = GetAutoTapsPerSecond();
+        if (tapsPerSec <= 0f) return;
+
+        _autoTapTimer += Time.deltaTime;
+        float interval = 1f / tapsPerSec;
+
+        if (_autoTapTimer >= interval)
+        {
+            _autoTapTimer -= interval;
+            PerformTap(isManual: false);
+        }
+    }
+
+    public float GetAutoTapsPerSecond()
+    {
+        if (shopManager == null) return 0f;
+        int managerLvl = shopManager.GetUpgradeLevel("manager");
+        if (managerLvl <= 0) return 0f;
+        return Mathf.Min(maxAutoTapsPerSecond, managerLvl * autoTapsPerManagerLevel);
     }
 
     private void SanitizeNumbers()
@@ -93,6 +128,11 @@ public class ClickerManager : MonoBehaviour
 
     public void AddScore()
     {
+        PerformTap(isManual: true);
+    }
+
+    private void PerformTap(bool isManual)
+    {
         totalClicks++;
 
         bool wasFeverActive = feverManager != null && feverManager.isFeverActive;
@@ -110,14 +150,15 @@ public class ClickerManager : MonoBehaviour
         {
             earnedPoints *= GetTotalCritMultiplier();
             totalCritClicks++;
-            AudioManager.TriggerHaptic();
+            if (isManual)
+                AudioManager.TriggerHaptic();
         }
 
         score += earnedPoints;
         lifetimeScore += earnedPoints;
         SanitizeNumbers();
 
-        GameEvents.PlayerTapped(earnedPoints, isCrit, isFeverNow);
+        GameEvents.PlayerTapped(earnedPoints, isCrit, isFeverNow, isManual);
         GameEvents.UpdateUI();
     }
 
@@ -134,7 +175,7 @@ public class ClickerManager : MonoBehaviour
         GameEvents.PrestigeCompleted(crystalsToAdd);
 
         score = 0;
-        double growth = balanceConfig != null ? balanceConfig.prestigeThresholdGrowth : 1.65;
+        double growth = balanceConfig != null ? balanceConfig.prestigeThresholdGrowth : 3.2;
         prestigeThreshold *= growth;
 
         if (shopManager != null)

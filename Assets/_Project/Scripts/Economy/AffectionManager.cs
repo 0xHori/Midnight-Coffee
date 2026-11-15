@@ -11,10 +11,10 @@ public class AffectionManager : MonoBehaviour
     public int xpPerTap = 1;
     [Tooltip("Опыт близости за критический тап")]
     public int xpPerCritTap = 3;
-    [Tooltip("Шанс (0..1), что персонаж скажет реплику при тапе")]
-    [Range(0f, 1f)] public float speakChanceOnTap = 0.08f;
+    [Tooltip("Шанс (0..1), что персонаж скажет реплику при ручном тапе")]
+    [Range(0f, 1f)] public float speakChanceOnTap = 0.015f;
     [Tooltip("Минимальный интервал между случайными репликами (сек)")]
-    public float speakCooldown = 6f;
+    public float speakCooldown = 20f;
 
     private struct AffectionState
     {
@@ -27,12 +27,12 @@ public class AffectionManager : MonoBehaviour
 
     void OnEnable()
     {
-        GameEvents.OnPlayerTapped += HandlePlayerTapped;
+        GameEvents.OnPlayerTappedDetailed += HandlePlayerTapped;
     }
 
     void OnDisable()
     {
-        GameEvents.OnPlayerTapped -= HandlePlayerTapped;
+        GameEvents.OnPlayerTappedDetailed -= HandlePlayerTapped;
     }
 
     public int GetAffectionLevel(string charId)
@@ -59,7 +59,7 @@ public class AffectionManager : MonoBehaviour
         return Mathf.Clamp01((float)GetAffectionXp(character.characterId) / required);
     }
 
-    private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever)
+    private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever, bool isManual)
     {
         if (gachaManager == null) return;
         CharacterData equipped = gachaManager.GetEquippedCharacter();
@@ -70,7 +70,8 @@ public class AffectionManager : MonoBehaviour
 
         AddAffectionXp(equipped, gain);
 
-        if (Time.time - _lastSpeakTime >= speakCooldown && Random.value <= speakChanceOnTap)
+        // Реплики срабатывают только от живых тапов игрока, а не от автокликов Менеджера
+        if (isManual && Time.time - _lastSpeakTime >= speakCooldown && Random.value <= speakChanceOnTap)
         {
             int lvl = GetAffectionLevel(equipped.characterId);
             string quote = equipped.GetRandomUnlockedQuote(lvl);
