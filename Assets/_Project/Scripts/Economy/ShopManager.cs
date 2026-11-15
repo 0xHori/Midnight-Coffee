@@ -18,7 +18,6 @@ public class ShopManager : MonoBehaviour
 
     [Header("Ссылки")]
     public ClickerManager clickerManager;
-    public CharacterEmotionController emotionController;
 
     [Header("Все товары магазина")]
     public List<UpgradeData> allUpgrades = new List<UpgradeData>();
@@ -85,7 +84,7 @@ public class ShopManager : MonoBehaviour
 
         if (clickerManager.score < totalCost)
         {
-            emotionController?.OnNotEnoughCurrency();
+            GameEvents.NotEnoughCurrency();
 
             if (audioSource != null)
             {

@@ -1,0 +1,19 @@
+{
+    "name": "Game.Characters",
+    "rootNamespace": "",
+    "references": [
+        "GUID:eaba0465048a174a680f1011257b747c",
+        "GUID:88f9109fb4781a195beab0151a47ab63",
+        "GUID:2b9cad09d6f92b95d9a8e971ac732deb",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

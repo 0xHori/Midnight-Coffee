@@ -10,6 +10,7 @@ public class SaveManager : MonoBehaviour
     public ShopManager shopManager;
     public SkillTreeManager skillTreeManager;
     public GachaManager gachaManager;
+    public AffectionManager affectionManager;
 
     private string saveFilePath;
 
@@ -39,6 +40,9 @@ public class SaveManager : MonoBehaviour
 
         if (skillTreeManager != null)
             data.unlockedSkills = skillTreeManager.ExportSaveData();
+
+        if (affectionManager != null)
+            data.characterAffections = affectionManager.ExportSaveData();
 
         if (gachaManager != null)
         {
@@ -87,6 +91,9 @@ public class SaveManager : MonoBehaviour
 
             if (skillTreeManager != null)
                 skillTreeManager.ImportSaveData(data.unlockedSkills);
+
+            if (affectionManager != null)
+                affectionManager.ImportSaveData(data.characterAffections);
 
             if (gachaManager != null)
             {
