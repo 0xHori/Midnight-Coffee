@@ -45,11 +45,7 @@ public class GachaManager : MonoBehaviour
 
     private void SyncEquippedCharacterVisual()
     {
-        CharacterData equipped = GetEquippedCharacter();
-        if (equipped != null)
-        {
-            GameEvents.CharacterEquipped(equipped);
-        }
+        GameEvents.CharacterEquipped(GetEquippedCharacter());
     }
 
     public void RollGacha()

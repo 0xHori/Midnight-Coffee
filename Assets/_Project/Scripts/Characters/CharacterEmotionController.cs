@@ -5,6 +5,7 @@ public class CharacterEmotionController : MonoBehaviour
 {
     [Header("Ссылки")]
     public Image characterImage;
+    public Sprite defaultClickerSprite;
     public FeverManager feverManager;
     public GachaManager gachaManager;
     public CharacterData currentCharacter;
@@ -25,14 +26,13 @@ public class CharacterEmotionController : MonoBehaviour
         GameEvents.OnNotEnoughCurrency += OnNotEnoughCurrency;
         GameEvents.OnCharacterEquipped += SetCharacter;
         GameEvents.OnAffectionLevelUp += HandleAffectionLevelUp;
-
     }
 
     void OnDisable()
     {
         GameEvents.OnNotEnoughCurrency -= OnNotEnoughCurrency;
         GameEvents.OnCharacterEquipped -= SetCharacter;
-        GameEvents.OnAffectionLevelUp += HandleAffectionLevelUp;
+        GameEvents.OnAffectionLevelUp -= HandleAffectionLevelUp;
     }
 
     void Start()
@@ -49,6 +49,8 @@ public class CharacterEmotionController : MonoBehaviour
 
         if (currentCharacter != null)
             SetCharacter(currentCharacter);
+        else
+            ResetToDefaultSprite();
     }
 
     void Update()
@@ -73,10 +75,16 @@ public class CharacterEmotionController : MonoBehaviour
 
     public void SetCharacter(CharacterData newCharacter)
     {
-        if (newCharacter == null) return;
         currentCharacter = newCharacter;
         _rapidTapCount = 0;
         _resetTimer = 0f;
+
+        if (newCharacter == null)
+        {
+            ResetToDefaultSprite();
+            return;
+        }
+
         ApplyEmotion(CharacterEmotion.Normal);
     }
 
@@ -127,5 +135,12 @@ public class CharacterEmotionController : MonoBehaviour
         Sprite nextSprite = currentCharacter.GetEmotionSprite(emotion);
         if (nextSprite != null)
             characterImage.sprite = nextSprite;
+    }
+
+    private void ResetToDefaultSprite()
+    {
+        _currentEmotion = CharacterEmotion.Normal;
+        if (characterImage != null && defaultClickerSprite != null)
+            characterImage.sprite = defaultClickerSprite;
     }
 }

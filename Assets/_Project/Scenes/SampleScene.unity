@@ -10108,7 +10108,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1920028722217464984, guid: 2c4e8af3ef03037f492fcc21bf76f071, type: 3}
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -10142,6 +10142,11 @@ MonoBehaviour:
   overshootAmount: 1.06
   squishSpeed: 0.05
   maxTiltAngle: 3
+  enableIdleBreathing: 1
+  breatheSpeed: 2.2
+  breatheScaleY: 0.025
+  breatheScaleX: 0.012
+  idleSwayAngle: 1.2
 --- !u!114 &1506751032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10170,9 +10175,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEmotionController
   characterImage: {fileID: 1506751029}
+  defaultClickerSprite: {fileID: -7443756053782179069, guid: b97b14e2e96767f0896a9a2e6e584c52, type: 3}
   feverManager: {fileID: 1410147658}
-  gachaManager: {fileID: 0}
-  currentCharacter: {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
+  gachaManager: {fileID: 843058829}
+  currentCharacter: {fileID: 0}
   emotionResetDelay: 1.2
   comboThresholdForExcited: 6
 --- !u!1 &1515975745
@@ -10978,7 +10984,6 @@ GameObject:
   - component: {fileID: 1606608813}
   - component: {fileID: 1606608815}
   - component: {fileID: 1606608814}
-  - component: {fileID: 1606608816}
   m_Layer: 5
   m_Name: AffectionBarBG
   m_TagString: Untagged
@@ -11046,27 +11051,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1606608812}
   m_CullTransparentMesh: 1
---- !u!114 &1606608816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606608812}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37ea7941adf6c2417a47f31de797f5f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.UI::AffectionUI
-  gachaManager: {fileID: 843058829}
-  affectionManager: {fileID: 1023419841}
-  barRoot: {fileID: 1606608812}
-  fillBar: {fileID: 1291046481}
-  levelText: {fileID: 1991558856}
-  bonusText: {fileID: 454140379}
-  speechBubbleGroup: {fileID: 763738392}
-  speechText: {fileID: 413424422}
-  speechDisplayDuration: 3.5
 --- !u!1 &1616083184
 GameObject:
   m_ObjectHideFlags: 0
@@ -11547,6 +11531,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1710731200}
   - component: {fileID: 1710731201}
+  - component: {fileID: 1710731202}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -11598,6 +11583,27 @@ MonoBehaviour:
   gachaResultImage: {fileID: 1035564279}
   galleryPanel: {fileID: 1866776372}
   galleryManager: {fileID: 348007084}
+--- !u!114 &1710731202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710731199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37ea7941adf6c2417a47f31de797f5f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.UI::AffectionUI
+  gachaManager: {fileID: 843058829}
+  affectionManager: {fileID: 1023419841}
+  barRoot: {fileID: 1606608812}
+  fillBar: {fileID: 1291046481}
+  levelText: {fileID: 1991558856}
+  bonusText: {fileID: 454140379}
+  speechBubbleGroup: {fileID: 763738392}
+  speechText: {fileID: 413424422}
+  speechDisplayDuration: 3.5
 --- !u!1 &1716328392
 GameObject:
   m_ObjectHideFlags: 0
