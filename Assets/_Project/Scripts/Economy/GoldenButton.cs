@@ -101,13 +101,13 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         {
             // 2. Двойной эспрессо: мгновенный Fever Mode (25%)
             clickerManager.feverManager.ForceActivateFever();
-            SpawnFeedback("ЭСПРЕССО: МГНОВЕННЫЙ FEVER!", new Color(1f, 0.55f, 0.1f), 2.1f);
+            SpawnFeedback("ЭСПРЕССО: МГНОВЕННОЕ ВДОХНОВЕНИЕ!", new Color(1f, 0.55f, 0.1f), 2.1f);
         }
         else if (roll < 0.90f)
         {
             // 3. Час пик: 100% криты на 8 секунд (20%)
             clickerManager.ActivateCritRush(critRushDuration);
-            SpawnFeedback($"ЧАС ПИК! 100% КРИТЫ ({critRushDuration:0}с)!", new Color(1f, 0.25f, 0.35f), 2.1f);
+            SpawnFeedback($"ЧАС ПИК! 100% ЛАТТЕ-АРТ ({critRushDuration:0}с)!", new Color(1f, 0.25f, 0.35f), 2.1f);
         }
         else
         {
@@ -115,7 +115,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
             int crystals = Random.value < 0.25f ? 2 : 1;
             clickerManager.totalCrystals += crystals;
             clickerManager.lifetimeCrystals += crystals;
-            SpawnFeedback($"УДАЧА! +{crystals} КРИСТАЛЛ{(crystals > 1 ? "А" : "")}!", new Color(0.35f, 0.85f, 1f), 2.2f);
+            SpawnFeedback($"УДАЧА! +{crystals} ★ РЕПУТАЦИИ{(crystals > 1 ? "А" : "")}!", new Color(0.35f, 0.85f, 1f), 2.2f);
         }
     }
 

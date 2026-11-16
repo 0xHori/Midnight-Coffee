@@ -90,10 +90,10 @@ public class AffectionUI : MonoBehaviour
             fillBar.fillAmount = progress;
 
         if (levelText != null)
-            levelText.text = lvl >= equipped.maxAffectionLevel ? $"♥ MAX" : $"♥ Ур. {lvl}";
+            levelText.text = lvl >= equipped.maxAffectionLevel ? "♥ MAX" : $"♥ Ур. {lvl}";
 
         if (bonusText != null)
-            bonusText.text = bonusPercent > 0 ? $"+{bonusPercent:F0}% к статам" : "+0% к статам";
+            bonusText.text = bonusPercent > 0 ? $"+{bonusPercent:F0}% к чаевым" : "+0% к чаевым";
     }
 
     public void ShowSpeech(string quote)

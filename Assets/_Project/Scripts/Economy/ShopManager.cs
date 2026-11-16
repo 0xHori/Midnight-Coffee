@@ -178,7 +178,11 @@ public class ShopManager : MonoBehaviour
                     break;
                 case UpgradeType.ClickMultiplier:
                     double effectiveBase = 1.0 + (upgrade.baseValue - 1.0) * milestoneMult;
-                    clickMult *= Math.Pow(effectiveBase, lvl);
+                    double rawMult = Math.Pow(effectiveBase, lvl);
+                    if (double.IsInfinity(rawMult) || rawMult > 1e300)
+                        clickMult = 1e300;
+                    else
+                        clickMult = Math.Min(1e300, clickMult * rawMult);
                     break;
                 case UpgradeType.AutoIncome:
                     baseAuto += upgrade.baseValue * lvl * milestoneMult;

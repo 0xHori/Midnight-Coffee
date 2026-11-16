@@ -41,12 +41,14 @@ public class GameStatsCalculator
         double skillMult = _skills != null ? _skills.ClickMultiplier : 1.0;
         double charMult = _gacha != null ? (1.0 + _gacha.GetTotalCharacterBonus(StatType.ClickMultiplier)) : 1.0;
 
-        return (BaseClickPower + shopFlat)
-             * shopMult
-             * skillMult
-             * charMult
-             * GetPrestigeMultiplier(totalCrystals)
-             * GetFeverMultiplier();
+        double total = (BaseClickPower + shopFlat)
+                     * shopMult
+                     * skillMult
+                     * charMult
+                     * GetPrestigeMultiplier(totalCrystals)
+                     * GetFeverMultiplier();
+
+        return (double.IsInfinity(total) || total > 1e300) ? 1e300 : total;
     }
 
     public double GetTotalCritChance()
@@ -74,7 +76,8 @@ public class GameStatsCalculator
     {
         double baseAuto = _shop != null ? _shop.TotalBaseAutoIncome : 0.0;
         if (baseAuto <= 0) return 0.0;
-        return baseAuto * GetTotalAutoMultiplier(totalCrystals);
+        double total = baseAuto * GetTotalAutoMultiplier(totalCrystals);
+        return (double.IsInfinity(total) || total > 1e300) ? 1e300 : total;
     }
 
     public double CalculatePotentialCrystals(double score, double prestigeThreshold)

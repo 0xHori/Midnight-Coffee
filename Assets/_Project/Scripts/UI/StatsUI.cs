@@ -66,19 +66,19 @@ public class StatsUI : MonoBehaviour
         }
 
         statsContentText.text =
-            $"<b><color=#FFD700>— ПРОГРЕСС —</color></b>\n" +
-            $"Заработано за всё время: <b>{lifetimeStr}</b>\n" +
-            $"Всего кликов: <b>{clickerManager.totalClicks:N0}</b>\n" +
-            $"Критических кликов: <b>{clickerManager.totalCritClicks:N0}</b>\n" +
-            $"Совершено престижей: <b>{clickerManager.totalPrestiges}</b>\n" +
-            $"Круток в Гаче: <b>{gachaManager?.totalGachaRolls ?? 0}</b>\n" +
-            $"Открыто персонажей: <b>{ownedChars} / {totalChars}</b>\n\n" +
-            $"<b><color=#38BDF8>— ТЕКУЩИЕ МНОЖИТЕЛИ —</color></b>\n" +
-            $"Итоговая сила клика: <b>{clickPowerStr}</b>\n" +
-            $"Итоговый автодоход: <b>{autoIncomeStr} / сек</b>\n" +
-            $"Множитель престижа: <b>x{prestigeMult:0.##}</b>\n" +
-            $"Общий множитель автодохода: <b>x{autoMult:0.##}</b>\n" +
-            $"Шанс крита: <b>{critChancePct:0.#}%</b>\n" +
-            $"Множитель крита: <b>x{critMult:0.#}</b>";
+            $"<b><color=#FFD700>— ЖУРНАЛ КОФЕЙНИ —</color></b>\n" +
+            $"Выручка за всё время: <b>{lifetimeStr}</b>\n" +
+            $"Приготовлено напитков: <b>{clickerManager.totalClicks:N0}</b>\n" +
+            $"Идеальный латте-арт: <b>{clickerManager.totalCritClicks:N0}</b>\n" +
+            $"Открыто кофеен: <b>{clickerManager.totalPrestiges}</b>\n" +
+            $"Приглашений гостей: <b>{gachaManager?.totalGachaRolls ?? 0}</b>\n" +
+            $"Постоянных гостей: <b>{ownedChars} / {totalChars}</b>\n\n" +
+            $"<b><color=#38BDF8>— ПОКАЗАТЕЛИ СМЕНЫ —</color></b>\n" +
+            $"Выручка за напиток: <b>{clickPowerStr}</b>\n" +
+            $"Автовыручка: <b>{autoIncomeStr} / сек</b>\n" +
+            $"Бонус репутации: <b>x{prestigeMult:0.##}</b>\n" +
+            $"Множитель оборудования: <b>x{autoMult:0.##}</b>\n" +
+            $"Шанс латте-арта: <b>{critChancePct:0.#}%</b>\n" +
+            $"Бонус за латте-арт: <b>x{critMult:0.#}</b>";
     }
 }

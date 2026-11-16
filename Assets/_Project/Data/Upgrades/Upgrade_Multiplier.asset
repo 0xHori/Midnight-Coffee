@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Upgrade_Multiplier
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeId: click_mult
-  upgradeName: "\u0423\u0441\u0438\u043B\u0438\u0442\u0435\u043B\u044C \u043A\u043B\u0438\u043A\u0430 (+25%)"
+  upgradeName: "Свежая обжарка (+25%)"
   orderInShop: 0
   upgradeType: 1
   maxLevel: 200

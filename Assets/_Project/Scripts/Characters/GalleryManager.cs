@@ -120,14 +120,14 @@ public class GalleryManager : MonoBehaviour
 
         if (character == null)
         {
-            detailsText.text = "Нажмите на открытого персонажа,\nчтобы выбрать его и увидеть бонусы";
+            detailsText.text = "Нажмите на постоянного гостя,\nчтобы пригласить его к стойке и увидеть бонусы";
             return;
         }
 
         int level = gachaManager.GetCharacterLevel(character.characterId);
         if (level <= 0)
         {
-            detailsText.text = $"<b>???</b> — персонаж ещё не открыт.\nВыбейте в Гаче, чтобы узнать бонусы!";
+            detailsText.text = $"<b>???</b> — этот гость ещё не заглядывал.\nПривлеките новых посетителей, чтобы познакомиться!";
             return;
         }
 
@@ -144,16 +144,16 @@ public class GalleryManager : MonoBehaviour
         string activeDesc = GetStatDescription(character.activeStat);
 
         string affectionLine = affectionLvl >= character.maxAffectionLevel
-            ? $"<color=#FF6B9E>♥ Близость: MAX (+{affectionBonusPct:0.#}% к статам)</color>"
-            : $"<color=#FF6B9E>♥ Близость: Ур. {affectionLvl}/{character.maxAffectionLevel} (+{affectionBonusPct:0.#}% к статам)</color>";
+            ? $"<color=#FF6B9E>♥ Доверие: MAX (+{affectionBonusPct:0.#}% к бонусам)</color>"
+            : $"<color=#FF6B9E>♥ Доверие: Ур. {affectionLvl}/{character.maxAffectionLevel} (+{affectionBonusPct:0.#}% к бонусам)</color>";
 
         string abilityLine = !string.IsNullOrEmpty(character.abilityDescription)
             ? $"\n<i><color=#CCCCCC>{character.abilityDescription}</color></i>"
             : "";
 
         detailsText.text = $"<b>{character.characterName}</b> (Ур. {level})  |  {affectionLine}\n" +
-                           $"<color=#A3E635>Пассивно: +{passiveBonus:0.#}% {passiveDesc}</color>  |  " +
-                           $"<color=#38BDF8>Активна: +{activeBonus:0.#}% {activeDesc}</color>" +
+                           $"<color=#A3E635>В зале: +{passiveBonus:0.#}% {passiveDesc}</color>  |  " +
+                           $"<color=#38BDF8>У стойки: +{activeBonus:0.#}% {activeDesc}</color>" +
                            abilityLine;
     }
 

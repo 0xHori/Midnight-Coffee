@@ -34,7 +34,16 @@ public class ClickerManager : MonoBehaviour
     [Header("UI и Эффекты (для бонусов)")]
     public FloatingTextPool floatingTextPool;
 
-    public GameStatsCalculator Stats { get; private set; }
+    private GameStatsCalculator _stats;
+    public GameStatsCalculator Stats
+    {
+        get
+        {
+            if (_stats == null)
+                _stats = new GameStatsCalculator(balanceConfig, shopManager, skillTreeManager, gachaManager, feverManager);
+            return _stats;
+        }
+    }
     public double PrestigeMultiplier => Stats.GetPrestigeMultiplier(lifetimeCrystals);
 
     private const double MAX_SAFE_DOUBLE = 1e300;
@@ -47,7 +56,7 @@ public class ClickerManager : MonoBehaviour
         if (balanceConfig != null)
             prestigeThreshold = balanceConfig.initialPrestigeThreshold;
 
-        Stats = new GameStatsCalculator(balanceConfig, shopManager, skillTreeManager, gachaManager, feverManager);
+        _stats = new GameStatsCalculator(balanceConfig, shopManager, skillTreeManager, gachaManager, feverManager);
     }
 
     void Start()

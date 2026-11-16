@@ -123,17 +123,17 @@ public class FeverManager : MonoBehaviour
         {
             if (isFeverActive)
             {
-                feverStatusText.text = $"FEVER x{feverMultiplier:0.#}! ({feverTimer:0.0}с)";
+                feverStatusText.text = $"ВДОХНОВЕНИЕ x{feverMultiplier:0.#}! ({feverTimer:0.0}с)";
                 feverStatusText.color = Color.white;
             }
             else if (currentCharge > 0.01f)
             {
-                feverStatusText.text = $"КОМБО: {Mathf.RoundToInt(currentCharge * 100f)}%";
+                feverStatusText.text = $"РИТМ БАРИСТА: {Mathf.RoundToInt(currentCharge * 100f)}%";
                 feverStatusText.color = Color.white;
             }
             else
             {
-                feverStatusText.text = "ТАПАЙ ДЛЯ FEVER";
+                feverStatusText.text = "ВАРИ КОФЕ ДЛЯ ВДОХНОВЕНИЯ";
                 feverStatusText.color = new Color(1f, 1f, 1f, 0.55f);
             }
         }

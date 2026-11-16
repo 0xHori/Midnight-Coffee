@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -82,13 +83,21 @@ public class UpgradeItemUI : MonoBehaviour
         {
             case UpgradeType.FlatClick:
                 double flatGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
-                bonusText.text = $"+{flatGain.ToCompactString()} к клику{milestoneHint}";
+                bonusText.text = $"+{flatGain.ToCompactString()} к напитку{milestoneHint}";
                 break;
             case UpgradeType.ClickMultiplier:
                 double effNext = 1.0 + (data.baseValue - 1.0) * nextMilestoneMult;
                 double effCurr = 1.0 + (data.baseValue - 1.0) * currentMilestoneMult;
-                double multGain = System.Math.Pow(effNext, lvl + amount) / System.Math.Max(1.0, System.Math.Pow(effCurr, lvl));
-                bonusText.text = $"Сила клика x{multGain.ToCompactString()}{milestoneHint}";
+                double prevTotal = Math.Pow(effCurr, lvl);
+                double nextTotal = Math.Pow(effNext, lvl + amount);
+                double multGain = (double.IsInfinity(nextTotal) || double.IsInfinity(prevTotal) || prevTotal <= 0)
+                    ? Math.Pow(effNext, amount)
+                    : nextTotal / prevTotal;
+
+                if (double.IsNaN(multGain) || double.IsInfinity(multGain) || multGain > 1e300)
+                    bonusText.text = $"Чек xMAX{milestoneHint}";
+                else
+                    bonusText.text = $"Чек x{multGain.ToCompactString()}{milestoneHint}";
                 break;
             case UpgradeType.AutoIncome:
                 double baseGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
@@ -113,6 +122,15 @@ public class UpgradeItemUI : MonoBehaviour
         bool canAfford = clickerManager.score >= cost;
         costText.text = $"Цена: {cost.ToCompactString()}";
         costText.color = canAfford ? new Color(1f, 0.84f, 0f) : new Color(0.95f, 0.35f, 0.35f);
+
+        if (double.IsInfinity(cost) || cost >= 1e300)
+        {
+            costText.text = "Достигнут предел";
+            costText.color = new Color(0.6f, 0.65f, 0.75f);
+            if (backgroundImage != null && flashCoroutine == null)
+                backgroundImage.color = unaffordableColor;
+            return;
+        }
 
         if (backgroundImage != null && flashCoroutine == null)
             backgroundImage.color = canAfford ? affordableColor : unaffordableColor;
