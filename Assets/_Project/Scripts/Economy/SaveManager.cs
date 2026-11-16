@@ -12,12 +12,7 @@ public class SaveManager : MonoBehaviour
     public GachaManager gachaManager;
     public AffectionManager affectionManager;
 
-    private string saveFilePath;
-
-    void Awake()
-    {
-        saveFilePath = Application.persistentDataPath + "/MyClickerSave.json";
-    }
+    private string SaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
 
     void OnEnable() { GameEvents.OnSaveGame += SaveGame; }
     void OnDisable() { GameEvents.OnSaveGame -= SaveGame; }
@@ -56,7 +51,7 @@ public class SaveManager : MonoBehaviour
 
         try
         {
-            File.WriteAllText(saveFilePath, JsonUtility.ToJson(data, true));
+            File.WriteAllText(SaveFilePath, JsonUtility.ToJson(data, true));
         }
         catch (Exception e)
         {
@@ -66,7 +61,7 @@ public class SaveManager : MonoBehaviour
 
     public void LoadGame()
     {
-        if (!File.Exists(saveFilePath))
+        if (!File.Exists(SaveFilePath))
         {
             Debug.Log("Файл сохранения не найден. Начинаем новую игру.");
             return;
@@ -74,13 +69,15 @@ public class SaveManager : MonoBehaviour
 
         try
         {
-            string json = File.ReadAllText(saveFilePath);
+            string json = File.ReadAllText(SaveFilePath);
             GameData data = JsonUtility.FromJson<GameData>(json);
 
             clickerManager.score = data.score;
             clickerManager.totalCrystals = data.totalCrystals;
             if (data.prestigeThreshold > 0)
                 clickerManager.prestigeThreshold = data.prestigeThreshold;
+            else if (balanceConfig != null)
+                clickerManager.prestigeThreshold = balanceConfig.initialPrestigeThreshold;
 
             clickerManager.totalClicks = data.totalClicks;
             clickerManager.totalCritClicks = data.totalCritClicks;
@@ -115,6 +112,7 @@ public class SaveManager : MonoBehaviour
             }
 
             CalculateOfflineIncome(data.lastExitTime);
+            clickerManager.SanitizeNumbers();
         }
         catch (Exception e)
         {
@@ -159,6 +157,7 @@ public class SaveManager : MonoBehaviour
                 int minutes = (int)((secondsAway % 3600) / 60);
 
                 GameEvents.ShowOfflinePanel(earned, hours, minutes);
+                SaveGame();
             }
         }
     }

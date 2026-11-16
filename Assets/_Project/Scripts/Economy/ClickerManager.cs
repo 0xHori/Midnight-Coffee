@@ -57,12 +57,15 @@ public class ClickerManager : MonoBehaviour
             prestigeThreshold = balanceConfig.initialPrestigeThreshold;
 
         _stats = new GameStatsCalculator(balanceConfig, shopManager, skillTreeManager, gachaManager, feverManager);
+
+        if (saveManager != null)
+            saveManager.LoadGame();
+
+        SanitizeNumbers();
     }
 
     void Start()
     {
-        if (saveManager != null) saveManager.LoadGame();
-        SanitizeNumbers();
         GameEvents.UpdateUI();
 
         InvokeRepeating(nameof(AutoIncome), 1f, 1f);
@@ -100,7 +103,7 @@ public class ClickerManager : MonoBehaviour
         return Mathf.Min(maxAutoTapsPerSecond, managerLvl * autoTapsPerManagerLevel);
     }
 
-    private void SanitizeNumbers()
+    public void SanitizeNumbers()
     {
         score = SanitizeDouble(score);
         totalCrystals = SanitizeDouble(totalCrystals);

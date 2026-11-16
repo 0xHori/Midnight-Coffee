@@ -37,6 +37,7 @@ public class PlaytestTelemetryRecorder : MonoBehaviour
 
     void Awake()
     {
+#if UNITY_EDITOR
         if (resetSaveOnStart)
         {
             string savePath = Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
@@ -46,6 +47,7 @@ public class PlaytestTelemetryRecorder : MonoBehaviour
                 Debug.Log("[Playtest] Старый сейв удалён для чистого прогона.");
             }
         }
+#endif
     }
 
     void Start()

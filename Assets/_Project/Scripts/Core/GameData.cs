@@ -35,7 +35,7 @@ public class GameData
     public double score;
     public double totalCrystals;
     public double lifetimeCrystals;
-    public double prestigeThreshold = 50000;
+    public double prestigeThreshold = 0;
 
     // Статистика игрока за всё время
     public long totalClicks;

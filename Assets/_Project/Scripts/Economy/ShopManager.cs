@@ -82,18 +82,22 @@ public class ShopManager : MonoBehaviour
 
     public int GetPurchaseAmount(UpgradeData upgrade)
     {
+        if (upgrade == null) return 0;
         int currentLvl = GetUpgradeLevel(upgrade.upgradeId);
+        int remaining = Mathf.Max(0, upgrade.maxLevel - currentLvl);
+        if (remaining <= 0) return 0;
+
         switch (CurrentBuyMode)
         {
             case BuyMode.X1:
-                return 1;
+                return Mathf.Min(1, remaining);
             case BuyMode.X10:
-                return 10;
+                return Mathf.Min(10, remaining);
             case BuyMode.Max:
                 int maxAffordable = upgrade.GetMaxAffordableAmount(currentLvl, clickerManager != null ? clickerManager.score : 0);
                 return maxAffordable > 0 ? maxAffordable : 1;
             default:
-                return 1;
+                return Mathf.Min(1, remaining);
         }
     }
 
@@ -103,6 +107,7 @@ public class ShopManager : MonoBehaviour
 
         int currentLvl = GetUpgradeLevel(upgrade.upgradeId);
         int amountToBuy = GetPurchaseAmount(upgrade);
+        if (amountToBuy <= 0) return false;
         double totalCost = upgrade.GetBulkCost(currentLvl, amountToBuy);
 
         if (clickerManager.score < totalCost)
@@ -177,8 +182,7 @@ public class ShopManager : MonoBehaviour
                     flatClick += upgrade.baseValue * lvl * milestoneMult;
                     break;
                 case UpgradeType.ClickMultiplier:
-                    double effectiveBase = 1.0 + (upgrade.baseValue - 1.0) * milestoneMult;
-                    double rawMult = Math.Pow(effectiveBase, lvl);
+                    double rawMult = Math.Pow(upgrade.baseValue, lvl) * milestoneMult;
                     if (double.IsInfinity(rawMult) || rawMult > 1e300)
                         clickMult = 1e300;
                     else

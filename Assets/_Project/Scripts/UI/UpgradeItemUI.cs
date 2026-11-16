@@ -86,12 +86,10 @@ public class UpgradeItemUI : MonoBehaviour
                 bonusText.text = LocalizationManager.Get("shop.bonus_click", flatGain.ToCompactString(), milestoneHint);
                 break;
             case UpgradeType.ClickMultiplier:
-                double effNext = 1.0 + (data.baseValue - 1.0) * nextMilestoneMult;
-                double effCurr = 1.0 + (data.baseValue - 1.0) * currentMilestoneMult;
-                double prevTotal = Math.Pow(effCurr, lvl);
-                double nextTotal = Math.Pow(effNext, lvl + amount);
+                double prevTotal = Math.Pow(data.baseValue, lvl) * currentMilestoneMult;
+                double nextTotal = Math.Pow(data.baseValue, lvl + amount) * nextMilestoneMult;
                 double multGain = (double.IsInfinity(nextTotal) || double.IsInfinity(prevTotal) || prevTotal <= 0)
-                    ? Math.Pow(effNext, amount)
+                    ? Math.Pow(data.baseValue, amount)
                     : nextTotal / prevTotal;
 
                 string multDisplay = (double.IsNaN(multGain) || double.IsInfinity(multGain) || multGain > 1e300)
