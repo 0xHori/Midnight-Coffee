@@ -17,6 +17,8 @@ public class FeverVisualFeedback : MonoBehaviour
     private Image _vignetteImage;
     private float _currentAlpha = 0f;
     private bool _isFeverActive = false;
+    private Texture2D _vignetteTexture;
+    private Sprite _vignetteSprite;
 
     void Start()
     {
@@ -91,12 +93,19 @@ public class FeverVisualFeedback : MonoBehaviour
             }
         }
         tex.Apply();
-
-        return Sprite.Create(
+        _vignetteTexture = tex;
+        _vignetteSprite = Sprite.Create(
             tex,
             new Rect(0, 0, size, size),
             new Vector2(0.5f, 0.5f),
             100f
         );
+        return _vignetteSprite;
+    }
+
+    void OnDestroy()
+    {
+        if (_vignetteSprite != null) Destroy(_vignetteSprite);
+        if (_vignetteTexture != null) Destroy(_vignetteTexture);
     }
 }

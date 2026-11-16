@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class GalleryManager : MonoBehaviour
@@ -12,98 +12,76 @@ public class GalleryManager : MonoBehaviour
     [Header("UI деталей персонажа")]
     public TextMeshProUGUI detailsText;
 
+    private readonly Dictionary<string, CharacterCardUI> _spawnedCards = new Dictionary<string, CharacterCardUI>();
+    private bool _isBuilt = false;
+
     public void OpenGallery()
     {
         RefreshGallery();
         ShowEquippedOrDefaultDetails();
     }
 
-    public void RefreshGallery()
+    private void EnsureBuilt()
     {
-        if (gachaManager == null || cardPrefab == null || contentContainer == null) return;
+        if (_isBuilt || gachaManager == null || cardPrefab == null || contentContainer == null) return;
+        _isBuilt = true;
 
         foreach (Transform child in contentContainer)
-        {
             Destroy(child.gameObject);
-        }
+        _spawnedCards.Clear();
 
         foreach (CharacterData character in gachaManager.allCharacters)
         {
-            if (character == null) continue;
+            if (character == null || string.IsNullOrEmpty(character.characterId)) continue;
 
             GameObject newCard = Instantiate(cardPrefab, contentContainer);
-
-            TextMeshProUGUI nameText = newCard.transform.Find("NameText").GetComponent<TextMeshProUGUI>();
-            Image portraitImage = newCard.transform.Find("Portrait").GetComponent<Image>();
-            Image cardBg = newCard.GetComponent<Image>();
-
-            portraitImage.sprite = character.portrait;
-            portraitImage.preserveAspect = true;
-
-            int level = gachaManager.GetCharacterLevel(character.characterId);
-            bool isOwned = level > 0;
-
-            Button cardBtn = newCard.GetComponent<Button>();
-
-            if (!isOwned)
+            CharacterCardUI cardUI = newCard.GetComponent<CharacterCardUI>();
+            if (cardUI != null)
             {
-                if (cardBg != null)
-                    cardBg.color = new Color(0.16f, 0.16f, 0.18f, 1f);
-
-                portraitImage.color = new Color(0, 0, 0, 1f);
-                nameText.text = "???";
-
-                if (cardBtn != null)
-                {
-                    CharacterData charCopy = character;
-                    cardBtn.onClick.RemoveAllListeners();
-                    cardBtn.onClick.AddListener(() => UpdateCharacterDetails(charCopy));
-                }
-            }
-            else
-            {
-                portraitImage.color = Color.white;
-                bool isEquipped = (gachaManager.equippedCharacterId == character.characterId);
-
-                if (cardBg != null)
-                {
-                    cardBg.color = isEquipped
-                        ? new Color(0.28f, 0.24f, 0.14f, 1f)
-                        : new Color(0.16f, 0.16f, 0.18f, 1f);
-                }
-
-                int affectionLvl = affectionManager != null
-                    ? affectionManager.GetAffectionLevel(character.characterId)
-                    : 1;
-                string affectionTag = affectionLvl >= character.maxAffectionLevel
-                    ? $"<color=#FF6B9E>{LocalizationManager.Get("affection.max")}</color>"
-                    : $"<color=#FF6B9E>{LocalizationManager.Get("affection.level", affectionLvl)}</color>";
-
-                string nameLine = isEquipped
-                    ? $"<color=#FFD700>✦ {character.LocalizedName}</color>"
-                    : character.LocalizedName;
-
-                nameText.text = LocalizationManager.Get("gallery.card_subtitle", nameLine, level, affectionTag);
-
-                if (cardBtn != null)
-                {
-                    CharacterData charCopy = character;
-                    cardBtn.onClick.RemoveAllListeners();
-                    cardBtn.onClick.AddListener(() =>
-                    {
-                        gachaManager.EquipCharacter(charCopy.characterId);
-                        RefreshGallery();
-                        UpdateCharacterDetails(charCopy);
-                    });
-                }
+                cardUI.Bind(character, HandleCardClicked);
+                _spawnedCards[character.characterId] = cardUI;
             }
         }
     }
+
+    public void RefreshGallery()
+    {
+        if (gachaManager == null) return;
+        EnsureBuilt();
+
+        foreach (CharacterData character in gachaManager.allCharacters)
+        {
+            if (character == null || !_spawnedCards.TryGetValue(character.characterId, out CharacterCardUI cardUI))
+                continue;
+
+            int level = gachaManager.GetCharacterLevel(character.characterId);
+            bool isEquipped = gachaManager.equippedCharacterId == character.characterId;
+            int affectionLvl = affectionManager != null
+                ? affectionManager.GetAffectionLevel(character.characterId)
+                : 1;
+
+            cardUI.Refresh(level, isEquipped, affectionLvl);
+        }
+    }
+
+    private void HandleCardClicked(CharacterData character)
+    {
+        if (character == null || gachaManager == null) return;
+
+        int level = gachaManager.GetCharacterLevel(character.characterId);
+        if (level > 0)
+        {
+            gachaManager.EquipCharacter(character.characterId);
+            RefreshGallery();
+        }
+        UpdateCharacterDetails(character);
+    }
+
     private void ShowEquippedOrDefaultDetails()
     {
         if (gachaManager != null && !string.IsNullOrEmpty(gachaManager.equippedCharacterId))
         {
-            CharacterData equipped = gachaManager.allCharacters.Find(c => c != null && c.characterId == gachaManager.equippedCharacterId);
+            CharacterData equipped = gachaManager.GetEquippedCharacter();
             if (equipped != null)
             {
                 UpdateCharacterDetails(equipped);

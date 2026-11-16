@@ -26,7 +26,6 @@ public class AffectionUI : MonoBehaviour
     void OnEnable()
     {
         GameEvents.OnUpdateUI += RefreshBar;
-        GameEvents.OnPlayerTapped += HandleTapped;
         GameEvents.OnCharacterEquipped += HandleCharacterChanged;
         GameEvents.OnCharacterSpeak += ShowSpeech;
     }
@@ -34,7 +33,6 @@ public class AffectionUI : MonoBehaviour
     void OnDisable()
     {
         GameEvents.OnUpdateUI -= RefreshBar;
-        GameEvents.OnPlayerTapped -= HandleTapped;
         GameEvents.OnCharacterEquipped -= HandleCharacterChanged;
         GameEvents.OnCharacterSpeak -= ShowSpeech;
     }
@@ -66,7 +64,6 @@ public class AffectionUI : MonoBehaviour
         }
     }
 
-    private void HandleTapped(double earned, bool isCrit, bool isFever) => RefreshBar();
     private void HandleCharacterChanged(CharacterData character) => RefreshBar();
 
     public void RefreshBar()

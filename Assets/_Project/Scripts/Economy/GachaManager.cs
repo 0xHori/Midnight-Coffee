@@ -29,7 +29,12 @@ public class GachaManager : MonoBehaviour
     public CharacterData GetEquippedCharacter()
     {
         if (string.IsNullOrEmpty(equippedCharacterId) || allCharacters == null) return null;
-        return allCharacters.Find(c => c != null && c.characterId == equippedCharacterId);
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            if (allCharacters[i] != null && allCharacters[i].characterId == equippedCharacterId)
+                return allCharacters[i];
+        }
+        return null;
     }
 
     public void EquipCharacter(string charId)

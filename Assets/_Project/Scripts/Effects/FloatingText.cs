@@ -28,7 +28,6 @@ public class FloatingText : MonoBehaviour
     {
         transform.position = startPosition;
         transform.localScale = new Vector3(scale, scale, 1f);
-        transform.SetAsLastSibling();
 
         textMesh.text = message;
         textMesh.color = color;

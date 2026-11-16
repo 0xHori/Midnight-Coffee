@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5975001799919617900}
   - component: {fileID: 4764455485166304169}
   - component: {fileID: 6032666126861459629}
+  - component: {fileID: 8810528051877631805}
   m_Layer: 5
   m_Name: CharacterCard
   m_TagString: Untagged
@@ -122,6 +123,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8810528051877631805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849799289825375032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abc48ea43cef782259c477f938a64c46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.UI::CharacterCardUI
+  backgroundImage: {fileID: 4764455485166304169}
+  portraitImage: {fileID: 1187213334667502498}
+  nameText: {fileID: 2795581463320831313}
+  cardButton: {fileID: 6032666126861459629}
 --- !u!1 &4853801727389067238
 GameObject:
   m_ObjectHideFlags: 0
