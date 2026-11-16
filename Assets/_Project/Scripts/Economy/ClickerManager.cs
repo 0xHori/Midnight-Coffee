@@ -88,11 +88,16 @@ public class ClickerManager : MonoBehaviour
         _autoTapTimer += Time.deltaTime;
         float interval = 1f / tapsPerSec;
 
-        if (_autoTapTimer >= interval)
+        int tapsThisFrame = 0;
+        while (_autoTapTimer >= interval && tapsThisFrame < 5)
         {
             _autoTapTimer -= interval;
+            tapsThisFrame++;
             PerformTap(isManual: false);
         }
+
+        if (_autoTapTimer > interval)
+            _autoTapTimer = 0f;
     }
 
     public float GetAutoTapsPerSecond()

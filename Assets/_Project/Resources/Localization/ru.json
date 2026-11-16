@@ -138,6 +138,13 @@
     { "key": "char.legendary_girl.quote.1", "value": "Стук чашек и шипение пара звучат прямо как мягкий джазовый ритм. У тебя потрясающая атмосфера!" },
     { "key": "char.legendary_girl.quote.2", "value": "Заметил, как за окном собираются прохожие? Твой кофе притягивает людей лучше любой афиши." },
     { "key": "char.legendary_girl.quote.3", "value": "Знаешь, мне нравится заглядывать сюда после полуночи. Твоя улыбка согревает лучше любого пледа." },
-    { "key": "char.legendary_girl.quote.4", "value": "Пока горит тёплый свет в окнах этой кофейни, у полуночников всегда будет место, куда хочется вернуться!" }
+    { "key": "char.legendary_girl.quote.4", "value": "Пока горит тёплый свет в окнах этой кофейни, у полуночников всегда будет место, куда хочется вернуться!" },
+    
+    { "key": "common.unknown", "value": "???" },
+    { "key": "number.max", "value": "МАКС" },
+    { "key": "number.suffixes", "value": ",тыс.,млн,млрд,трлн,Qa,Qi,Sx,Sp,Oc,No,Dc" },
+    { "key": "settings.percent", "value": "{0}%" },
+    { "key": "shop.buy_amount_suffix", "value": " (+{0})" },
+    { "key": "ui.revenue_mult_suffix", "value": " (x{0})" }
   ]
 }

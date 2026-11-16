@@ -43,7 +43,7 @@ public class SkillNodeUI : MonoBehaviour
 
         if (!isUnlocked)
         {
-            string reqName = skillData.requiredSkill != null ? skillData.requiredSkill.LocalizedTitle : "???";
+            string reqName = skillData.requiredSkill != null ? skillData.requiredSkill.LocalizedTitle : LocalizationManager.Get("common.unknown");
             descriptionText.text = LocalizationManager.Get("skills.req_hint", reqName, skillData.requiredSkillLevel);
             costText.text = LocalizationManager.Get("skills.locked");
             upgradeButton.interactable = false;

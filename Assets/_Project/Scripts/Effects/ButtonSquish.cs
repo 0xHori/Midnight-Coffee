@@ -40,6 +40,8 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     void Awake()
     {
         _button = GetComponent<Button>();
+        originalScale = transform.localScale;
+        originalRotation = transform.localRotation;
     }
 
     void OnDisable()
@@ -50,12 +52,6 @@ public class ButtonSquish : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     public void SetFeverActive(bool active)
     {
         _isFeverActive = active;
-    }
-
-    void Start()
-    {
-        originalScale = transform.localScale;
-        originalRotation = transform.localRotation;
     }
 
     void Update()

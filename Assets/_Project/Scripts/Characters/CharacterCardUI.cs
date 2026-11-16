@@ -50,7 +50,7 @@ public class CharacterCardUI : MonoBehaviour
         {
             if (backgroundImage != null) backgroundImage.color = DefaultBgColor;
             if (portraitImage != null) portraitImage.color = Color.black;
-            if (nameText != null) nameText.text = "???";
+            if (nameText != null) nameText.text = LocalizationManager.Get("common.unknown");
             return;
         }
 

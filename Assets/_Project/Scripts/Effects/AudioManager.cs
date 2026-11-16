@@ -198,8 +198,14 @@ public class AudioManager : MonoBehaviour
         }
         musicSource.volume = MusicVolume;
 
-        while (musicSource.isPlaying && musicSource.time < nextClip.length - fadeDuration)
+        float trackTimer = fadeDuration;
+        float targetPlayTime = Mathf.Max(0.1f, nextClip.length - fadeDuration);
+        while (trackTimer < targetPlayTime)
         {
+            if (Application.isFocused)
+            {
+                trackTimer += Time.unscaledDeltaTime;
+            }
             yield return null;
         }
 

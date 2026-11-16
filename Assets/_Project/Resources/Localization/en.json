@@ -137,6 +137,13 @@
     { "key": "char.legendary_girl.quote.1", "value": "The clink of cups and hiss of steam sound just like a soft jazz rhythm. Amazing atmosphere!" },
     { "key": "char.legendary_girl.quote.2", "value": "Notice the passersby gathering outside? Your coffee draws people better than any billboard." },
     { "key": "char.legendary_girl.quote.3", "value": "You know, I love stopping by after midnight. Your smile warms better than any blanket." },
-    { "key": "char.legendary_girl.quote.4", "value": "As long as warm light shines in these cafe windows, night owls will always have a place to return to!" }
+    { "key": "char.legendary_girl.quote.4", "value": "As long as warm light shines in these cafe windows, night owls will always have a place to return to!" },
+
+    { "key": "common.unknown", "value": "???" },
+    { "key": "number.max", "value": "MAX" },
+    { "key": "number.suffixes", "value": ",K,M,B,T,Qa,Qi,Sx,Sp,Oc,No,Dc" },
+    { "key": "settings.percent", "value": "{0}%" },
+    { "key": "shop.buy_amount_suffix", "value": " (+{0})" },
+    { "key": "ui.revenue_mult_suffix", "value": " (x{0})" }
   ]
 }

@@ -11,6 +11,9 @@ public class UpgradeItemUI : MonoBehaviour
     public TextMeshProUGUI costText;
     public Button buyButton;
 
+    [Tooltip("Внутренний контейнер для анимации тряски, чтобы не конфликтовать с LayoutGroup")]
+    public RectTransform visualRoot;
+
     [Header("Цвета доступности")]
     public Image backgroundImage;
     public Color affordableColor = new Color(0.15f, 0.17f, 0.21f, 1f);
@@ -21,6 +24,8 @@ public class UpgradeItemUI : MonoBehaviour
     private ShopManager shopManager;
     private ClickerManager clickerManager;
     private Coroutine shakeCoroutine;
+    private float _visualRootBaseX;
+    private bool _hasVisualRootBaseX = false;
     private Coroutine flashCoroutine;
     private int _lastKnownMilestones = -1;
 
@@ -67,7 +72,7 @@ public class UpgradeItemUI : MonoBehaviour
         }
         _lastKnownMilestones = milestones;
 
-        string amountSuffix = amount > 1 ? $" (+{amount})" : "";
+        string amountSuffix = amount > 1 ? LocalizationManager.Get("shop.buy_amount_suffix", amount) : "";
         string multBadge = milestones > 0 ? $" <color=#FFD700>[x{currentMilestoneMult:0.##}]</color>" : "";
         titleText.text = LocalizationManager.Get("shop.item_title", data.LocalizedName, lvl, amountSuffix, multBadge);
 
@@ -94,7 +99,7 @@ public class UpgradeItemUI : MonoBehaviour
 
                 string multDisplay = (double.IsNaN(multGain) || double.IsInfinity(multGain) || multGain > 1e300)
                     ? "MAX"
-                    : multGain.ToCompactString();
+                    : (multGain < 1000.0 ? multGain.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : multGain.ToCompactString());
                 bonusText.text = LocalizationManager.Get("shop.bonus_mult", multDisplay, milestoneHint);
                 break;
             case UpgradeType.AutoIncome:
@@ -146,18 +151,23 @@ public class UpgradeItemUI : MonoBehaviour
 
     IEnumerator ShakeCard()
     {
-        RectTransform rt = GetComponent<RectTransform>();
-        float startX = rt.anchoredPosition.x;
+        RectTransform target = visualRoot != null ? visualRoot : GetComponent<RectTransform>();
+        if (!_hasVisualRootBaseX)
+        {
+            _visualRootBaseX = target.anchoredPosition.x;
+            _hasVisualRootBaseX = true;
+        }
+
         float elapsed = 0f;
         float duration = 0.2f;
 
         while (elapsed < duration)
         {
             float offset = Mathf.Sin(elapsed * 55f) * 12f * (1f - elapsed / duration);
-            rt.anchoredPosition = new Vector2(startX + offset, rt.anchoredPosition.y);
+            target.anchoredPosition = new Vector2(_visualRootBaseX + offset, target.anchoredPosition.y);
             elapsed += Time.deltaTime;
             yield return null;
         }
-        rt.anchoredPosition = new Vector2(startX, rt.anchoredPosition.y);
+        target.anchoredPosition = new Vector2(_visualRootBaseX, target.anchoredPosition.y);
     }
 }

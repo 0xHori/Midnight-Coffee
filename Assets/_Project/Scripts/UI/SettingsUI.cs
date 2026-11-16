@@ -174,7 +174,7 @@ public class SettingsUI : MonoBehaviour
         bool muted = val <= 0.001f;
         if (musicValueText != null)
         {
-            musicValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            musicValueText.text = LocalizationManager.Get("settings.percent", Mathf.RoundToInt(val * 100));
             musicValueText.color = muted ? new Color(0.95f, 0.4f, 0.4f) : Color.white;
         }
         if (musicLabelText != null)
@@ -188,7 +188,7 @@ public class SettingsUI : MonoBehaviour
         bool muted = val <= 0.001f;
         if (sfxValueText != null)
         {
-            sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            sfxValueText.text = LocalizationManager.Get("settings.percent", Mathf.RoundToInt(val * 100));
             sfxValueText.color = muted ? new Color(0.95f, 0.4f, 0.4f) : Color.white;
         }
         if (sfxLabelText != null)
@@ -231,11 +231,15 @@ public class SettingsUI : MonoBehaviour
             return;
         }
 
-        string[] saveFiles = Directory.GetFiles(Application.persistentDataPath, "*.json");
-        foreach (string file in saveFiles)
+        string savePath = Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
+        if (File.Exists(savePath))
         {
-            File.Delete(file);
+            File.Delete(savePath);
         }
+
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        SaveManager.SyncWebGLFileSystem();
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }

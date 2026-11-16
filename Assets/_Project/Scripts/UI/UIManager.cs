@@ -51,7 +51,7 @@ public class UIManager : MonoBehaviour
         if (clickerManager == null) return;
 
         string multiplierString = clickerManager.totalCrystals > 0
-            ? $" (x{clickerManager.PrestigeMultiplier.ToCompactString()})"
+            ? LocalizationManager.Get("ui.revenue_mult_suffix", clickerManager.PrestigeMultiplier.ToCompactString())
             : "";
 
         scoreText.text = LocalizationManager.Get("ui.revenue", clickerManager.score.ToCompactString(), multiplierString);

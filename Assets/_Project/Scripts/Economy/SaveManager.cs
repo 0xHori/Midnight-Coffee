@@ -2,9 +2,25 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 public class SaveManager : MonoBehaviour
 {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void JS_FileSystem_Sync();
+#endif
+
+    public static void SyncWebGLFileSystem()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        try
+        {
+            Application.ExternalEval("FS.syncfs(false, function (err) {});");
+        }
+        catch (Exception) { }
+#endif
+    }
     public BalanceConfig balanceConfig;
     public ClickerManager clickerManager;
     public ShopManager shopManager;
@@ -52,6 +68,7 @@ public class SaveManager : MonoBehaviour
         try
         {
             File.WriteAllText(SaveFilePath, JsonUtility.ToJson(data, true));
+            SyncWebGLFileSystem();
         }
         catch (Exception e)
         {
