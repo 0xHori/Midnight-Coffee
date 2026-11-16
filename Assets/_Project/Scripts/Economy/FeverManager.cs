@@ -41,6 +41,16 @@ public class FeverManager : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        LocalizationManager.OnLanguageChanged += UpdateFeverUI;
+    }
+
+    void OnDisable()
+    {
+        LocalizationManager.OnLanguageChanged -= UpdateFeverUI;
+    }
+
     void Start()
     {
         UpdateFeverUI();
@@ -123,17 +133,17 @@ public class FeverManager : MonoBehaviour
         {
             if (isFeverActive)
             {
-                feverStatusText.text = $"ВДОХНОВЕНИЕ x{feverMultiplier:0.#}! ({feverTimer:0.0}с)";
+                feverStatusText.text = LocalizationManager.Get("fever.active", $"{feverMultiplier:0.#}", $"{feverTimer:0.0}");
                 feverStatusText.color = Color.white;
             }
             else if (currentCharge > 0.01f)
             {
-                feverStatusText.text = $"РИТМ БАРИСТА: {Mathf.RoundToInt(currentCharge * 100f)}%";
+                feverStatusText.text = LocalizationManager.Get("fever.charging", Mathf.RoundToInt(currentCharge * 100f));
                 feverStatusText.color = Color.white;
             }
             else
             {
-                feverStatusText.text = "ВАРИ КОФЕ ДЛЯ ВДОХНОВЕНИЯ";
+                feverStatusText.text = LocalizationManager.Get("fever.idle");
                 feverStatusText.color = new Color(1f, 1f, 1f, 0.55f);
             }
         }

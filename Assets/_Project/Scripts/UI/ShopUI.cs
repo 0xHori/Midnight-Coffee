@@ -77,9 +77,9 @@ public class ShopUI : MonoBehaviour
         {
             switch (shopManager.CurrentBuyMode)
             {
-                case BuyMode.X1: buyModeText.text = "Покупка: x1"; break;
-                case BuyMode.X10: buyModeText.text = "Покупка: x10"; break;
-                case BuyMode.Max: buyModeText.text = "Покупка: MAX"; break;
+                case BuyMode.X1: buyModeText.text = LocalizationManager.Get("shop.buy_mode", "x1"); break;
+                case BuyMode.X10: buyModeText.text = LocalizationManager.Get("shop.buy_mode", "x10"); break;
+                case BuyMode.Max: buyModeText.text = LocalizationManager.Get("shop.buy_mode", "MAX"); break;
             }
         }
 

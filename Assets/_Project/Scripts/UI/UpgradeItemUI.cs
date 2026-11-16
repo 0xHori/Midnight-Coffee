@@ -69,12 +69,12 @@ public class UpgradeItemUI : MonoBehaviour
 
         string amountSuffix = amount > 1 ? $" (+{amount})" : "";
         string multBadge = milestones > 0 ? $" <color=#FFD700>[x{currentMilestoneMult:0.##}]</color>" : "";
-        titleText.text = $"{data.upgradeName} [Ур.{lvl}]{amountSuffix}{multBadge}";
+        titleText.text = LocalizationManager.Get("shop.item_title", data.LocalizedName, lvl, amountSuffix, multBadge);
 
-        string milestoneHint = $" <color=#9AA5B4>(до x2: {toNextMilestone} ур.)</color>";
         bool willHitMilestone = (lvl + amount) / Mathf.Max(1, shopManager.milestoneStep) > milestones;
-        if (willHitMilestone)
-            milestoneHint = " <color=#FFD700>(ВЕХА x2!)</color>";
+        string milestoneHint = willHitMilestone
+            ? LocalizationManager.Get("shop.milestone_hit")
+            : LocalizationManager.Get("shop.milestone_next", toNextMilestone);
 
         double autoMult = clickerManager.GetTotalAutoMultiplier();
         double nextMilestoneMult = shopManager.GetMilestoneMultiplier(lvl + amount);
@@ -83,7 +83,7 @@ public class UpgradeItemUI : MonoBehaviour
         {
             case UpgradeType.FlatClick:
                 double flatGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
-                bonusText.text = $"+{flatGain.ToCompactString()} к напитку{milestoneHint}";
+                bonusText.text = LocalizationManager.Get("shop.bonus_click", flatGain.ToCompactString(), milestoneHint);
                 break;
             case UpgradeType.ClickMultiplier:
                 double effNext = 1.0 + (data.baseValue - 1.0) * nextMilestoneMult;
@@ -94,38 +94,33 @@ public class UpgradeItemUI : MonoBehaviour
                     ? Math.Pow(effNext, amount)
                     : nextTotal / prevTotal;
 
-                if (double.IsNaN(multGain) || double.IsInfinity(multGain) || multGain > 1e300)
-                    bonusText.text = $"Чек xMAX{milestoneHint}";
-                else
-                    bonusText.text = $"Чек x{multGain.ToCompactString()}{milestoneHint}";
+                string multDisplay = (double.IsNaN(multGain) || double.IsInfinity(multGain) || multGain > 1e300)
+                    ? "MAX"
+                    : multGain.ToCompactString();
+                bonusText.text = LocalizationManager.Get("shop.bonus_mult", multDisplay, milestoneHint);
                 break;
             case UpgradeType.AutoIncome:
                 double baseGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
                 double incomeGain = baseGain * autoMult;
+                string tapInfo = "";
                 if (data.upgradeId == "manager")
                 {
                     float currentTaps = clickerManager.GetAutoTapsPerSecond();
                     float maxTaps = clickerManager.maxAutoTapsPerSecond;
                     float addedTaps = Mathf.Max(0f, Mathf.Min(maxTaps, (lvl + amount) * clickerManager.autoTapsPerManagerLevel) - currentTaps);
-                    string tapInfo = addedTaps > 0.001f
-                        ? $" (+{addedTaps:F1} тап/с)"
-                        : "";
-                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{tapInfo}{milestoneHint}";
+                    if (addedTaps > 0.001f)
+                        tapInfo = LocalizationManager.Get("shop.tap_info", $"{addedTaps:F1}");
                 }
-                else
-                {
-                    bonusText.text = $"+{incomeGain.ToCompactString()} / сек{milestoneHint}";
-                }
+                bonusText.text = LocalizationManager.Get("shop.bonus_auto", incomeGain.ToCompactString(), tapInfo, milestoneHint);
                 break;
         }
-
         bool canAfford = clickerManager.score >= cost;
-        costText.text = $"Цена: {cost.ToCompactString()}";
+        costText.text = LocalizationManager.Get("shop.cost", cost.ToCompactString());
         costText.color = canAfford ? new Color(1f, 0.84f, 0f) : new Color(0.95f, 0.35f, 0.35f);
 
         if (double.IsInfinity(cost) || cost >= 1e300)
         {
-            costText.text = "Достигнут предел";
+            costText.text = LocalizationManager.Get("shop.max_reached");
             costText.color = new Color(0.6f, 0.65f, 0.75f);
             if (backgroundImage != null && flashCoroutine == null)
                 backgroundImage.color = unaffordableColor;

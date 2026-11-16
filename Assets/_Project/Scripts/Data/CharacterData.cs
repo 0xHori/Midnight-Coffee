@@ -82,19 +82,32 @@ public class CharacterData : ScriptableObject
         return 1.0 + (affectionLevel - 1) * 0.03;
     }
 
+    private string GetLocalizedQuoteByIndex(int index)
+    {
+        if (!string.IsNullOrEmpty(characterId))
+        {
+            string key = $"char.{characterId}.quote.{index}";
+            string val = LocalizationManager.Get(key);
+            if (val != $"[{key}]") return val;
+        }
+        return (affectionQuotes != null && index >= 0 && index < affectionQuotes.Length)
+            ? affectionQuotes[index]
+            : string.Empty;
+    }
+
     public string GetQuoteForLevel(int affectionLevel)
     {
-        if (affectionQuotes == null || affectionQuotes.Length == 0) return string.Empty;
-        int index = Mathf.Clamp(affectionLevel - 1, 0, affectionQuotes.Length - 1);
-        return affectionQuotes[index];
+        int len = (affectionQuotes != null && affectionQuotes.Length > 0) ? affectionQuotes.Length : 5;
+        int index = Mathf.Clamp(affectionLevel - 1, 0, len - 1);
+        return GetLocalizedQuoteByIndex(index);
     }
 
     public string GetRandomUnlockedQuote(int affectionLevel)
     {
-        if (affectionQuotes == null || affectionQuotes.Length == 0) return string.Empty;
-        int maxIndex = Mathf.Clamp(affectionLevel - 1, 0, affectionQuotes.Length - 1);
+        int len = (affectionQuotes != null && affectionQuotes.Length > 0) ? affectionQuotes.Length : 5;
+        int maxIndex = Mathf.Clamp(affectionLevel - 1, 0, len - 1);
         int minIndex = maxIndex > 0 ? 1 : 0;
-        return affectionQuotes[Random.Range(minIndex, maxIndex + 1)];
+        return GetLocalizedQuoteByIndex(Random.Range(minIndex, maxIndex + 1));
     }
 
     public double GetPassiveBonus(int duplicateLevel, int affectionLevel = 1, BalanceConfig balance = null)
@@ -111,5 +124,27 @@ public class CharacterData : ScriptableObject
         double dupBonus = balance != null ? balance.characterDuplicateBonusPerLevel : 0.2;
         double baseVal = baseActiveValue * (1.0 + (duplicateLevel - 1) * dupBonus);
         return baseVal * GetAffectionMultiplier(affectionLevel, balance);
+    }
+
+    public string LocalizedName
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(characterId)) return characterName;
+            string key = $"char.{characterId}.name";
+            string val = LocalizationManager.Get(key);
+            return val == $"[{key}]" ? characterName : val;
+        }
+    }
+
+    public string LocalizedAbility
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(characterId)) return abilityDescription;
+            string key = $"char.{characterId}.ability";
+            string val = LocalizationManager.Get(key);
+            return val == $"[{key}]" ? abilityDescription : val;
+        }
     }
 }

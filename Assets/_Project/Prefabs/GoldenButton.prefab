@@ -148,6 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoldenButton
   clickerManager: {fileID: 0}
   lifeTime: 8
+  critRushDuration: 8
 --- !u!1 &5037860656723756040
 GameObject:
   m_ObjectHideFlags: 0
@@ -159,6 +160,7 @@ GameObject:
   - component: {fileID: 3508996410391742571}
   - component: {fileID: 6550112390741146643}
   - component: {fileID: 5962458879686948078}
+  - component: {fileID: 1238448607657990634}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -285,3 +287,16 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1238448607657990634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5037860656723756040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cb5d4993e836ae73ab0b9674c2683b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.UI::LocalizedText
+  localizationKey: golden.badge

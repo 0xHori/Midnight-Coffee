@@ -65,20 +65,21 @@ public class StatsUI : MonoBehaviour
             }
         }
 
-        statsContentText.text =
-            $"<b><color=#FFD700>— ЖУРНАЛ КОФЕЙНИ —</color></b>\n" +
-            $"Выручка за всё время: <b>{lifetimeStr}</b>\n" +
-            $"Приготовлено напитков: <b>{clickerManager.totalClicks:N0}</b>\n" +
-            $"Идеальный латте-арт: <b>{clickerManager.totalCritClicks:N0}</b>\n" +
-            $"Открыто кофеен: <b>{clickerManager.totalPrestiges}</b>\n" +
-            $"Приглашений гостей: <b>{gachaManager?.totalGachaRolls ?? 0}</b>\n" +
-            $"Постоянных гостей: <b>{ownedChars} / {totalChars}</b>\n\n" +
-            $"<b><color=#38BDF8>— ПОКАЗАТЕЛИ СМЕНЫ —</color></b>\n" +
-            $"Выручка за напиток: <b>{clickPowerStr}</b>\n" +
-            $"Автовыручка: <b>{autoIncomeStr} / сек</b>\n" +
-            $"Бонус репутации: <b>x{prestigeMult:0.##}</b>\n" +
-            $"Множитель оборудования: <b>x{autoMult:0.##}</b>\n" +
-            $"Шанс латте-арта: <b>{critChancePct:0.#}%</b>\n" +
-            $"Бонус за латте-арт: <b>x{critMult:0.#}</b>";
+        statsContentText.text = LocalizationManager.Get(
+            "stats.full_report",
+            lifetimeStr,
+            $"{clickerManager.totalClicks:N0}",
+            $"{clickerManager.totalCritClicks:N0}",
+            clickerManager.totalPrestiges,
+            gachaManager?.totalGachaRolls ?? 0,
+            ownedChars,
+            totalChars,
+            clickPowerStr,
+            autoIncomeStr,
+            $"{prestigeMult:0.##}",
+            $"{autoMult:0.##}",
+            $"{critChancePct:0.#}",
+            $"{critMult:0.#}"
+        );
     }
 }

@@ -53,7 +53,7 @@ public class GachaManager : MonoBehaviour
         if (clickerManager.totalCrystals < rollCost)
         {
             GameEvents.NotEnoughCurrency();
-            GameEvents.ShowGachaResult("Не хватает кристаллов!", null, Color.red);
+            GameEvents.ShowGachaResult(LocalizationManager.Get("gacha.not_enough"), null, Color.red);
             return;
         }
 
@@ -87,8 +87,8 @@ public class GachaManager : MonoBehaviour
         if (targetRarity == 3) textColor = new Color(1f, 0.8f, 0f);
 
         string displayTitle = currentLvl > 0
-            ? $"{result.characterName} (Ур. {newLvl}!)"
-            : $"{result.characterName} (НОВЫЙ!)";
+            ? LocalizationManager.Get("gacha.result_dup", result.LocalizedName, newLvl)
+            : LocalizationManager.Get("gacha.result_new", result.LocalizedName);
 
         GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();

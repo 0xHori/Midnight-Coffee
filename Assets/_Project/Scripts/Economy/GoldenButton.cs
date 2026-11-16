@@ -95,30 +95,30 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
             // 1. Крупный куш очков (45%)
             double reward = clickerManager.Stats.CalculateGoldenButtonReward(clickerManager.lifetimeCrystals);
             clickerManager.AddEarnedScore(reward);
-            SpawnFeedback($"ЗОЛОТОЙ КУШ! +{reward.ToCompactString()}", new Color(1f, 0.84f, 0f), 2.0f);
+            SpawnFeedback(LocalizationManager.Get("golden.jackpot", reward.ToCompactString()), new Color(1f, 0.84f, 0f), 2.0f);
         }
         else if (roll < 0.70f && clickerManager.feverManager != null)
         {
             // 2. Двойной эспрессо: мгновенный Fever Mode (25%)
             clickerManager.feverManager.ForceActivateFever();
-            SpawnFeedback("ЭСПРЕССО: МГНОВЕННОЕ ВДОХНОВЕНИЕ!", new Color(1f, 0.55f, 0.1f), 2.1f);
+            SpawnFeedback(LocalizationManager.Get("golden.fever"), new Color(1f, 0.55f, 0.1f), 2.1f);
         }
         else if (roll < 0.90f)
         {
             // 3. Час пик: 100% криты на 8 секунд (20%)
             clickerManager.ActivateCritRush(critRushDuration);
-            SpawnFeedback($"ЧАС ПИК! 100% ЛАТТЕ-АРТ ({critRushDuration:0}с)!", new Color(1f, 0.25f, 0.35f), 2.1f);
+            SpawnFeedback(LocalizationManager.Get("golden.crit_rush", $"{critRushDuration:0}"), new Color(1f, 0.25f, 0.35f), 2.1f);
         }
         else
         {
-            // 4. Редкий джекпот: +1 или +2 кристалла (10%)
+            // 4. Редкий джекпот: +1 или +2 звезды репутации (10%)
             int crystals = Random.value < 0.25f ? 2 : 1;
             clickerManager.totalCrystals += crystals;
             clickerManager.lifetimeCrystals += crystals;
-            SpawnFeedback($"УДАЧА! +{crystals} ★ РЕПУТАЦИИ{(crystals > 1 ? "А" : "")}!", new Color(0.35f, 0.85f, 1f), 2.2f);
+            SpawnFeedback(LocalizationManager.Get("golden.reputation", crystals), new Color(0.35f, 0.85f, 1f), 2.2f);
         }
     }
-
+    
     private void SpawnFeedback(string message, Color color, float scale)
     {
         if (clickerManager.floatingTextPool != null)

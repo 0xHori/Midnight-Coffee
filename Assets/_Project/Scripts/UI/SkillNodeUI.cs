@@ -39,26 +39,26 @@ public class SkillNodeUI : MonoBehaviour
         bool isUnlocked = skillTreeManager.IsSkillUnlocked(skillData);
         bool isMaxed = currentLvl >= skillData.maxLevel;
 
-        titleText.text = $"{skillData.title} (Ур. {currentLvl}/{skillData.maxLevel})";
+        titleText.text = LocalizationManager.Get("skills.node_title", skillData.LocalizedTitle, currentLvl, skillData.maxLevel);
 
         if (!isUnlocked)
         {
-            string reqName = skillData.requiredSkill != null ? skillData.requiredSkill.title : "???";
-            descriptionText.text = $"<color=#FF6B6B>Требуется: {reqName} (Ур. {skillData.requiredSkillLevel})</color>";
-            costText.text = "ЗАКРЫТО";
+            string reqName = skillData.requiredSkill != null ? skillData.requiredSkill.LocalizedTitle : "???";
+            descriptionText.text = LocalizationManager.Get("skills.req_hint", reqName, skillData.requiredSkillLevel);
+            costText.text = LocalizationManager.Get("skills.locked");
             upgradeButton.interactable = false;
         }
         else if (isMaxed)
         {
-            descriptionText.text = skillData.description;
-            costText.text = "МАКС.";
+            descriptionText.text = skillData.LocalizedDescription;
+            costText.text = LocalizationManager.Get("skills.maxed");
             upgradeButton.interactable = false;
         }
         else
         {
             double cost = skillData.GetCost(currentLvl);
-            descriptionText.text = skillData.description;
-            costText.text = $"Улучшить: {cost.ToCompactString()} кр.";
+            descriptionText.text = skillData.LocalizedDescription;
+            costText.text = LocalizationManager.Get("skills.upgrade_cost", cost.ToCompactString());
             upgradeButton.interactable = (clickerManager.totalCrystals >= cost);
         }
     }

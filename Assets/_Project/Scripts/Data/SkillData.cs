@@ -52,4 +52,26 @@ public class SkillData : ScriptableObject
     {
         return valuePerLevel * currentLevel;
     }
+
+    public string LocalizedTitle
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(skillId)) return title;
+            string key = $"skill.{skillId}.title";
+            string val = LocalizationManager.Get(key);
+            return val == $"[{key}]" ? title : val;
+        }
+    }
+
+    public string LocalizedDescription
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(skillId)) return description;
+            string key = $"skill.{skillId}.desc";
+            string val = LocalizationManager.Get(key);
+            return val == $"[{key}]" ? description : val;
+        }
+    }
 }

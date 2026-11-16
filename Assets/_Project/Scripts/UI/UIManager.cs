@@ -54,19 +54,24 @@ public class UIManager : MonoBehaviour
             ? $" (x{clickerManager.PrestigeMultiplier.ToCompactString()})"
             : "";
 
-        scoreText.text = $"Выручка: {clickerManager.score.ToCompactString()}{multiplierString}";
+        scoreText.text = LocalizationManager.Get("ui.revenue", clickerManager.score.ToCompactString(), multiplierString);
         double passiveIncome = clickerManager.GetTotalAutoIncomePerSecond();
         float autoTaps = clickerManager.GetAutoTapsPerSecond();
         double avgCritBonus = 1.0 + clickerManager.GetTotalCritChance() * (clickerManager.GetTotalCritMultiplier() - 1.0);
         double autoTapIncome = autoTaps * clickerManager.GetTotalClickPower() * avgCritBonus;
         double totalShownIncome = passiveIncome + autoTapIncome;
 
-        incomeText.text = $"Поток: {totalShownIncome.ToCompactString()} / сек";
+        incomeText.text = LocalizationManager.Get("ui.income_per_sec", totalShownIncome.ToCompactString());
+
 
         if (prestigeInfoText != null)
         {
             double potential = clickerManager.CalculatePotentialCrystals();
-            prestigeInfoText.text = $"Открыть новую кофейню\nВы получите: {potential.ToCompactString()} ★ репутации\n(Каждая ★ даёт +2% к выручке)\nВсего ★: {clickerManager.totalCrystals.ToCompactString()}";
+            prestigeInfoText.text = LocalizationManager.Get(
+                "ui.prestige_info",
+                potential.ToCompactString(),
+                clickerManager.totalCrystals.ToCompactString()
+            );
             prestigeButtonComponent.interactable = (potential > 0);
         }
     }
@@ -74,7 +79,7 @@ public class UIManager : MonoBehaviour
     public void ShowOfflinePanel(double earned, int hours, int minutes)
     {
         offlinePanel.SetActive(true);
-        offlineText.text = $"Пока кофейня работала\nбез вас ({hours}ч {minutes}м),\nнакопилось выручки:\n{earned.ToCompactString()}";
+        offlineText.text = LocalizationManager.Get("ui.offline_earned", hours, minutes, earned.ToCompactString());   
     }
 
     public void OpenPrestigePanel() { prestigePanel.SetActive(true); if (dimBackground != null) dimBackground.SetActive(true); }
@@ -90,7 +95,7 @@ public class UIManager : MonoBehaviour
         if (gachaResultText != null)
         {
             gachaResultText.gameObject.SetActive(true);
-            gachaResultText.text = "Запустить сарафанное радио!";
+            gachaResultText.text = LocalizationManager.Get("ui.gacha_prompt");
             gachaResultText.color = Color.white;
         }
 
@@ -135,7 +140,7 @@ public class UIManager : MonoBehaviour
     {
         if (gachaCrystalsText != null && clickerManager != null)
         {
-            gachaCrystalsText.text = $"Репутация: {clickerManager.totalCrystals.ToCompactString()} ★";
+            gachaCrystalsText.text = LocalizationManager.Get("ui.gacha_reputation", clickerManager.totalCrystals.ToCompactString());   
         }
     }
 }

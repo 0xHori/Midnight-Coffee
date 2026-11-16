@@ -80,4 +80,15 @@ public class UpgradeData : ScriptableObject
 
         return Mathf.Clamp((int)rawCount, 0, remainingLevels);
     }
+
+    public string LocalizedName
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(upgradeId)) return upgradeName;
+            string key = $"upgrade.{upgradeId}.name";
+            string val = LocalizationManager.Get(key);
+            return val == $"[{key}]" ? upgradeName : val;
+        }
+    }
 }

@@ -144,7 +144,7 @@ public class ShopManager : MonoBehaviour
             {
                 Vector3 pos = new Vector3(Screen.width / 2f, Screen.height * 0.45f, 0);
                 clickerManager.floatingTextPool.SpawnText(
-                    $"ВЕХА УР.{newLvl}! {upgrade.upgradeName} x2!",
+                    LocalizationManager.Get("shop.milestone_toast", newLvl, upgrade.LocalizedName),
                     new Color(1f, 0.84f, 0f),
                     pos,
                     1.6f

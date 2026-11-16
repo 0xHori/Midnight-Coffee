@@ -76,14 +76,14 @@ public class GalleryManager : MonoBehaviour
                     ? affectionManager.GetAffectionLevel(character.characterId)
                     : 1;
                 string affectionTag = affectionLvl >= character.maxAffectionLevel
-                    ? "<color=#FF6B9E>♥ MAX</color>"
-                    : $"<color=#FF6B9E>♥ Ур.{affectionLvl}</color>";
+                    ? $"<color=#FF6B9E>{LocalizationManager.Get("affection.max")}</color>"
+                    : $"<color=#FF6B9E>{LocalizationManager.Get("affection.level", affectionLvl)}</color>";
 
                 string nameLine = isEquipped
-                    ? $"<color=#FFD700>✦ {character.characterName}</color>"
-                    : character.characterName;
+                    ? $"<color=#FFD700>✦ {character.LocalizedName}</color>"
+                    : character.LocalizedName;
 
-                nameText.text = $"{nameLine}\nУр.{level}  •  {affectionTag}";
+                nameText.text = LocalizationManager.Get("gallery.card_subtitle", nameLine, level, affectionTag);
 
                 if (cardBtn != null)
                 {
@@ -120,14 +120,14 @@ public class GalleryManager : MonoBehaviour
 
         if (character == null)
         {
-            detailsText.text = "Нажмите на постоянного гостя,\nчтобы пригласить его к стойке и увидеть бонусы";
+            detailsText.text = LocalizationManager.Get("gallery.select_hint");
             return;
         }
 
         int level = gachaManager.GetCharacterLevel(character.characterId);
         if (level <= 0)
         {
-            detailsText.text = $"<b>???</b> — этот гость ещё не заглядывал.\nПривлеките новых посетителей, чтобы познакомиться!";
+            detailsText.text = LocalizationManager.Get("gallery.locked_hint");
             return;
         }
 
@@ -144,29 +144,34 @@ public class GalleryManager : MonoBehaviour
         string activeDesc = GetStatDescription(character.activeStat);
 
         string affectionLine = affectionLvl >= character.maxAffectionLevel
-            ? $"<color=#FF6B9E>♥ Доверие: MAX (+{affectionBonusPct:0.#}% к бонусам)</color>"
-            : $"<color=#FF6B9E>♥ Доверие: Ур. {affectionLvl}/{character.maxAffectionLevel} (+{affectionBonusPct:0.#}% к бонусам)</color>";
+            ? LocalizationManager.Get("gallery.affection_max", $"{affectionBonusPct:0.#}")
+            : LocalizationManager.Get("gallery.affection_lvl", affectionLvl, character.maxAffectionLevel, $"{affectionBonusPct:0.#}");
 
-        string abilityLine = !string.IsNullOrEmpty(character.abilityDescription)
-            ? $"\n<i><color=#CCCCCC>{character.abilityDescription}</color></i>"
+        string abilityLine = !string.IsNullOrEmpty(character.LocalizedAbility)
+            ? $"\n<i><color=#CCCCCC>{character.LocalizedAbility}</color></i>"
             : "";
 
-        detailsText.text = $"<b>{character.characterName}</b> (Ур. {level})  |  {affectionLine}\n" +
-                           $"<color=#A3E635>В зале: +{passiveBonus:0.#}% {passiveDesc}</color>  |  " +
-                           $"<color=#38BDF8>У стойки: +{activeBonus:0.#}% {activeDesc}</color>" +
-                           abilityLine;
+        detailsText.text = LocalizationManager.Get(
+            "gallery.details_body",
+            character.LocalizedName,
+            level,
+            affectionLine,
+            $"{passiveBonus:0.#}",
+            passiveDesc,
+            $"{activeBonus:0.#}",
+            activeDesc,
+            abilityLine
+        );
     }
 
     private string GetStatDescription(StatType type)
     {
         switch (type)
         {
-            case StatType.ClickMultiplier: return "к силе клика";
-            case StatType.AutoMultiplier: return "к автодоходу";
-            case StatType.CritChance: return "к шансу крита";
-            // case StatType.CritMultiplier: return "к силе крита";
-            // case StatType.PrestigeGain: return "к кристаллам престижа";
-            default: return "к доходу";
+            case StatType.ClickMultiplier: return LocalizationManager.Get("stat.click");
+            case StatType.AutoMultiplier: return LocalizationManager.Get("stat.auto");
+            case StatType.CritChance: return LocalizationManager.Get("stat.crit");
+            default: return LocalizationManager.Get("stat.default");
         }
     }
 }

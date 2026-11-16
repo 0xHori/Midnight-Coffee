@@ -35,12 +35,14 @@ public class SkillTreeUI : MonoBehaviour
     void OnEnable()
     {
         GameEvents.OnUpdateSkillUI += RefreshCurrentTab;
+        LocalizationManager.OnLanguageChanged += RebuildBranch;
         RebuildBranch();
     }
 
     void OnDisable()
     {
         GameEvents.OnUpdateSkillUI -= RefreshCurrentTab;
+        LocalizationManager.OnLanguageChanged -= RebuildBranch;
     }
 
     public void SelectBranch(SkillBranch branch)
@@ -92,7 +94,7 @@ public class SkillTreeUI : MonoBehaviour
     {
         if (crystalsBalanceText != null && clickerManager != null)
         {
-            crystalsBalanceText.text = $"Кристаллы: {clickerManager.totalCrystals.ToCompactString()}";
+            crystalsBalanceText.text = LocalizationManager.Get("skills.reputation_balance", clickerManager.totalCrystals.ToCompactString());   
         }
     }
 

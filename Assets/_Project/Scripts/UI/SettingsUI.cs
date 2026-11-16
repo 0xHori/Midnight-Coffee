@@ -32,6 +32,10 @@ public class SettingsUI : MonoBehaviour
     public Button resetProgressButton;
     public TextMeshProUGUI resetButtonText;
 
+    [Header("Язык (Localization)")]
+    public Button languageButton;
+    public TextMeshProUGUI languageButtonText;
+
     private TextMeshProUGUI _musicMuteBtnText;
     private TextMeshProUGUI _sfxMuteBtnText;
 
@@ -66,6 +70,11 @@ public class SettingsUI : MonoBehaviour
             sfxMuteButton.onClick.AddListener(OnSfxMuteClicked);
             _sfxMuteBtnText = sfxMuteButton.GetComponentInChildren<TextMeshProUGUI>();
         }
+
+        if (languageButton != null)
+            languageButton.onClick.AddListener(OnLanguageButtonClicked);
+
+        UpdateLanguageLabel();
     }
 
     void Update()
@@ -78,6 +87,12 @@ public class SettingsUI : MonoBehaviour
                 DisarmResetButton();
             }
         }
+    }
+
+    void OnEnable()
+    {
+        SyncUIWithManager();
+        UpdateLanguageLabel();
     }
 
     public void OpenSettings()
@@ -187,7 +202,7 @@ public class SettingsUI : MonoBehaviour
         if (btn == null) return;
         if (btnText != null)
         {
-            btnText.text = muted ? "Вкл" : "Выкл";
+            btnText.text = muted ? LocalizationManager.Get("settings.on") : LocalizationManager.Get("settings.off");
             btnText.color = muted ? Color.white : new Color(0.12f, 0.14f, 0.17f);
         }
         if (btn.targetGraphic != null)
@@ -202,7 +217,7 @@ public class SettingsUI : MonoBehaviour
     {
         if (currentTrackText != null && AudioManager.Instance != null)
         {
-            currentTrackText.text = $"Трек: {AudioManager.Instance.GetCurrentTrackName()}";
+            currentTrackText.text = LocalizationManager.Get("settings.track", AudioManager.Instance.GetCurrentTrackName());
         }
     }
 
@@ -212,7 +227,7 @@ public class SettingsUI : MonoBehaviour
         {
             confirmResetArmed = true;
             resetArmTimer = 3.5f;
-            if (resetButtonText != null) resetButtonText.text = "Точно сбросить? Нажми ещё раз";
+            if (resetButtonText != null) resetButtonText.text = LocalizationManager.Get("settings.reset_confirm");
             return;
         }
 
@@ -228,6 +243,20 @@ public class SettingsUI : MonoBehaviour
     private void DisarmResetButton()
     {
         confirmResetArmed = false;
-        if (resetButtonText != null) resetButtonText.text = "Сбросить прогресс";
+        if (resetButtonText != null) resetButtonText.text = LocalizationManager.Get("settings.reset");
+    }
+
+    private void OnLanguageButtonClicked()
+    {
+        LocalizationManager.ToggleLanguage();
+        GameEvents.UpdateUI();
+        UpdateLanguageLabel();
+        SyncUIWithManager();
+    }
+
+    private void UpdateLanguageLabel()
+    {
+        if (languageButtonText != null)
+            languageButtonText.text = LocalizationManager.Get("settings.language_btn");
     }
 }

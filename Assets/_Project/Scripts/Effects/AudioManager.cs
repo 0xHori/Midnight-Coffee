@@ -165,7 +165,7 @@ public class AudioManager : MonoBehaviour
                     return track.clip.name;
             }
         }
-        return "Нет треков";
+        return LocalizationManager.Get("settings.no_tracks");
     }
 
     private IEnumerator CrossfadeToTrack(AudioClip nextClip)

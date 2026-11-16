@@ -71,7 +71,7 @@ public class TapFeedbackController : MonoBehaviour
 
         if (floatingTextPool == null) return;
         Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height * 0.72f, 0);
-        floatingTextPool.SpawnText("ВДОХНОВЕНИЕ БАРИСТА x3!", new Color(1f, 0.65f, 0f), centerPos, 2.2f);
+        floatingTextPool.SpawnText(LocalizationManager.Get("fever.triggered"), new Color(1f, 0.65f, 0f), centerPos, 2.2f);
     }
 
     private void HandleFeverEnded()
@@ -118,12 +118,7 @@ public class TapFeedbackController : MonoBehaviour
         if (floatingTextPool != null)
         {
             Vector3 centerPos = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
-            floatingTextPool.SpawnText(
-                $"НОВАЯ КОФЕЙНЯ! +{crystalsGained.ToCompactString()} ★",
-                new Color(0.8f, 0.2f, 1f),
-                centerPos,
-                2.5f
-            );
+            floatingTextPool.SpawnText(LocalizationManager.Get("tap.prestige", crystalsGained.ToCompactString()), new Color(0.8f, 0.2f, 1f), centerPos, 2.5f);   
         }
     }
 
@@ -163,7 +158,7 @@ public class TapFeedbackController : MonoBehaviour
 
         if (isCrit)
         {
-            floatingTextPool.SpawnText($"ЛАТТЕ-АРТ! +{earnedPoints.ToCompactString()}", Color.red, screenPos, 1.5f);
+            floatingTextPool.SpawnText(LocalizationManager.Get("tap.crit", earnedPoints.ToCompactString()), Color.red, screenPos, 1.5f);
         }
         else
         {
