@@ -32,10 +32,16 @@ public class SkillTreeManager : MonoBehaviour
 
     public void UpgradeSkill(SkillData skill)
     {
-        if (!CanUpgradeSkill(skill)) return;
-
+        if (skill == null || !IsSkillUnlocked(skill)) return;
         int currentLvl = GetSkillLevel(skill.skillId);
+        if (currentLvl >= skill.maxLevel) return;
+
         double cost = skill.GetCost(currentLvl);
+        if (clickerManager.totalCrystals < cost)
+        {
+            GameEvents.NotEnoughCurrency();
+            return;
+        }
 
         clickerManager.totalCrystals -= cost;
         skillLevels[skill.skillId] = currentLvl + 1;
@@ -63,7 +69,6 @@ public class SkillTreeManager : MonoBehaviour
     // Удобные геттеры для совместимости
     public double ClickMultiplier => 1.0 + GetTotalStatBonus(StatType.ClickMultiplier);
     public double AutoMultiplier => 1.0 + GetTotalStatBonus(StatType.AutoMultiplier);
-    public double CritChance => 0.10 + GetTotalStatBonus(StatType.CritChance);
     public double CritDamageBonus => GetTotalStatBonus(StatType.CritDamage);
     public double PrestigeBonusMultiplier => 1.0 + GetTotalStatBonus(StatType.PrestigeBonus);
 

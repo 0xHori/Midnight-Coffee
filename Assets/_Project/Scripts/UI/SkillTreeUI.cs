@@ -35,6 +35,7 @@ public class SkillTreeUI : MonoBehaviour
     void OnEnable()
     {
         GameEvents.OnUpdateSkillUI += RefreshCurrentTab;
+        GameEvents.OnUpdateUI += RefreshCurrentTab;
         LocalizationManager.OnLanguageChanged += RebuildBranch;
         RebuildBranch();
     }
@@ -42,6 +43,7 @@ public class SkillTreeUI : MonoBehaviour
     void OnDisable()
     {
         GameEvents.OnUpdateSkillUI -= RefreshCurrentTab;
+        GameEvents.OnUpdateUI -= RefreshCurrentTab;
         LocalizationManager.OnLanguageChanged -= RebuildBranch;
     }
 

@@ -10,6 +10,10 @@ public class TapFeedbackController : MonoBehaviour
     public AudioClip critSound;
     public AudioClip prestigeSound;
 
+    [Header("Звуки магазина")]
+    public AudioClip buySound;
+    public AudioClip errorSound;
+
     [Header("Пулы эффектов и тряска")]
     public FloatingTextPool floatingTextPool;
     public TapParticlePool tapParticlePool;
@@ -41,6 +45,8 @@ public class TapFeedbackController : MonoBehaviour
         GameEvents.OnFeverTriggered += HandleFeverTriggered;
         GameEvents.OnFeverEnded += HandleFeverEnded;
         GameEvents.OnPrestigeCompleted += HandlePrestigeCompleted;
+        GameEvents.OnUpgradePurchased += HandleUpgradePurchased;
+        GameEvents.OnNotEnoughCurrency += HandleNotEnoughCurrency;
     }
 
     void OnDisable()
@@ -49,6 +55,9 @@ public class TapFeedbackController : MonoBehaviour
         GameEvents.OnFeverTriggered -= HandleFeverTriggered;
         GameEvents.OnFeverEnded -= HandleFeverEnded;
         GameEvents.OnPrestigeCompleted -= HandlePrestigeCompleted;
+        GameEvents.OnUpgradePurchased -= HandleUpgradePurchased;
+        GameEvents.OnNotEnoughCurrency -= HandleNotEnoughCurrency;
+
     }
 
     private void HandlePlayerTapped(double earnedPoints, bool isCrit, bool isFever, bool isManual)
@@ -164,6 +173,39 @@ public class TapFeedbackController : MonoBehaviour
         {
             Color textColor = isFever ? new Color(1f, 0.85f, 0.2f) : Color.white;
             floatingTextPool.SpawnText($"+{earnedPoints.ToCompactString()}", textColor, screenPos, isFever ? 1.15f : 1f);
+        }
+    }
+
+    private void HandleUpgradePurchased(string localizedName, int newLevel, bool isMilestone)
+    {
+        if (audioSource != null && buySound != null)
+        {
+            audioSource.pitch = isMilestone ? 1.35f : 1f;
+            audioSource.PlayOneShot(buySound);
+        }
+
+        if (isMilestone)
+        {
+            AudioManager.TriggerHaptic();
+            if (floatingTextPool != null)
+            {
+                Vector3 pos = new Vector3(Screen.width / 2f, Screen.height * 0.45f, 0);
+                floatingTextPool.SpawnText(
+                    LocalizationManager.Get("shop.milestone_toast", newLevel, localizedName),
+                    new Color(1f, 0.84f, 0f),
+                    pos,
+                    1.6f
+                );
+            }
+        }
+    }
+
+    private void HandleNotEnoughCurrency()
+    {
+        if (audioSource != null && errorSound != null)
+        {
+            audioSource.pitch = 0.5f;
+            audioSource.PlayOneShot(errorSound, 0.6f);
         }
     }
 }

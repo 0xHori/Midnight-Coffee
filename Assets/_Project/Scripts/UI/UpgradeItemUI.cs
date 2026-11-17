@@ -106,11 +106,11 @@ public class UpgradeItemUI : MonoBehaviour
                 double baseGain = (data.baseValue * (lvl + amount) * nextMilestoneMult) - (data.baseValue * lvl * currentMilestoneMult);
                 double incomeGain = baseGain * autoMult;
                 string tapInfo = "";
-                if (data.upgradeId == "manager")
+                if (data.autoTapsPerLevel > 0f)
                 {
                     float currentTaps = clickerManager.GetAutoTapsPerSecond();
                     float maxTaps = clickerManager.maxAutoTapsPerSecond;
-                    float addedTaps = Mathf.Max(0f, Mathf.Min(maxTaps, (lvl + amount) * clickerManager.autoTapsPerManagerLevel) - currentTaps);
+                    float addedTaps = Mathf.Max(0f, Mathf.Min(maxTaps, (lvl + amount) * data.autoTapsPerLevel) - currentTaps);
                     if (addedTaps > 0.001f)
                         tapInfo = LocalizationManager.Get("shop.tap_info", $"{addedTaps:F1}");
                 }

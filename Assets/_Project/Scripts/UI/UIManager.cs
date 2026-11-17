@@ -82,15 +82,40 @@ public class UIManager : MonoBehaviour
         offlineText.text = LocalizationManager.Get("ui.offline_earned", hours, minutes, earned.ToCompactString());   
     }
 
-    public void OpenPrestigePanel() { prestigePanel.SetActive(true); if (dimBackground != null) dimBackground.SetActive(true); }
-    public void ClosePrestigePanel() { prestigePanel.SetActive(false); if (dimBackground != null) dimBackground.SetActive(false); }
-    public void ConfirmPrestige() { clickerManager.DoPrestige(); ClosePrestigePanel(); }
-    public void OpenSkillPanel() { skillTreePanel.SetActive(true); }
-    public void CloseSkillPanel() { skillTreePanel.SetActive(false); }
+    public void OpenPrestigePanel()
+    {
+        prestigePanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+    }
+
+    public void ClosePrestigePanel()
+    {
+        prestigePanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
+
+    public void ConfirmPrestige()
+    {
+        clickerManager.DoPrestige();
+        ClosePrestigePanel();
+    }
+
+    public void OpenSkillPanel()
+    {
+        skillTreePanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+    }
+
+    public void CloseSkillPanel()
+    {
+        skillTreePanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
 
     public void OpenGachaPanel()
     {
         gachaPanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
 
         if (gachaResultText != null)
         {
@@ -106,7 +131,11 @@ public class UIManager : MonoBehaviour
         UpdateGachaCrystalsUI();
     }
 
-    public void CloseGachaPanel() => gachaPanel.SetActive(false);
+    public void CloseGachaPanel()
+    {
+        gachaPanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
 
     private void ShowGachaResult(string name, Sprite sprite, Color color)
     {
@@ -131,10 +160,15 @@ public class UIManager : MonoBehaviour
     public void OpenGalleryPanel()
     {
         galleryPanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
         galleryManager.OpenGallery();
     }
 
-    public void CloseGalleryPanel() => galleryPanel.SetActive(false);
+    public void CloseGalleryPanel()
+    {
+        galleryPanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
 
     public void UpdateGachaCrystalsUI()
     {

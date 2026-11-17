@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Upgrade_Manager
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeId: manager
-  upgradeName: "Стажёр-бариста"
+  upgradeName: "\u0421\u0442\u0430\u0436\u0451\u0440-\u0431\u0430\u0440\u0438\u0441\u0442\u0430"
   orderInShop: 3
   upgradeType: 2
   maxLevel: 500
   baseCost: 300
   costGrowthRate: 1.15
   baseValue: 50
+  autoTapsPerLevel: 0.1

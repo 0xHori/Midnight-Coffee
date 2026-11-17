@@ -11,11 +11,6 @@ public enum BuyMode
 
 public class ShopManager : MonoBehaviour
 {
-    [Header("Звуки")]
-    public AudioSource audioSource;
-    public AudioClip buySound;
-    public AudioClip errorSound;
-
     [Header("Ссылки")]
     public ClickerManager clickerManager;
 
@@ -113,16 +108,6 @@ public class ShopManager : MonoBehaviour
         if (clickerManager.score < totalCost)
         {
             GameEvents.NotEnoughCurrency();
-
-            if (audioSource != null)
-            {
-                AudioClip clip = errorSound != null ? errorSound : buySound;
-                if (clip != null)
-                {
-                    audioSource.pitch = 0.5f;
-                    audioSource.PlayOneShot(clip, 0.6f);
-                }
-            }
             return false;
         }
 
@@ -136,27 +121,7 @@ public class ShopManager : MonoBehaviour
 
         RecalculateStats();
 
-        if (audioSource != null && buySound != null)
-        {
-            audioSource.pitch = reachedNewMilestone ? 1.35f : 1f;
-            audioSource.PlayOneShot(buySound);
-        }
-
-        if (reachedNewMilestone)
-        {
-            AudioManager.TriggerHaptic();
-            if (clickerManager.floatingTextPool != null)
-            {
-                Vector3 pos = new Vector3(Screen.width / 2f, Screen.height * 0.45f, 0);
-                clickerManager.floatingTextPool.SpawnText(
-                    LocalizationManager.Get("shop.milestone_toast", newLvl, upgrade.LocalizedName),
-                    new Color(1f, 0.84f, 0f),
-                    pos,
-                    1.6f
-                );
-            }
-        }
-
+        GameEvents.UpgradePurchased(upgrade.LocalizedName, newLvl, reachedNewMilestone);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
         return true;
@@ -232,5 +197,28 @@ public class ShopManager : MonoBehaviour
             }
         }
         RecalculateStats();
+    }
+
+    public double GetUpgradeGainDelta(UpgradeData upgrade, int amount)
+    {
+        if (upgrade == null || amount <= 0) return 0;
+        int lvl = GetUpgradeLevel(upgrade.upgradeId);
+        double currMult = GetMilestoneMultiplier(lvl);
+        double nextMult = GetMilestoneMultiplier(lvl + amount);
+
+        switch (upgrade.upgradeType)
+        {
+            case UpgradeType.FlatClick:
+            case UpgradeType.AutoIncome:
+                return (upgrade.baseValue * (lvl + amount) * nextMult) - (upgrade.baseValue * lvl * currMult);
+            case UpgradeType.ClickMultiplier:
+                double prevTotal = Math.Pow(upgrade.baseValue, lvl) * currMult;
+                double nextTotal = Math.Pow(upgrade.baseValue, lvl + amount) * nextMult;
+                return (double.IsInfinity(nextTotal) || double.IsInfinity(prevTotal) || prevTotal <= 0)
+                    ? Math.Pow(upgrade.baseValue, amount)
+                    : nextTotal / prevTotal;
+            default:
+                return 0;
+        }
     }
 }

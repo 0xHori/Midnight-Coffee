@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class GoldenButton : MonoBehaviour, IPointerDownHandler
 {
@@ -13,6 +14,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
     private float _elapsed = 0f;
     private Image _image;
     private Vector3 _baseScale;
+    public Action onClosed;
 
     void Awake()
     {
@@ -34,6 +36,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
 
         if (remaining <= 0f)
         {
+            onClosed?.Invoke();
             Destroy(gameObject);
             return;
         }
@@ -83,12 +86,13 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
 
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
+        onClosed?.Invoke();
         Destroy(gameObject);
     }
 
     private void RollSurpriseReward()
     {
-        float roll = Random.value;
+        float roll = UnityEngine.Random.value;
 
         if (roll < 0.45f)
         {
@@ -112,7 +116,7 @@ public class GoldenButton : MonoBehaviour, IPointerDownHandler
         else
         {
             // 4. Редкий джекпот: +1 или +2 звезды репутации (10%)
-            int crystals = Random.value < 0.25f ? 2 : 1;
+            int crystals = UnityEngine.Random.value < 0.25f ? 2 : 1;
             clickerManager.totalCrystals += crystals;
             clickerManager.lifetimeCrystals += crystals;
             SpawnFeedback(LocalizationManager.Get("golden.reputation", crystals), new Color(0.35f, 0.85f, 1f), 2.2f);

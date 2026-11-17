@@ -102,10 +102,17 @@ public class ClickerManager : MonoBehaviour
 
     public float GetAutoTapsPerSecond()
     {
-        if (shopManager == null) return 0f;
-        int managerLvl = shopManager.GetUpgradeLevel("manager");
-        if (managerLvl <= 0) return 0f;
-        return Mathf.Min(maxAutoTapsPerSecond, managerLvl * autoTapsPerManagerLevel);
+        if (shopManager == null || shopManager.allUpgrades == null) return 0f;
+        float totalTaps = 0f;
+        for (int i = 0; i < shopManager.allUpgrades.Count; i++)
+        {
+            UpgradeData upg = shopManager.allUpgrades[i];
+            if (upg != null && upg.autoTapsPerLevel > 0f)
+            {
+                totalTaps += shopManager.GetUpgradeLevel(upg.upgradeId) * upg.autoTapsPerLevel;
+            }
+        }
+        return Mathf.Min(maxAutoTapsPerSecond, totalTaps);
     }
 
     public void SanitizeNumbers()

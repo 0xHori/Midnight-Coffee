@@ -64,22 +64,20 @@ public class CharacterData : ScriptableObject
         return portrait;
     }
 
-    public int GetRequiredAffectionXp(int currentLevel, BalanceConfig balance = null)
+    public int GetRequiredAffectionXp(int currentLevel, BalanceConfig balance)
     {
-        if (balance != null)
-            return balance.GetRequiredAffectionXp(currentLevel, maxAffectionLevel);
-
-        if (currentLevel >= maxAffectionLevel) return 0;
-        return Mathf.RoundToInt(150 * Mathf.Pow(1.6f, Mathf.Max(0, currentLevel - 1)));
+        if (balance == null)
+        {
+            Debug.LogError($"[CharacterData] BalanceConfig не передан для {characterId}");
+            return 0;
+        }
+        return balance.GetRequiredAffectionXp(currentLevel, maxAffectionLevel);
     }
 
-    public double GetAffectionMultiplier(int affectionLevel, BalanceConfig balance = null)
+    public double GetAffectionMultiplier(int affectionLevel, BalanceConfig balance)
     {
-        if (balance != null)
-            return balance.GetAffectionMultiplier(affectionLevel);
-
-        if (affectionLevel <= 1) return 1.0;
-        return 1.0 + (affectionLevel - 1) * 0.03;
+        if (balance == null) return 1.0;
+        return balance.GetAffectionMultiplier(affectionLevel);
     }
 
     private string GetLocalizedQuoteByIndex(int index)

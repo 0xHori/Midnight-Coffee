@@ -56,10 +56,12 @@ public class BonusSpawner : MonoBehaviour
                 if (gb != null)
                 {
                     gb.clickerManager = clickerManager;
+                    gb.onClosed = () => isButtonActive = false;
                 }
-
-                yield return new WaitUntil(() => newBtn == null);
-                isButtonActive = false;
+                else
+                {
+                    isButtonActive = false;
+                }
             }
         }
     }

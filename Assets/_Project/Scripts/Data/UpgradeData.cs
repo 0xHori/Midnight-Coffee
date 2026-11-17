@@ -22,6 +22,8 @@ public class UpgradeData : ScriptableObject
     public double baseCost = 10;          // Начальная цена (на 0 уровне)
     public double costGrowthRate = 2.5;   // Во сколько раз растёт цена за каждый уровень
     public double baseValue = 1;          // Прибавка за 1 уровень (5 для +5, 2 для x2, 1 для +1/сек)
+    [Tooltip("Сколько авто-тапов в секунду даёт 1 уровень этого улучшения (0 — не даёт авто-тапы)")]
+    public float autoTapsPerLevel = 0f;
 
     // Текущая цена следующего (1-го) уровня
     public double GetSingleCost(int currentLevel)

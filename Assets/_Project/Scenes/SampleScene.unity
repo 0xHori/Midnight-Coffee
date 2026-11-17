@@ -9839,9 +9839,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e75fd963c53e59b98941119a48619d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
-  audioSource: {fileID: 1430138572}
-  buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
-  errorSound: {fileID: 0}
   clickerManager: {fileID: 1410147653}
   milestoneStep: 25
   allUpgrades:
@@ -9956,6 +9953,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8aaf60dff8a2c1a248a3cb192a7700cc, type: 3}
   critSound: {fileID: 8300000, guid: 03709160e2d1a9dc380748db6bdb6f27, type: 3}
   prestigeSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
+  buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
+  errorSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   floatingTextPool: {fileID: 1410147654}
   tapParticlePool: {fileID: 1410147657}
   feverVisualFeedback: {fileID: 1410147659}

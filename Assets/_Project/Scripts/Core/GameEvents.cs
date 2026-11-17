@@ -19,7 +19,6 @@ public static class GameEvents
     public static Action<CharacterData> OnCharacterEquipped;
     public static Action<CharacterData, int> OnAffectionLevelUp;
     public static Action<string> OnCharacterSpeak;
-    public static Action OnLanguageChanged;
 
     public static void UpdateUI() => OnUpdateUI?.Invoke();
     public static void UpdateSkillUI() => OnUpdateSkillUI?.Invoke();
@@ -39,5 +38,6 @@ public static class GameEvents
     public static void CharacterEquipped(CharacterData character) => OnCharacterEquipped?.Invoke(character);
     public static void AffectionLevelUp(CharacterData character, int newLevel) => OnAffectionLevelUp?.Invoke(character, newLevel);
     public static void CharacterSpeak(string quote) => OnCharacterSpeak?.Invoke(quote);
-    public static void LanguageChanged() => OnLanguageChanged?.Invoke();
+    public static Action<string, int, bool> OnUpgradePurchased;
+    public static void UpgradePurchased(string localizedName, int newLevel, bool isMilestone) => OnUpgradePurchased?.Invoke(localizedName, newLevel, isMilestone);
 }
