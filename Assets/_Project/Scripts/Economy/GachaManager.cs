@@ -77,13 +77,40 @@ public class GachaManager : MonoBehaviour
 
         CharacterData result = pool[Random.Range(0, pool.Count)];
 
-        int currentLvl = GetCharacterLevel(result.characterId);
-        int newLvl = currentLvl + 1;
-        characterLevels[result.characterId] = newLvl;
+        int maxDupLvl = (affectionManager != null && affectionManager.balanceConfig != null)
+            ? affectionManager.balanceConfig.maxCharacterDuplicateLevel
+            : 15;
 
-        if (currentLvl > 0 && affectionManager != null)
+        int currentLvl = GetCharacterLevel(result.characterId);
+        string displayTitle;
+
+        if (currentLvl < maxDupLvl)
         {
-            affectionManager.AddAffectionXp(result, 50 * result.rarity);
+            int newLvl = currentLvl + 1;
+            characterLevels[result.characterId] = newLvl;
+
+            if (currentLvl > 0 && affectionManager != null)
+            {
+                affectionManager.AddAffectionXp(result, 50 * result.rarity);
+            }
+
+            displayTitle = currentLvl > 0
+                ? LocalizationManager.Get("gacha.result_dup", result.LocalizedName, newLvl)
+                : LocalizationManager.Get("gacha.result_new", result.LocalizedName);
+        }
+        else
+        {
+            int affLvl = affectionManager != null ? affectionManager.GetAffectionLevel(result.characterId) : result.maxAffectionLevel;
+            if (affectionManager != null && affLvl < result.maxAffectionLevel)
+            {
+                affectionManager.AddAffectionXp(result, 150 * result.rarity);
+            }
+            else
+            {
+                clickerManager.totalCrystals += Mathf.Max(1, rollCost / 2);
+            }
+
+            displayTitle = LocalizationManager.Get("gacha.result_dup", result.LocalizedName, maxDupLvl);
         }
 
         if (string.IsNullOrEmpty(equippedCharacterId))
@@ -96,15 +123,11 @@ public class GachaManager : MonoBehaviour
         if (targetRarity == 2) textColor = new Color(0.2f, 0.6f, 1f);
         if (targetRarity == 3) textColor = new Color(1f, 0.8f, 0f);
 
-        string displayTitle = currentLvl > 0
-            ? LocalizationManager.Get("gacha.result_dup", result.LocalizedName, newLvl)
-            : LocalizationManager.Get("gacha.result_new", result.LocalizedName);
-
         GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
     }
-
+    
     public double GetTotalCharacterBonus(StatType type)
     {
         double total = 0;

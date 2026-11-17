@@ -15,11 +15,11 @@ MonoBehaviour:
   baseClickPower: 1
   baseCritChance: 0.1
   baseCritMultiplier: 10
-  initialPrestigeThreshold: 50000
-  prestigeThresholdGrowth: 3.2
-  crystalBonusPerUnit: 0.02
-  prestigeFormulaExponent: 0.35
-  prestigeFormulaScale: 8
+  initialPrestigeThreshold: 100000
+  prestigeThresholdGrowth: 3.5
+  crystalBonusPerUnit: 0.015
+  prestigeFormulaExponent: 0.28
+  prestigeFormulaScale: 3
   feverChargePerTap: 0.03
   feverDecayDelay: 0.8
   feverDecaySpeed: 0.25
@@ -30,6 +30,7 @@ MonoBehaviour:
   goldenButtonClickMult: 50
   goldenButtonMinReward: 100
   characterDuplicateBonusPerLevel: 0.2
+  maxCharacterDuplicateLevel: 15
   baseAffectionXp: 100
   affectionXpGrowth: 1.45
   affectionBonusPerLevel: 0.08

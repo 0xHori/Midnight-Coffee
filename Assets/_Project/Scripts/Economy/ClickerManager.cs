@@ -165,7 +165,7 @@ public class ClickerManager : MonoBehaviour
         totalClicks++;
 
         bool wasFeverActive = feverManager != null && feverManager.isFeverActive;
-        if (feverManager != null)
+        if (isManual && feverManager != null)
             feverManager.RegisterTap();
 
         bool isFeverNow = feverManager != null && feverManager.isFeverActive;
