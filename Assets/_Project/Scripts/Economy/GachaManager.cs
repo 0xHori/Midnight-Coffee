@@ -81,6 +81,11 @@ public class GachaManager : MonoBehaviour
         int newLvl = currentLvl + 1;
         characterLevels[result.characterId] = newLvl;
 
+        if (currentLvl > 0 && affectionManager != null)
+        {
+            affectionManager.AddAffectionXp(result, 50 * result.rarity);
+        }
+
         if (string.IsNullOrEmpty(equippedCharacterId))
         {
             equippedCharacterId = result.characterId;

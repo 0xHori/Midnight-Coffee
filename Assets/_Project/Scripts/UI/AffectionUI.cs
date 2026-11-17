@@ -84,7 +84,7 @@ public class AffectionUI : MonoBehaviour
         double bonusPercent = (equipped.GetAffectionMultiplier(lvl, affectionManager.balanceConfig) - 1.0) * 100.0;
 
         if (fillBar != null)
-            fillBar.fillAmount = progress;
+            fillBar.rectTransform.anchorMax = new Vector2(progress, 1f);
 
         if (levelText != null)
             levelText.text = lvl >= equipped.maxAffectionLevel

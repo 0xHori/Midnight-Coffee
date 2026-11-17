@@ -104,7 +104,7 @@ public class CharacterData : ScriptableObject
     {
         int len = (affectionQuotes != null && affectionQuotes.Length > 0) ? affectionQuotes.Length : 5;
         int maxIndex = Mathf.Clamp(affectionLevel - 1, 0, len - 1);
-        int minIndex = maxIndex > 0 ? 1 : 0;
+        int minIndex = 0;
         return GetLocalizedQuoteByIndex(Random.Range(minIndex, maxIndex + 1));
     }
 

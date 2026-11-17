@@ -167,7 +167,7 @@ public class TapFeedbackController : MonoBehaviour
 
         if (isCrit)
         {
-            floatingTextPool.SpawnText(LocalizationManager.Get("tap.crit", earnedPoints.ToCompactString()), Color.red, screenPos, 1.5f);
+            floatingTextPool.SpawnText(LocalizationManager.Get("tap.crit", earnedPoints.ToCompactString()), new Color(1f, 0.62f, 0.17f, 1f), screenPos, 1.5f);
         }
         else
         {

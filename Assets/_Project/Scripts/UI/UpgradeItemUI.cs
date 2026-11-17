@@ -14,6 +14,9 @@ public class UpgradeItemUI : MonoBehaviour
     [Tooltip("Внутренний контейнер для анимации тряски, чтобы не конфликтовать с LayoutGroup")]
     public RectTransform visualRoot;
 
+    [Tooltip("Полоска прогресса до следующей вехи x2 (Image Type = Filled)")]
+    public Image milestoneFillImage;
+
     [Header("Цвета доступности")]
     public Image backgroundImage;
     public Color affordableColor = new Color(0.15f, 0.17f, 0.21f, 1f);
@@ -64,6 +67,14 @@ public class UpgradeItemUI : MonoBehaviour
         int milestones = shopManager.GetMilestoneCount(lvl);
         double currentMilestoneMult = shopManager.GetMilestoneMultiplier(lvl);
         int toNextMilestone = shopManager.GetLevelsToNextMilestone(lvl);
+
+        if (milestoneFillImage != null)
+        {
+            int step = Mathf.Max(1, shopManager.milestoneStep);
+            int progressInStep = lvl % step;
+            float ratio = (float)progressInStep / step;
+            milestoneFillImage.rectTransform.anchorMax = new Vector2(ratio, 1f);
+        }
 
         if (_lastKnownMilestones >= 0 && milestones > _lastKnownMilestones && backgroundImage != null)
         {

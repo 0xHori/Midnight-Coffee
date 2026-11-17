@@ -137,7 +137,7 @@ public class CharacterEmotionController : MonoBehaviour
 
     public void OnNotEnoughCurrency()
     {
-        SetTemporaryEmotion(CharacterEmotion.Angry, 1.5f);
+        SetTemporaryEmotion(CharacterEmotion.Excited, 1.2f);
     }
 
     public void SetTemporaryEmotion(CharacterEmotion emotion, float duration)
