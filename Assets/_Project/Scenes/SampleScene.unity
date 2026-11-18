@@ -377,6 +377,55 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &309672441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 309672442}
+  - component: {fileID: 309672443}
+  m_Layer: 0
+  m_Name: FeverVisualFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &309672442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309672441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 517573113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &309672443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309672441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12ece981f03082ee78ce5ad916d482c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Effects::FeverVisualFeedback
+  canvasTransform: {fileID: 1212280915}
+  feverGlowColor: {r: 1, g: 0.58, b: 0.1, a: 0.55}
+  borderThickness: 0.16
+  pulseSpeed: 5
+  fadeSpeed: 4
 --- !u!1 &348007082
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,6 +508,7 @@ Transform:
   - {fileID: 348007083}
   - {fileID: 1411491552}
   - {fileID: 1762959292}
+  - {fileID: 1151264747}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &379202805 stripped
@@ -1099,6 +1149,40 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &517573112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517573113}
+  m_Layer: 0
+  m_Name: --- VFX & POOLS ---
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &517573113
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517573112}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 941547764}
+  - {fileID: 1290946819}
+  - {fileID: 309672442}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
@@ -2009,6 +2093,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &941547763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 941547764}
+  - component: {fileID: 941547765}
+  m_Layer: 0
+  m_Name: FloatingTextPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &941547764
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941547763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 517573113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &941547765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941547763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d839cad8543be5ec085490759368400e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingTextPool
+  floatingTextPrefab: {fileID: 1980625081264330645, guid: 978c18e75eeb9ab6086cd1daa611c598, type: 3}
+  canvasTransform: {fileID: 265690501}
+  initialPoolSize: 25
 --- !u!1 &1023419840
 GameObject:
   m_ObjectHideFlags: 0
@@ -2435,6 +2566,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1102774910}
   m_CullTransparentMesh: 1
+--- !u!1 &1151264746
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1151264747}
+  - component: {fileID: 1151264748}
+  m_Layer: 0
+  m_Name: ShopUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1151264747
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151264746}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 365861615}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1151264748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151264746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02794168909e249b3bd2b2aaa64a7772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopUI
+  shopManager: {fileID: 1410147655}
+  clickerManager: {fileID: 1410147653}
+  shopContainer: {fileID: 1496816953}
+  upgradeItemPrefab: {fileID: 401943267112635954, guid: f2c3d80144c9d4c5e8eaa8dbea095bef, type: 3}
+  buyModeButton: {fileID: 1537779090}
+  buyModeText: {fileID: 1041441081}
 --- !u!1 &1158129975
 GameObject:
   m_ObjectHideFlags: 0
@@ -2831,6 +3012,53 @@ MonoBehaviour:
   horizontalPadding: 110
   topPadding: 260
   bottomPadding: 380
+--- !u!1 &1290946818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1290946819}
+  - component: {fileID: 1290946820}
+  m_Layer: 0
+  m_Name: TapParticlePool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1290946819
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290946818}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 517573113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1290946820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290946818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f26b259f17fe1b638f3f5c99c79cb04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TapParticlePool
+  particleSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  canvasTransform: {fileID: 265690501}
+  poolSize: 40
 --- !u!1 &1291046479
 GameObject:
   m_ObjectHideFlags: 0
@@ -3012,12 +3240,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1410147652}
   - component: {fileID: 1410147653}
-  - component: {fileID: 1410147654}
   - component: {fileID: 1410147655}
-  - component: {fileID: 1410147656}
-  - component: {fileID: 1410147657}
   - component: {fileID: 1410147658}
-  - component: {fileID: 1410147659}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3033,8 +3257,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410147651}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1287.0172, y: 793.6516, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3069,22 +3293,7 @@ MonoBehaviour:
   totalCritClicks: 0
   lifetimeScore: 0
   totalPrestiges: 0
-  floatingTextPool: {fileID: 1410147654}
---- !u!114 &1410147654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410147651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d839cad8543be5ec085490759368400e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FloatingTextPool
-  floatingTextPrefab: {fileID: 1980625081264330645, guid: 978c18e75eeb9ab6086cd1daa611c598, type: 3}
-  canvasTransform: {fileID: 265690501}
-  initialPoolSize: 25
+  floatingTextPool: {fileID: 941547765}
 --- !u!114 &1410147655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3104,39 +3313,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c3e5b5ad00b7879939a8557e65351f4c, type: 2}
   - {fileID: 11400000, guid: 3f2039bbb18b51432b1dea413251b3b3, type: 2}
   - {fileID: 11400000, guid: 108222b675ab31158b250e75678e3486, type: 2}
---- !u!114 &1410147656
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410147651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02794168909e249b3bd2b2aaa64a7772, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShopUI
-  shopManager: {fileID: 1410147655}
-  clickerManager: {fileID: 1410147653}
-  shopContainer: {fileID: 1496816953}
-  upgradeItemPrefab: {fileID: 401943267112635954, guid: f2c3d80144c9d4c5e8eaa8dbea095bef, type: 3}
-  buyModeButton: {fileID: 1537779090}
-  buyModeText: {fileID: 1041441081}
---- !u!114 &1410147657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410147651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f26b259f17fe1b638f3f5c99c79cb04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TapParticlePool
-  particleSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  canvasTransform: {fileID: 265690501}
-  poolSize: 40
 --- !u!114 &1410147658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3161,23 +3337,6 @@ MonoBehaviour:
   feverBarColor: {r: 1, g: 0.55, b: 0, a: 1}
   isFeverActive: 0
   currentCharge: 0
---- !u!114 &1410147659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410147651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12ece981f03082ee78ce5ad916d482c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Effects::FeverVisualFeedback
-  canvasTransform: {fileID: 1212280915}
-  feverGlowColor: {r: 1, g: 0.58, b: 0.1, a: 0.55}
-  borderThickness: 0.16
-  pulseSpeed: 5
-  fadeSpeed: 4
 --- !u!1 &1411491550
 GameObject:
   m_ObjectHideFlags: 0
@@ -3213,9 +3372,9 @@ MonoBehaviour:
   prestigeSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   buySound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
   errorSound: {fileID: 8300000, guid: a77195ef58a299e168e3fe2cf66c2dbc, type: 3}
-  floatingTextPool: {fileID: 1410147654}
-  tapParticlePool: {fileID: 1410147657}
-  feverVisualFeedback: {fileID: 1410147659}
+  floatingTextPool: {fileID: 941547765}
+  tapParticlePool: {fileID: 1290946820}
+  feverVisualFeedback: {fileID: 309672443}
   characterButtonSquish: {fileID: 1506751031}
   shakeTarget: {fileID: 1506751027}
   textVerticalOffset: -45
@@ -4774,8 +4933,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710731199}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 458.45773, y: 984.60834, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4852,8 +5011,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1758446581}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 458.45773, y: 984.60834, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5234,8 +5393,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954411159}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 79.33775, y: 281.45386, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6312,3 +6471,4 @@ SceneRoots:
   - {fileID: 490982019}
   - {fileID: 853307765}
   - {fileID: 365861615}
+  - {fileID: 517573113}
