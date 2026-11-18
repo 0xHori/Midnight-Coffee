@@ -22,6 +22,7 @@ public class AudioManager : MonoBehaviour
     public List<MusicTrack> musicPlaylist = new List<MusicTrack>();
     public bool shufflePlaylist = true;
     public float fadeDuration = 1.5f;
+    public float resumeFadeDuration = 0.8f;
 
     public float MusicVolume { get; private set; } = 0.6f;
     public float SfxVolume { get; private set; } = 1.0f;
@@ -41,6 +42,8 @@ public class AudioManager : MonoBehaviour
 
     private int currentTrackIndex = -1;
     private Coroutine trackRoutine;
+    private Coroutine resumeFadeRoutine;
+    private bool _isPausedBySystem = false;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
     private static AndroidJavaObject _vibrator;
@@ -68,6 +71,70 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    void OnApplicationPause(bool pauseStatus)
+    {
+        HandleSystemPause(pauseStatus);
+    }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        HandleSystemPause(!hasFocus);
+    }
+
+    private void HandleSystemPause(bool shouldPause)
+    {
+        if (_isPausedBySystem == shouldPause) return;
+        _isPausedBySystem = shouldPause;
+
+        if (musicSource == null) return;
+
+        if (shouldPause)
+        {
+            if (resumeFadeRoutine != null)
+            {
+                StopCoroutine(resumeFadeRoutine);
+                resumeFadeRoutine = null;
+            }
+
+            if (musicSource.isPlaying)
+                musicSource.Pause();
+        }
+        else
+        {
+            if (musicSource.clip != null && !musicSource.isPlaying && musicSource.time > 0f)
+            {
+                musicSource.volume = 0f;
+                musicSource.UnPause();
+
+                if (resumeFadeRoutine != null)
+                    StopCoroutine(resumeFadeRoutine);
+                resumeFadeRoutine = StartCoroutine(FadeInOnResumeRoutine());
+            }
+        }
+    }
+
+    private IEnumerator FadeInOnResumeRoutine()
+    {
+        float duration = Mathf.Max(0.05f, resumeFadeDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (!_isPausedBySystem)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                if (musicSource != null)
+                    musicSource.volume = Mathf.Lerp(0f, MusicVolume, elapsed / duration);
+            }
+            yield return null;
+        }
+
+        if (musicSource != null)
+            musicSource.volume = MusicVolume;
+
+        resumeFadeRoutine = null;
+    }
+
     public void LoadSettings()
     {
         MusicVolume = PlayerPrefs.GetFloat(PREF_MUSIC_VOL, 0.6f);
@@ -90,6 +157,12 @@ public class AudioManager : MonoBehaviour
 
         PlayerPrefs.SetFloat(PREF_MUSIC_VOL, MusicVolume);
         PlayerPrefs.Save();
+
+        if (resumeFadeRoutine != null)
+        {
+            StopCoroutine(resumeFadeRoutine);
+            resumeFadeRoutine = null;
+        }
         ApplyVolumes();
     }
 
@@ -154,6 +227,11 @@ public class AudioManager : MonoBehaviour
             currentTrackIndex = (currentTrackIndex + 1) % musicPlaylist.Count;
         }
 
+        if (resumeFadeRoutine != null)
+        {
+            StopCoroutine(resumeFadeRoutine);
+            resumeFadeRoutine = null;
+        }
         if (trackRoutine != null) StopCoroutine(trackRoutine);
         trackRoutine = StartCoroutine(CrossfadeToTrack(musicPlaylist[currentTrackIndex]?.clip));
     }
@@ -184,22 +262,35 @@ public class AudioManager : MonoBehaviour
             float t = 0f;
             while (t < fadeDuration)
             {
-                t += Time.unscaledDeltaTime;
-                musicSource.volume = Mathf.Lerp(startVol, 0f, t / fadeDuration);
+                if (!_isPausedBySystem)
+                {
+                    t += Time.unscaledDeltaTime;
+                    musicSource.volume = Mathf.Lerp(startVol, 0f, t / fadeDuration);
+                }
                 yield return null;
             }
         }
 
+        while (_isPausedBySystem)
+            yield return null;
+
         musicSource.Stop();
         musicSource.clip = nextClip;
         musicSource.loop = false;
+        musicSource.volume = 0f;
         musicSource.Play();
+
+        if (_isPausedBySystem)
+            musicSource.Pause();
 
         float fadeInTime = 0f;
         while (fadeInTime < fadeDuration)
         {
-            fadeInTime += Time.unscaledDeltaTime;
-            musicSource.volume = Mathf.Lerp(0f, MusicVolume, fadeInTime / fadeDuration);
+            if (!_isPausedBySystem)
+            {
+                fadeInTime += Time.unscaledDeltaTime;
+                musicSource.volume = Mathf.Lerp(0f, MusicVolume, fadeInTime / fadeDuration);
+            }
             yield return null;
         }
         musicSource.volume = MusicVolume;
@@ -208,7 +299,7 @@ public class AudioManager : MonoBehaviour
         float targetPlayTime = Mathf.Max(0.1f, nextClip.length - fadeDuration);
         while (trackTimer < targetPlayTime)
         {
-            if (Application.isFocused)
+            if (!_isPausedBySystem)
             {
                 trackTimer += Time.unscaledDeltaTime;
             }
