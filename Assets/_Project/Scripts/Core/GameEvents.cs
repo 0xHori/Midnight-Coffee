@@ -12,24 +12,24 @@ public struct GachaRollEntry
 
 public static class GameEvents
 {
-    public static Action OnUpdateUI;
-    public static Action OnUpdateSkillUI;
-    public static Action OnSaveGame;
-    public static Action<double, int, int> OnShowOfflinePanel;
-    public static Action<string, Sprite, Color> OnGachaResult;
-    public static Action<List<GachaRollEntry>> OnGachaMultiResult;
+    public static event Action OnUpdateUI;
+    public static event Action OnUpdateSkillUI;
+    public static event Action OnSaveGame;
+    public static event Action<double, int, int> OnShowOfflinePanel;
+    public static event Action<string, Sprite, Color> OnGachaResult;
+    public static event Action<List<GachaRollEntry>> OnGachaMultiResult;
 
     // События игрового процесса для визуала, звука и реакций персонажа
     public static event Action<double, bool, bool> OnPlayerTapped;
     public static event Action<double, bool, bool, bool> OnPlayerTappedDetailed; // + bool isManual
-    public static Action OnFeverTriggered;
-    public static Action OnFeverEnded;
-    public static Action<double> OnPrestigeCompleted;
-    public static Action OnNotEnoughCurrency;
-    public static Action<CharacterData> OnCharacterEquipped;
-    public static Action<CharacterData, int> OnAffectionLevelUp;
-    public static Action<string> OnCharacterSpeak;
-    public static Action<string, int, bool> OnUpgradePurchased;
+    public static event Action OnFeverTriggered;
+    public static event Action OnFeverEnded;
+    public static event Action<double> OnPrestigeCompleted;
+    public static event Action OnNotEnoughCurrency;
+    public static event Action<CharacterData> OnCharacterEquipped;
+    public static event Action<CharacterData, int> OnAffectionLevelUp;
+    public static event Action<string> OnCharacterSpeak;
+    public static event Action<string, int, bool> OnUpgradePurchased;
 
     public static void UpdateUI() => OnUpdateUI?.Invoke();
     public static void UpdateSkillUI() => OnUpdateSkillUI?.Invoke();
@@ -43,6 +43,7 @@ public static class GameEvents
         OnPlayerTapped?.Invoke(earnedPoints, isCrit, isFever);
         OnPlayerTappedDetailed?.Invoke(earnedPoints, isCrit, isFever, isManual);
     }
+
     public static void FeverTriggered() => OnFeverTriggered?.Invoke();
     public static void FeverEnded() => OnFeverEnded?.Invoke();
     public static void PrestigeCompleted(double crystalsGained) => OnPrestigeCompleted?.Invoke(crystalsGained);

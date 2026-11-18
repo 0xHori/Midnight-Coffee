@@ -458,6 +458,7 @@ Transform:
   - {fileID: 1710731200}
   - {fileID: 348007083}
   - {fileID: 1411491552}
+  - {fileID: 1762959292}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &379202805 stripped
@@ -2567,17 +2568,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1158129975}
   m_CullTransparentMesh: 1
---- !u!114 &1170483498 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4637170774907590740, guid: 9ac96e471cbd87438afe70b3754bb874, type: 3}
-  m_PrefabInstance: {fileID: 4920298168046564979}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1211914807
 GameObject:
   m_ObjectHideFlags: 0
@@ -3001,6 +2991,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8819142369059908693, guid: 7eded2a04ee05d26785a54af828aba81, type: 3}
   m_PrefabInstance: {fileID: 5314462447856923432}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1377348310 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5657094949182052222, guid: 7f1476b977540e81a94b390944b98ce0, type: 3}
+  m_PrefabInstance: {fileID: 7036406484568366795}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1410147651
 GameObject:
   m_ObjectHideFlags: 0
@@ -4793,7 +4794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   clickerManager: {fileID: 1410147653}
-  gachaManager: {fileID: 843058829}
+  gachaUI: {fileID: 1762959293}
   scoreText: {fileID: 1515975746}
   incomeText: {fileID: 1698728390}
   offlineText: {fileID: 1873938500}
@@ -4803,13 +4804,8 @@ MonoBehaviour:
   prestigeButtonComponent: {fileID: 408158767}
   offlinePanel: {fileID: 70306199}
   skillTreePanel: {fileID: 379202805}
-  gachaPanel: {fileID: 1583125865}
-  gachaResultText: {fileID: 835888045}
-  gachaCrystalsText: {fileID: 1170483498}
-  gachaResultImage: {fileID: 1035564279}
   galleryPanel: {fileID: 1866776372}
   galleryManager: {fileID: 348007084}
-  gachaPityText: {fileID: 797100746}
 --- !u!114 &1710731202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4881,6 +4877,58 @@ MonoBehaviour:
   skillTreeManager: {fileID: 2019083793}
   gachaManager: {fileID: 843058829}
   affectionManager: {fileID: 1023419841}
+--- !u!1 &1762959291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1762959292}
+  - component: {fileID: 1762959293}
+  m_Layer: 0
+  m_Name: GachaUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1762959292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762959291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 365861615}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1762959293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762959291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47a8f39e0cd57635daa4913e652d1ac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.UI::GachaUI
+  clickerManager: {fileID: 1410147653}
+  gachaManager: {fileID: 843058829}
+  gachaPanel: {fileID: 1583125865}
+  dimBackground: {fileID: 1906155937}
+  resultText: {fileID: 835888045}
+  crystalsText: {fileID: 1377348310}
+  pityText: {fileID: 797100746}
+  resultImage: {fileID: 1035564279}
 --- !u!1 &1798922956
 GameObject:
   m_ObjectHideFlags: 0

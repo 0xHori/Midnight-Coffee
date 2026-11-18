@@ -232,9 +232,6 @@ public class SettingsUI : MonoBehaviour
 
         SaveManager.DeleteAllSaveFiles();
 
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
