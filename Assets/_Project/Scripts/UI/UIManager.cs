@@ -34,6 +34,7 @@ public class UIManager : MonoBehaviour
     public Image gachaResultImage;
     public GameObject galleryPanel;
     public GalleryManager galleryManager;
+    public TextMeshProUGUI gachaPityText;
 
     private Coroutine _gachaAnimRoutine;
     private readonly StringBuilder _multiSummaryBuilder = new StringBuilder(256);
@@ -363,6 +364,15 @@ public class UIManager : MonoBehaviour
         if (gachaCrystalsText != null && clickerManager != null)
         {
             gachaCrystalsText.text = LocalizationManager.Get("ui.gacha_reputation", clickerManager.totalCrystals.ToCompactString());
+        }
+
+        if (gachaPityText != null && gachaManager != null)
+        {
+            int threshold = (gachaManager.affectionManager != null && gachaManager.affectionManager.balanceConfig != null)
+                ? gachaManager.affectionManager.balanceConfig.gachaPityThreshold
+                : 35;
+            int remaining = Mathf.Max(1, threshold - gachaManager.rollsSinceLastLegendary);
+            gachaPityText.text = LocalizationManager.Get("ui.gacha_pity", remaining);
         }
     }
 }

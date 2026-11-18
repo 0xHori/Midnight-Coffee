@@ -96,6 +96,7 @@
     { "key": "tap.prestige", "value": "НОВАЯ КОФЕЙНЯ! +{0} ★" },
 
     { "key": "ui.gacha_prompt", "value": "Запустить сарафанное радио!" },
+    { "key": "ui.gacha_pity", "value": "До гарантированной 3★ гостьи: {0}" },
     { "key": "ui.gacha_reputation", "value": "Репутация: {0} ★" },
     { "key": "ui.income_per_sec", "value": "Поток: {0} / сек" },
     { "key": "ui.offline_earned", "value": "Пока кофейня работала\nбез вас ({0}ч {1}м),\nвыручка составила:\n{2}" },

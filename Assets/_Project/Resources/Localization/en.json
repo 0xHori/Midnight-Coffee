@@ -96,6 +96,7 @@
     { "key": "tap.prestige", "value": "NEW CAFE! +{0} ★" },
 
     { "key": "ui.gacha_prompt", "value": "Spread word of mouth!" },
+    { "key": "ui.gacha_pity", "value": "Guaranteed 3★ guest in: {0}" },
     { "key": "ui.gacha_reputation", "value": "Reputation: {0} ★" },
     { "key": "ui.income_per_sec", "value": "Flow: {0} / sec" },
     { "key": "ui.offline_earned", "value": "While the cafe ran\nwithout you ({0}h {1}m),\nyou earned:\n{2}" },
