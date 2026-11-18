@@ -42,6 +42,12 @@ public class AudioManager : MonoBehaviour
     private int currentTrackIndex = -1;
     private Coroutine trackRoutine;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private static AndroidJavaObject _vibrator;
+    private static AndroidJavaClass _vibrationEffectClass;
+    private static int _androidSdkInt = -1;
+#endif
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -212,11 +218,53 @@ public class AudioManager : MonoBehaviour
         PlayNextTrack();
     }
 
-    public static void TriggerHaptic()
+    public static void TriggerHaptic(long milliseconds = 18)
     {
         if (Instance != null && !Instance.VibrationEnabled) return;
 
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID && !UNITY_EDITOR
+        try
+        {
+            if (_androidSdkInt < 0)
+            {
+                using (var version = new AndroidJavaClass("android.os.Build$VERSION"))
+                {
+                    _androidSdkInt = version.GetStatic<int>("SDK_INT");
+                }
+            }
+
+            if (_vibrator == null)
+            {
+                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                using (var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    _vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
+                }
+            }
+
+            if (_vibrator != null)
+            {
+                if (_androidSdkInt >= 26)
+                {
+                    if (_vibrationEffectClass == null)
+                        _vibrationEffectClass = new AndroidJavaClass("android.os.VibrationEffect");
+
+                    using (var effect = _vibrationEffectClass.CallStatic<AndroidJavaObject>("createOneShot", milliseconds, 80))
+                    {
+                        _vibrator.Call("vibrate", effect);
+                    }
+                }
+                else
+                {
+                    _vibrator.Call("vibrate", milliseconds);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            Handheld.Vibrate();
+        }
+#elif UNITY_IOS && !UNITY_EDITOR
         Handheld.Vibrate();
 #endif
     }

@@ -15,9 +15,12 @@ public class CharacterEmotionController : MonoBehaviour
     public float emotionResetDelay = 1.2f;
     [Tooltip("Сколько быстрых тапов подряд нужно для эмоции удивления")]
     public int comboThresholdForExcited = 6;
+    [Tooltip("Через сколько секунд без кликов персонаж начинает скучать (Sad)")]
+    public float idleThresholdForSad = 25f;
 
     private CharacterEmotion _currentEmotion = CharacterEmotion.Normal;
     private float _resetTimer = 0f;
+    private float _idleTimer = 0f;
     private int _rapidTapCount = 0;
     private float _lastTapTime = 0f;
     private int _lastProcessedTapFrame = -1;
@@ -62,6 +65,15 @@ public class CharacterEmotionController : MonoBehaviour
     {
         bool isFever = feverManager != null && feverManager.isFeverActive;
 
+        if (isFever)
+        {
+            _idleTimer = 0f;
+        }
+        else
+        {
+            _idleTimer += Time.deltaTime;
+        }
+
         if (_resetTimer > 0f)
         {
             _resetTimer -= Time.deltaTime;
@@ -74,7 +86,10 @@ public class CharacterEmotionController : MonoBehaviour
         }
 
         // Базовое состояние, когда нет активной временной реакции
-        CharacterEmotion baseEmotion = isFever ? CharacterEmotion.Love : CharacterEmotion.Normal;
+        CharacterEmotion baseEmotion = isFever
+            ? CharacterEmotion.Love
+            : (_idleTimer >= idleThresholdForSad ? CharacterEmotion.Sad : CharacterEmotion.Normal);
+
         if (_currentEmotion != baseEmotion)
         {
             ApplyEmotion(baseEmotion);
@@ -86,6 +101,7 @@ public class CharacterEmotionController : MonoBehaviour
         currentCharacter = newCharacter;
         _rapidTapCount = 0;
         _resetTimer = 0f;
+        _idleTimer = 0f;
 
         if (newCharacter == null)
         {
@@ -100,11 +116,15 @@ public class CharacterEmotionController : MonoBehaviour
     private void HandleAffectionLevelUp(CharacterData character, int newLevel)
     {
         if (currentCharacter == character)
+        {
+            _idleTimer = 0f;
             SetTemporaryEmotion(CharacterEmotion.Love, 2.0f);
+        }
     }
 
     private void HandleGachaResult(string charName, Sprite sprite, Color color)
     {
+        _idleTimer = 0f;
         SetTemporaryEmotion(CharacterEmotion.Love, 2.0f);
     }
 
@@ -119,6 +139,8 @@ public class CharacterEmotionController : MonoBehaviour
         // Защита от двойного вызова, если метод также привязан в Button.onClick
         if (_lastProcessedTapFrame == Time.frameCount) return;
         _lastProcessedTapFrame = Time.frameCount;
+
+        _idleTimer = 0f;
 
         if (feverManager != null && feverManager.isFeverActive) return;
 
@@ -137,7 +159,8 @@ public class CharacterEmotionController : MonoBehaviour
 
     public void OnNotEnoughCurrency()
     {
-        SetTemporaryEmotion(CharacterEmotion.Excited, 1.2f);
+        _idleTimer = 0f;
+        SetTemporaryEmotion(CharacterEmotion.Sad, 1.2f);
     }
 
     public void SetTemporaryEmotion(CharacterEmotion emotion, float duration)
@@ -159,6 +182,7 @@ public class CharacterEmotionController : MonoBehaviour
     private void ResetToDefaultSprite()
     {
         _currentEmotion = CharacterEmotion.Normal;
+        _idleTimer = 0f;
         if (characterImage != null && defaultClickerSprite != null)
             characterImage.sprite = defaultClickerSprite;
     }

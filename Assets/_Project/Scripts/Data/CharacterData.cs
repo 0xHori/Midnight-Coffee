@@ -2,10 +2,10 @@ using UnityEngine;
 
 public enum CharacterEmotion
 {
-    Normal,     // Спокойная / радостная (по умолчанию)
-    Excited,    // Удивление / азарт (серия кликов, крит)
-    Love,       // Сердечки (Fever Mode / повышение близости)
-    Angry       // Надутая / сердитая (не хватает валюты / долгий простой)
+    Normal,     // _1 Спокойная (по умолчанию)
+    Excited,    // _2 Радостная / азарт (серия кликов, крит, подбадривание)
+    Love,       // _3 Застенчивая / смущение (Fever Mode, повышение близости, новый персонаж)
+    Sad         // _4 Печальная (долгий простой или особые события)
 }
 
 [System.Serializable]
@@ -19,12 +19,12 @@ public struct EmotionSprite
 public class CharacterData : ScriptableObject
 {
     [Header("Основное")]
-    public string characterId;      // Уникальный ID (например: "char_rem")
+    public string characterId;      // Уникальный ID (например: "common_girl")
     public string characterName;
-    public Sprite portrait;         // Базовый портрет / иконка для галереи и гачи
+    public Sprite portrait;         // Базовый портрет / иконка для галереи и гачи (_0)
     [Range(1, 3)] public int rarity = 1; // 1 - Common, 2 - Rare, 3 - Legendary
 
-    [Header("Эмоции (4 стикера)")]
+    [Header("Эмоции (4 стикера: Normal, Excited, Love, Sad)")]
     public EmotionSprite[] emotions;
 
     [Header("Близость (Affection)")]

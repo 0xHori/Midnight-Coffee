@@ -160,7 +160,7 @@ MonoBehaviour:
   m_text: New Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e060b95953f0f2f40b2c31cd65898ddd, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 9091410777415958644, guid: e060b95953f0f2f40b2c31cd65898ddd, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1297,7 +1297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 1061158788}
   m_Horizontal: 1
-  m_Vertical: 1
+  m_Vertical: 0
   m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1
@@ -6093,8 +6093,11 @@ MonoBehaviour:
   affectionManager: {fileID: 1023419841}
   allCharacters:
   - {fileID: 11400000, guid: 8d8863ca5e9865a7ea931c1c7a349745, type: 2}
+  - {fileID: 11400000, guid: ede1ef75d6312b9fc99c37dccdc10611, type: 2}
   - {fileID: 11400000, guid: cac11df4bbf0ae1fbbdaac747aaa7a13, type: 2}
+  - {fileID: 11400000, guid: 39d3a193f91ee9a2aac8ba3d889eb17f, type: 2}
   - {fileID: 11400000, guid: 31bc62ef884ee80d8887d2aec5494eea, type: 2}
+  - {fileID: 11400000, guid: 4b88328f9bfcbb834a299728e0db1ec3, type: 2}
   rollCost: 10
   totalGachaRolls: 0
   equippedCharacterId: 
@@ -9080,7 +9083,7 @@ MonoBehaviour:
   m_text: "\u0417\u0430\u043A\u0440\u044B\u0442\u044C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e060b95953f0f2f40b2c31cd65898ddd, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 9091410777415958644, guid: e060b95953f0f2f40b2c31cd65898ddd, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11286,6 +11289,7 @@ MonoBehaviour:
   currentCharacter: {fileID: 0}
   emotionResetDelay: 1.2
   comboThresholdForExcited: 6
+  idleThresholdForSad: 25
 --- !u!1 &1515975745
 GameObject:
   m_ObjectHideFlags: 0
