@@ -4064,7 +4064,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 28380d90f670d44c289c57d960199095, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -4134,7 +4134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEmotionController
   characterImage: {fileID: 1506751029}
-  defaultClickerSprite: {fileID: -7443756053782179069, guid: b97b14e2e96767f0896a9a2e6e584c52, type: 3}
+  defaultClickerSprite: {fileID: 21300000, guid: 28380d90f670d44c289c57d960199095, type: 3}
   feverManager: {fileID: 1410147658}
   gachaManager: {fileID: 843058829}
   currentCharacter: {fileID: 0}
