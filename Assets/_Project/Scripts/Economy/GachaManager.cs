@@ -12,6 +12,7 @@ public class GachaManager : MonoBehaviour
     [Header("Настройки")]
     public int rollCost = 10;
     public int totalGachaRolls = 0;
+    public int rollsSinceLastLegendary = 0;
 
     private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
     public string equippedCharacterId;
@@ -56,6 +57,8 @@ public class GachaManager : MonoBehaviour
 
     public void RollGacha()
     {
+        if (clickerManager == null || allCharacters == null || allCharacters.Count == 0) return;
+
         if (clickerManager.totalCrystals < rollCost)
         {
             GameEvents.NotEnoughCurrency();
@@ -63,26 +66,37 @@ public class GachaManager : MonoBehaviour
             return;
         }
 
-        if (allCharacters == null || allCharacters.Count == 0) return;
+        BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
+        int pityThreshold = balance != null ? balance.gachaPityThreshold : 35;
+        int maxDupLvl = balance != null ? balance.maxCharacterDuplicateLevel : 15;
 
         clickerManager.totalCrystals -= rollCost;
         totalGachaRolls++;
+        rollsSinceLastLegendary++;
 
-        float roll = Random.Range(0f, 100f);
         int targetRarity = 1;
-        if (roll > 70f && roll <= 95f) targetRarity = 2;
-        else if (roll > 95f) targetRarity = 3;
+        if (pityThreshold > 0 && rollsSinceLastLegendary >= pityThreshold)
+        {
+            targetRarity = 3;
+        }
+        else
+        {
+            float roll = Random.Range(0f, 100f);
+            if (roll > 70f && roll <= 95f) targetRarity = 2;
+            else if (roll > 95f) targetRarity = 3;
+        }
 
-        List<CharacterData> pool = allCharacters.FindAll(c => c.rarity == targetRarity);
-        if (pool.Count == 0) pool = allCharacters;
+        // Выбираем случайного персонажа нужной редкости без лишних аллокаций списков
+        CharacterData result = PickRandomCharacterByRarity(targetRarity);
+        if (result == null)
+            result = allCharacters[Random.Range(0, allCharacters.Count)];
 
-        CharacterData result = pool[Random.Range(0, pool.Count)];
-
-        int maxDupLvl = (affectionManager != null && affectionManager.balanceConfig != null)
-            ? affectionManager.balanceConfig.maxCharacterDuplicateLevel
-            : 15;
+        if (result.rarity == 3)
+            rollsSinceLastLegendary = 0;
 
         int currentLvl = GetCharacterLevel(result.characterId);
+        int affLvl = affectionManager != null ? affectionManager.GetAffectionLevel(result.characterId) : result.maxAffectionLevel;
+        bool canGainAffection = affectionManager != null && affLvl < result.maxAffectionLevel;
         string displayTitle;
 
         if (currentLvl < maxDupLvl)
@@ -90,9 +104,12 @@ public class GachaManager : MonoBehaviour
             int newLvl = currentLvl + 1;
             characterLevels[result.characterId] = newLvl;
 
-            if (currentLvl > 0 && affectionManager != null)
+            if (currentLvl > 0)
             {
-                affectionManager.AddAffectionXp(result, 50 * result.rarity);
+                if (canGainAffection)
+                    affectionManager.AddAffectionXp(result, 50 * result.rarity);
+                else
+                    clickerManager.totalCrystals += Mathf.Max(1, rollCost / 2);
             }
 
             displayTitle = currentLvl > 0
@@ -101,15 +118,10 @@ public class GachaManager : MonoBehaviour
         }
         else
         {
-            int affLvl = affectionManager != null ? affectionManager.GetAffectionLevel(result.characterId) : result.maxAffectionLevel;
-            if (affectionManager != null && affLvl < result.maxAffectionLevel)
-            {
+            if (canGainAffection)
                 affectionManager.AddAffectionXp(result, 150 * result.rarity);
-            }
             else
-            {
                 clickerManager.totalCrystals += Mathf.Max(1, rollCost / 2);
-            }
 
             displayTitle = LocalizationManager.Get("gacha.result_dup", result.LocalizedName, maxDupLvl);
         }
@@ -121,14 +133,40 @@ public class GachaManager : MonoBehaviour
         }
 
         Color textColor = Color.white;
-        if (targetRarity == 2) textColor = new Color(0.2f, 0.6f, 1f);
-        if (targetRarity == 3) textColor = new Color(1f, 0.8f, 0f);
+        if (result.rarity == 2) textColor = new Color(0.2f, 0.6f, 1f);
+        if (result.rarity == 3) textColor = new Color(1f, 0.8f, 0f);
 
         GameEvents.ShowGachaResult(displayTitle, result.portrait, textColor);
         GameEvents.UpdateUI();
         GameEvents.SaveGame();
     }
-    
+
+    private CharacterData PickRandomCharacterByRarity(int rarity)
+    {
+        int matchCount = 0;
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            if (allCharacters[i] != null && allCharacters[i].rarity == rarity)
+                matchCount++;
+        }
+
+        if (matchCount == 0) return null;
+
+        int targetIndex = Random.Range(0, matchCount);
+        int currentIndex = 0;
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            if (allCharacters[i] != null && allCharacters[i].rarity == rarity)
+            {
+                if (currentIndex == targetIndex)
+                    return allCharacters[i];
+                currentIndex++;
+            }
+        }
+
+        return null;
+    }
+
     void OnValidate()
     {
         if (allCharacters == null) return;

@@ -31,6 +31,8 @@ public class BalanceConfig : ScriptableObject
     [Header("Персонажи")]
     public double characterDuplicateBonusPerLevel = 0.2; // +20% за каждый дубликат
     public int maxCharacterDuplicateLevel = 15;
+    [Tooltip("Гарантированная легендарка (3★), если она не выпадала N круток подряд")]
+    public int gachaPityThreshold = 35;
 
     [Header("Близость (Affection)")]
     [Tooltip("Базовый опыт для перехода с 1 на 2 уровень близости")]

@@ -65,6 +65,7 @@ public class SaveManager : MonoBehaviour
             data.ownedCharacters = gachaManager.ExportSaveData();
             data.equippedCharacterId = gachaManager.equippedCharacterId;
             data.totalGachaRolls = gachaManager.totalGachaRolls;
+            data.gachaRollsSinceLegendary = gachaManager.rollsSinceLastLegendary;
         }
 
         data.lastExitTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
@@ -150,6 +151,7 @@ public class SaveManager : MonoBehaviour
             {
                 gachaManager.ImportSaveData(data.ownedCharacters, data.equippedCharacterId);
                 gachaManager.totalGachaRolls = data.totalGachaRolls;
+                gachaManager.rollsSinceLastLegendary = data.gachaRollsSinceLegendary;
             }
 
             if (data.lifetimeCrystals > 0)

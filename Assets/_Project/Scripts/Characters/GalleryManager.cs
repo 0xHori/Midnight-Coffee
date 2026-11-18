@@ -149,6 +149,9 @@ public class GalleryManager : MonoBehaviour
             case StatType.ClickMultiplier: return LocalizationManager.Get("stat.click");
             case StatType.AutoMultiplier: return LocalizationManager.Get("stat.auto");
             case StatType.CritChance: return LocalizationManager.Get("stat.crit");
+            case StatType.CritDamage: return LocalizationManager.Get("stat.crit_damage");
+            case StatType.PrestigeBonus: return LocalizationManager.Get("stat.prestige");
+            case StatType.GoldenButtonReward: return LocalizationManager.Get("stat.golden_button");
             default: return LocalizationManager.Get("stat.default");
         }
     }

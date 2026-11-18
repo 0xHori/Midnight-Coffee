@@ -43,6 +43,7 @@ public class GameData
     public double lifetimeScore;
     public int totalPrestiges;
     public int totalGachaRolls;
+    public int gachaRollsSinceLegendary;
 
     // Масштабируемые списки для Магазина, RPG-навыков, Гачи и Близости
     public List<IdLevelPair> purchasedUpgrades = new List<IdLevelPair>();

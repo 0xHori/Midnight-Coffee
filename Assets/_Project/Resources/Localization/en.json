@@ -83,6 +83,9 @@
     { "key": "stat.auto", "value": "to auto revenue" },
     { "key": "stat.click", "value": "to brew revenue" },
     { "key": "stat.crit", "value": "to latte art chance" },
+    { "key": "stat.crit_damage", "value": "to latte art bonus" },
+    { "key": "stat.prestige", "value": "to ★ reputation" },
+    { "key": "stat.golden_button", "value": "to bonus reward" },
     { "key": "stat.default", "value": "to revenue" },
 
     { "key": "stats.full_report", "value": "<b><color=#FFD700>— CAFE LOGBOOK —</color></b>\nLifetime revenue: <b>{0}</b>\nDrinks brewed: <b>{1}</b>\nPerfect latte art: <b>{2}</b>\nCafes opened: <b>{3}</b>\nGuest invites: <b>{4}</b>\nRegular guests: <b>{5} / {6}</b>\n\n<b><color=#38BDF8>— SHIFT METRICS —</color></b>\nRevenue per brew: <b>{7}</b>\nAuto revenue: <b>{8} / sec</b>\nReputation bonus: <b>x{9}</b>\nEquipment multiplier: <b>x{10}</b>\nLatte art chance: <b>{11}%</b>\nLatte art bonus: <b>x{12}</b>" },

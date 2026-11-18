@@ -1,0 +1,407 @@
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+
+public class GalleryManager : MonoBehaviour
+{
+    public GachaManager gachaManager;
+    public AffectionManager affectionManager;
+    public GameObject cardPrefab;
+    public Transform contentContainer;
+
+    [Header("UI деталей персонажа")]
+    public TextMeshProUGUI detailsText;
+
+    private readonly Dictionary<string, CharacterCardUI> _spawnedCards = new Dictionary<string, CharacterCardUI>();
+    private bool _isBuilt = false;
+
+    public void OpenGallery()
+    {
+        RefreshGallery();
+        ShowEquippedOrDefaultDetails();
+    }
+
+    private void EnsureBuilt()
+    {
+        if (_isBuilt || gachaManager == null || cardPrefab == null || contentContainer == null) return;
+        _isBuilt = true;
+
+        foreach (Transform child in contentContainer)
+            Destroy(child.gameObject);
+        _spawnedCards.Clear();
+
+        foreach (CharacterData character in gachaManager.allCharacters)
+        {
+            if (character == null || string.IsNullOrEmpty(character.characterId)) continue;
+
+            GameObject newCard = Instantiate(cardPrefab, contentContainer);
+            CharacterCardUI cardUI = newCard.GetComponent<CharacterCardUI>();
+            if (cardUI != null)
+            {
+                cardUI.Bind(character, HandleCardClicked);
+                _spawnedCards[character.characterId] = cardUI;
+            }
+        }
+    }
+
+    public void RefreshGallery()
+    {
+        if (gachaManager == null) return;
+        EnsureBuilt();
+
+        foreach (CharacterData character in gachaManager.allCharacters)
+        {
+            if (character == null || !_spawnedCards.TryGetValue(character.characterId, out CharacterCardUI cardUI))
+                continue;
+
+            int level = gachaManager.GetCharacterLevel(character.characterId);
+            bool isEquipped = gachaManager.equippedCharacterId == character.characterId;
+            int affectionLvl = affectionManager != null
+                ? affectionManager.GetAffectionLevel(character.characterId)
+                : 1;
+
+            cardUI.Refresh(level, isEquipped, affectionLvl);
+        }
+    }
+
+    private void HandleCardClicked(CharacterData character)
+    {
+        if (character == null || gachaManager == null) return;
+
+        int level = gachaManager.GetCharacterLevel(character.characterId);
+        if (level > 0)
+        {
+            gachaManager.EquipCharacter(character.characterId);
+            RefreshGallery();
+        }
+        UpdateCharacterDetails(character);
+    }
+
+    private void ShowEquippedOrDefaultDetails()
+    {
+        if (gachaManager != null && !string.IsNullOrEmpty(gachaManager.equippedCharacterId))
+        {
+            CharacterData equipped = gachaManager.GetEquippedCharacter();
+            if (equipped != null)
+            {
+                UpdateCharacterDetails(equipped);
+                return;
+            }
+        }
+
+        UpdateCharacterDetails(null);
+    }
+
+    public void UpdateCharacterDetails(CharacterData character)
+    {
+        if (detailsText == null) return;
+
+        if (character == null)
+        {
+            detailsText.text = LocalizationManager.Get("gallery.select_hint");
+            return;
+        }
+
+        int level = gachaManager.GetCharacterLevel(character.characterId);
+        if (level <= 0)
+        {
+            detailsText.text = LocalizationManager.Get("gallery.locked_hint");
+            return;
+        }
+
+        BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
+        int affectionLvl = affectionManager != null
+            ? affectionManager.GetAffectionLevel(character.characterId)
+            : 1;
+
+        double affectionBonusPct = (character.GetAffectionMultiplier(affectionLvl, balance) - 1.0) * 100.0;
+        double passiveBonus = character.GetPassiveBonus(level, affectionLvl, balance) * 100.0;
+        double activeBonus = character.GetActiveBonus(level, affectionLvl, balance) * 100.0;
+
+        string passiveDesc = GetStatDescription(character.passiveStat);
+        string activeDesc = GetStatDescription(character.activeStat);
+
+        string affectionLine = affectionLvl >= character.maxAffectionLevel
+            ? LocalizationManager.Get("gallery.affection_max", $"{affectionBonusPct:0.#}")
+            : LocalizationManager.Get("gallery.affection_lvl", affectionLvl, character.maxAffectionLevel, $"{affectionBonusPct:0.#}");
+
+        string abilityLine = !string.IsNullOrEmpty(character.LocalizedAbility)
+            ? $"\n<i><color=#CCCCCC>{character.LocalizedAbility}</color></i>"
+            : "";
+
+        detailsText.text = LocalizationManager.Get(
+            "gallery.details_body",
+            character.LocalizedName,
+            level,
+            affectionLine,
+            $"{passiveBonus:0.#}",
+            passiveDesc,
+            $"{activeBonus:0.#}",
+            activeDesc,
+            abilityLine
+        );
+    }
+
+    private string GetStatDescription(StatType type)
+    {
+        switch (type)
+        {
+            case StatType.ClickMultiplier: return LocalizationManager.Get("stat.click");
+            case StatType.AutoMultiplier: return LocalizationManager.Get("stat.auto");
+            case StatType.CritChance: return LocalizationManager.Get("stat.crit");
+            default: return LocalizationManager.Get("stat.default");
+        }
+    }
+}using System;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class CharacterCardUI : MonoBehaviour
+{
+    [Header("Ссылки префаба")]
+    public Image backgroundImage;
+    public Image portraitImage;
+    public TextMeshProUGUI nameText;
+    public Button cardButton;
+
+    // Цвета карточки (HEX: #29292E обычный, #473D24 выбранный)
+    private static readonly Color DefaultBgColor = new Color(0.16f, 0.16f, 0.18f, 1f);
+    private static readonly Color EquippedBgColor = new Color(0.28f, 0.24f, 0.14f, 1f);
+
+    private CharacterData _character;
+    private Action<CharacterData> _onClicked;
+
+    void Awake()
+    {
+        if (backgroundImage == null) backgroundImage = GetComponent<Image>();
+        if (cardButton == null) cardButton = GetComponent<Button>();
+        if (cardButton != null)
+        {
+            cardButton.onClick.RemoveAllListeners();
+            cardButton.onClick.AddListener(() => _onClicked?.Invoke(_character));
+        }
+    }
+
+    public void Bind(CharacterData character, Action<CharacterData> onClicked)
+    {
+        _character = character;
+        _onClicked = onClicked;
+
+        if (portraitImage != null && character != null)
+        {
+            portraitImage.sprite = character.portrait;
+            portraitImage.preserveAspect = true;
+        }
+    }
+
+    public void Refresh(int level, bool isEquipped, int affectionLvl)
+    {
+        if (_character == null) return;
+        bool isOwned = level > 0;
+
+        if (!isOwned)
+        {
+            if (backgroundImage != null) backgroundImage.color = DefaultBgColor;
+            if (portraitImage != null) portraitImage.color = Color.black;
+            if (nameText != null) nameText.text = LocalizationManager.Get("common.unknown");
+            return;
+        }
+
+        if (portraitImage != null) portraitImage.color = Color.white;
+        if (backgroundImage != null)
+            backgroundImage.color = isEquipped ? EquippedBgColor : DefaultBgColor;
+
+        if (nameText != null)
+        {
+            string affectionTag = affectionLvl >= _character.maxAffectionLevel
+                ? $"<color=#FF6B9E>{LocalizationManager.Get("affection.max")}</color>"
+                : $"<color=#FF6B9E>{LocalizationManager.Get("affection.level", affectionLvl)}</color>";
+
+            string nameLine = isEquipped
+                ? $"<color=#FFD700>✦ {_character.LocalizedName}</color>"
+                : _character.LocalizedName;
+
+            nameText.text = LocalizationManager.Get("gallery.card_subtitle", nameLine, level, affectionTag);
+        }
+    }
+}using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class UIManager : MonoBehaviour
+{
+    public ClickerManager clickerManager;
+    public GachaManager gachaManager;
+
+    [Header("Главный экран - Тексты")]
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI incomeText;
+    public TextMeshProUGUI offlineText;
+
+    [Header("Престиж UI")]
+    public GameObject prestigePanel;
+    public GameObject dimBackground;
+    public TextMeshProUGUI prestigeInfoText;
+    public Button prestigeButtonComponent;
+
+    [Header("Офлайн панель")]
+    public GameObject offlinePanel;
+
+    [Header("Дерево Навыков")]
+    public GameObject skillTreePanel;
+
+    [Header("Гача и Галерея")]
+    public GameObject gachaPanel;
+    public TextMeshProUGUI gachaResultText;
+    public TextMeshProUGUI gachaCrystalsText;
+    public Image gachaResultImage;
+    public GameObject galleryPanel;
+    public GalleryManager galleryManager;
+
+    void OnEnable()
+    {
+        GameEvents.OnUpdateUI += UpdateUI;
+        GameEvents.OnShowOfflinePanel += ShowOfflinePanel;
+        GameEvents.OnGachaResult += ShowGachaResult;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnUpdateUI -= UpdateUI;
+        GameEvents.OnShowOfflinePanel -= ShowOfflinePanel;
+        GameEvents.OnGachaResult -= ShowGachaResult;
+    }
+
+    public void UpdateUI()
+    {
+        if (clickerManager == null) return;
+
+        string multiplierString = clickerManager.totalCrystals > 0
+            ? LocalizationManager.Get("ui.revenue_mult_suffix", clickerManager.PrestigeMultiplier.ToCompactString())
+            : "";
+
+        scoreText.text = LocalizationManager.Get("ui.revenue", clickerManager.score.ToCompactString(), multiplierString);
+        double passiveIncome = clickerManager.GetTotalAutoIncomePerSecond();
+        float autoTaps = clickerManager.GetAutoTapsPerSecond();
+        double avgCritBonus = 1.0 + clickerManager.GetTotalCritChance() * (clickerManager.GetTotalCritMultiplier() - 1.0);
+        double autoTapIncome = autoTaps * clickerManager.GetTotalClickPower() * avgCritBonus;
+        double totalShownIncome = passiveIncome + autoTapIncome;
+
+        incomeText.text = LocalizationManager.Get("ui.income_per_sec", totalShownIncome.ToCompactString());
+
+
+        if (prestigeInfoText != null)
+        {
+            double potential = clickerManager.CalculatePotentialCrystals();
+            prestigeInfoText.text = LocalizationManager.Get(
+                "ui.prestige_info",
+                potential.ToCompactString(),
+                clickerManager.totalCrystals.ToCompactString()
+            );
+            prestigeButtonComponent.interactable = (potential > 0);
+        }
+    }
+
+    public void ShowOfflinePanel(double earned, int hours, int minutes)
+    {
+        offlinePanel.SetActive(true);
+        offlineText.text = LocalizationManager.Get("ui.offline_earned", hours, minutes, earned.ToCompactString());   
+    }
+
+    public void OpenPrestigePanel()
+    {
+        prestigePanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+    }
+
+    public void ClosePrestigePanel()
+    {
+        prestigePanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
+
+    public void ConfirmPrestige()
+    {
+        clickerManager.DoPrestige();
+        ClosePrestigePanel();
+    }
+
+    public void OpenSkillPanel()
+    {
+        skillTreePanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+    }
+
+    public void CloseSkillPanel()
+    {
+        skillTreePanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
+
+    public void OpenGachaPanel()
+    {
+        gachaPanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+
+        if (gachaResultText != null)
+        {
+            gachaResultText.gameObject.SetActive(true);
+            gachaResultText.text = LocalizationManager.Get("ui.gacha_prompt");
+            gachaResultText.color = Color.white;
+        }
+
+        if (gachaResultImage != null)
+        {
+            gachaResultImage.gameObject.SetActive(false);
+        }
+        UpdateGachaCrystalsUI();
+    }
+
+    public void CloseGachaPanel()
+    {
+        gachaPanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
+
+    private void ShowGachaResult(string name, Sprite sprite, Color color)
+    {
+        gachaResultText.gameObject.SetActive(true);
+        gachaResultImage.gameObject.SetActive(true);
+
+        gachaResultText.text = name;
+        gachaResultText.color = color;
+
+        if (sprite != null)
+        {
+            gachaResultImage.sprite = sprite;
+            gachaResultImage.color = Color.white;
+        }
+        else
+        {
+            gachaResultImage.gameObject.SetActive(false);
+        }
+        UpdateGachaCrystalsUI();
+    }
+
+    public void OpenGalleryPanel()
+    {
+        galleryPanel.SetActive(true);
+        if (dimBackground != null) dimBackground.SetActive(true);
+        galleryManager.OpenGallery();
+    }
+
+    public void CloseGalleryPanel()
+    {
+        galleryPanel.SetActive(false);
+        if (dimBackground != null) dimBackground.SetActive(false);
+    }
+
+    public void UpdateGachaCrystalsUI()
+    {
+        if (gachaCrystalsText != null && clickerManager != null)
+        {
+            gachaCrystalsText.text = LocalizationManager.Get("ui.gacha_reputation", clickerManager.totalCrystals.ToCompactString());   
+        }
+    }
+}
