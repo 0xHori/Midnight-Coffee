@@ -29,9 +29,13 @@ public class SaveManager : MonoBehaviour
     public AffectionManager affectionManager;
 
     private string SaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
+    private string TempSaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json.tmp");
+    private string BackupSaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json.bak");
 
     void OnEnable() { GameEvents.OnSaveGame += SaveGame; }
     void OnDisable() { GameEvents.OnSaveGame -= SaveGame; }
+
+
 
     public void SaveGame()
     {
@@ -67,8 +71,23 @@ public class SaveManager : MonoBehaviour
 
         try
         {
-            File.WriteAllText(SaveFilePath, JsonUtility.ToJson(data, true));
+            string json = JsonUtility.ToJson(data, true);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            File.WriteAllText(SaveFilePath, json);
             SyncWebGLFileSystem();
+#else
+            File.WriteAllText(TempSaveFilePath, json);
+
+            if (File.Exists(SaveFilePath))
+            {
+                File.Replace(TempSaveFilePath, SaveFilePath, BackupSaveFilePath);
+            }
+            else
+            {
+                File.Move(TempSaveFilePath, SaveFilePath);
+            }
+#endif
         }
         catch (Exception e)
         {
@@ -78,16 +97,33 @@ public class SaveManager : MonoBehaviour
 
     public void LoadGame()
     {
-        if (!File.Exists(SaveFilePath))
+        if (!TryLoadFromPath(SaveFilePath))
         {
+            if (File.Exists(BackupSaveFilePath))
+            {
+                Debug.LogWarning("[SaveManager] Основной сейв повреждён или отсутствует. Восстанавливаем из бэкапа...");
+                if (TryLoadFromPath(BackupSaveFilePath))
+                {
+                    SaveGame();
+                    return;
+                }
+            }
+
             Debug.Log("Файл сохранения не найден. Начинаем новую игру.");
-            return;
         }
+    }
+
+    private bool TryLoadFromPath(string path)
+    {
+        if (!File.Exists(path)) return false;
 
         try
         {
-            string json = File.ReadAllText(SaveFilePath);
+            string json = File.ReadAllText(path);
+            if (string.IsNullOrWhiteSpace(json)) return false;
+
             GameData data = JsonUtility.FromJson<GameData>(json);
+            if (data == null) return false;
 
             clickerManager.score = data.score;
             clickerManager.totalCrystals = data.totalCrystals;
@@ -116,7 +152,6 @@ public class SaveManager : MonoBehaviour
                 gachaManager.totalGachaRolls = data.totalGachaRolls;
             }
 
-            // Миграция старых сохранений, где lifetimeCrystals ещё не записывался
             if (data.lifetimeCrystals > 0)
             {
                 clickerManager.lifetimeCrystals = Math.Max(data.lifetimeCrystals, data.totalCrystals);
@@ -130,12 +165,16 @@ public class SaveManager : MonoBehaviour
 
             CalculateOfflineIncome(data.lastExitTime);
             clickerManager.SanitizeNumbers();
+            return true;
         }
         catch (Exception e)
         {
-            Debug.LogError("Ошибка при загрузке файла: " + e.Message);
+            Debug.LogError($"Ошибка при загрузке файла ({path}): {e.Message}");
+            return false;
         }
     }
+
+
 
     private double CalculateSpentSkillCrystals()
     {

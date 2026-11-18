@@ -10,6 +10,7 @@ public class SkillTreeManager : MonoBehaviour
 
     // Словарь для быстрого доступа в рантайме: skillId -> текущий уровень
     private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
+    private readonly HashSet<string> _processedIds = new HashSet<string>();
 
     public int GetSkillLevel(string skillId)
     {
@@ -69,12 +70,12 @@ public class SkillTreeManager : MonoBehaviour
         if (allSkills == null) return 0;
 
         double total = 0;
-        HashSet<string> processedIds = new HashSet<string>();
+        _processedIds.Clear();
 
         foreach (var skill in allSkills)
         {
             if (skill == null || string.IsNullOrEmpty(skill.skillId)) continue;
-            if (!processedIds.Add(skill.skillId)) continue;
+            if (!_processedIds.Add(skill.skillId)) continue;
 
             if (skill.statType == type)
             {

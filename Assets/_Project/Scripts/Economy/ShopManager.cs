@@ -28,6 +28,7 @@ public class ShopManager : MonoBehaviour
     public double TotalFlatClick { get; private set; } = 0;
     public double TotalClickMultiplier { get; private set; } = 1.0;
     public double TotalBaseAutoIncome { get; private set; } = 0;
+    private readonly HashSet<string> _processedIds = new HashSet<string>();
 
     void Awake()
     {
@@ -148,12 +149,12 @@ public class ShopManager : MonoBehaviour
 
         if (allUpgrades != null)
         {
-            HashSet<string> processedIds = new HashSet<string>();
+            _processedIds.Clear();
 
             foreach (var upgrade in allUpgrades)
             {
                 if (upgrade == null || string.IsNullOrEmpty(upgrade.upgradeId)) continue;
-                if (!processedIds.Add(upgrade.upgradeId)) continue;
+                if (!_processedIds.Add(upgrade.upgradeId)) continue;
 
                 int lvl = GetUpgradeLevel(upgrade.upgradeId);
                 if (lvl <= 0) continue;

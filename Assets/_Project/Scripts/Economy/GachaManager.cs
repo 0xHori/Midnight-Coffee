@@ -15,6 +15,7 @@ public class GachaManager : MonoBehaviour
 
     private Dictionary<string, int> characterLevels = new Dictionary<string, int>();
     public string equippedCharacterId;
+    private readonly HashSet<string> _processedIds = new HashSet<string>();
 
     void Start()
     {
@@ -147,12 +148,12 @@ public class GachaManager : MonoBehaviour
 
         double total = 0;
         BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
-        HashSet<string> processedIds = new HashSet<string>();
+        _processedIds.Clear();
 
         foreach (var ch in allCharacters)
         {
             if (ch == null || string.IsNullOrEmpty(ch.characterId)) continue;
-            if (!processedIds.Add(ch.characterId)) continue;
+            if (!_processedIds.Add(ch.characterId)) continue;
 
             int lvl = GetCharacterLevel(ch.characterId);
             if (lvl <= 0) continue;
