@@ -50,19 +50,25 @@ public class UIManager : MonoBehaviour
     {
         if (clickerManager == null) return;
 
-        string multiplierString = clickerManager.totalCrystals > 0
-            ? LocalizationManager.Get("ui.revenue_mult_suffix", clickerManager.PrestigeMultiplier.ToCompactString())
-            : "";
+        if (scoreText != null)
+        {
+            string multiplierString = clickerManager.totalCrystals > 0
+                ? LocalizationManager.Get("ui.revenue_mult_suffix", clickerManager.PrestigeMultiplier.ToCompactString())
+                : "";
 
-        scoreText.text = LocalizationManager.Get("ui.revenue", clickerManager.score.ToCompactString(), multiplierString);
-        double passiveIncome = clickerManager.GetTotalAutoIncomePerSecond();
-        float autoTaps = clickerManager.GetAutoTapsPerSecond();
-        double avgCritBonus = 1.0 + clickerManager.GetTotalCritChance() * (clickerManager.GetTotalCritMultiplier() - 1.0);
-        double autoTapIncome = autoTaps * clickerManager.GetTotalClickPower() * avgCritBonus;
-        double totalShownIncome = passiveIncome + autoTapIncome;
+            scoreText.text = LocalizationManager.Get("ui.revenue", clickerManager.score.ToCompactString(), multiplierString);
+        }
 
-        incomeText.text = LocalizationManager.Get("ui.income_per_sec", totalShownIncome.ToCompactString());
+        if (incomeText != null)
+        {
+            double passiveIncome = clickerManager.GetTotalAutoIncomePerSecond();
+            float autoTaps = clickerManager.GetAutoTapsPerSecond();
+            double avgCritBonus = 1.0 + clickerManager.GetTotalCritChance() * (clickerManager.GetTotalCritMultiplier() - 1.0);
+            double autoTapIncome = autoTaps * clickerManager.GetTotalClickPower() * avgCritBonus;
+            double totalShownIncome = passiveIncome + autoTapIncome;
 
+            incomeText.text = LocalizationManager.Get("ui.income_per_sec", totalShownIncome.ToCompactString());
+        }
 
         if (prestigeInfoText != null)
         {
@@ -72,49 +78,55 @@ public class UIManager : MonoBehaviour
                 potential.ToCompactString(),
                 clickerManager.totalCrystals.ToCompactString()
             );
-            prestigeButtonComponent.interactable = (potential > 0);
+
+            if (prestigeButtonComponent != null)
+                prestigeButtonComponent.interactable = (potential > 0);
         }
     }
 
     public void ShowOfflinePanel(double earned, int hours, int minutes)
     {
-        offlinePanel.SetActive(true);
-        offlineText.text = LocalizationManager.Get("ui.offline_earned", hours, minutes, earned.ToCompactString());   
+        if (offlinePanel != null)
+            offlinePanel.SetActive(true);
+
+        if (offlineText != null)
+            offlineText.text = LocalizationManager.Get("ui.offline_earned", hours, minutes, earned.ToCompactString());
     }
 
     public void OpenPrestigePanel()
     {
-        prestigePanel.SetActive(true);
+        if (prestigePanel != null) prestigePanel.SetActive(true);
         if (dimBackground != null) dimBackground.SetActive(true);
     }
 
     public void ClosePrestigePanel()
     {
-        prestigePanel.SetActive(false);
+        if (prestigePanel != null) prestigePanel.SetActive(false);
         if (dimBackground != null) dimBackground.SetActive(false);
     }
 
     public void ConfirmPrestige()
     {
-        clickerManager.DoPrestige();
+        if (clickerManager != null)
+            clickerManager.DoPrestige();
         ClosePrestigePanel();
     }
 
     public void OpenSkillPanel()
     {
-        skillTreePanel.SetActive(true);
+        if (skillTreePanel != null) skillTreePanel.SetActive(true);
         if (dimBackground != null) dimBackground.SetActive(true);
     }
 
     public void CloseSkillPanel()
     {
-        skillTreePanel.SetActive(false);
+        if (skillTreePanel != null) skillTreePanel.SetActive(false);
         if (dimBackground != null) dimBackground.SetActive(false);
     }
 
     public void OpenGachaPanel()
     {
-        gachaPanel.SetActive(true);
+        if (gachaPanel != null) gachaPanel.SetActive(true);
         if (dimBackground != null) dimBackground.SetActive(true);
 
         if (gachaResultText != null)
@@ -133,40 +145,45 @@ public class UIManager : MonoBehaviour
 
     public void CloseGachaPanel()
     {
-        gachaPanel.SetActive(false);
+        if (gachaPanel != null) gachaPanel.SetActive(false);
         if (dimBackground != null) dimBackground.SetActive(false);
     }
 
     private void ShowGachaResult(string name, Sprite sprite, Color color)
     {
-        gachaResultText.gameObject.SetActive(true);
-        gachaResultImage.gameObject.SetActive(true);
-
-        gachaResultText.text = name;
-        gachaResultText.color = color;
-
-        if (sprite != null)
+        if (gachaResultText != null)
         {
-            gachaResultImage.sprite = sprite;
-            gachaResultImage.color = Color.white;
+            gachaResultText.gameObject.SetActive(true);
+            gachaResultText.text = name;
+            gachaResultText.color = color;
         }
-        else
+
+        if (gachaResultImage != null)
         {
-            gachaResultImage.gameObject.SetActive(false);
+            if (sprite != null)
+            {
+                gachaResultImage.gameObject.SetActive(true);
+                gachaResultImage.sprite = sprite;
+                gachaResultImage.color = Color.white;
+            }
+            else
+            {
+                gachaResultImage.gameObject.SetActive(false);
+            }
         }
         UpdateGachaCrystalsUI();
     }
 
     public void OpenGalleryPanel()
     {
-        galleryPanel.SetActive(true);
+        if (galleryPanel != null) galleryPanel.SetActive(true);
         if (dimBackground != null) dimBackground.SetActive(true);
-        galleryManager.OpenGallery();
+        if (galleryManager != null) galleryManager.OpenGallery();
     }
 
     public void CloseGalleryPanel()
     {
-        galleryPanel.SetActive(false);
+        if (galleryPanel != null) galleryPanel.SetActive(false);
         if (dimBackground != null) dimBackground.SetActive(false);
     }
 
@@ -174,7 +191,7 @@ public class UIManager : MonoBehaviour
     {
         if (gachaCrystalsText != null && clickerManager != null)
         {
-            gachaCrystalsText.text = LocalizationManager.Get("ui.gacha_reputation", clickerManager.totalCrystals.ToCompactString());   
+            gachaCrystalsText.text = LocalizationManager.Get("ui.gacha_reputation", clickerManager.totalCrystals.ToCompactString());
         }
     }
 }

@@ -127,35 +127,55 @@ public class ShopManager : MonoBehaviour
         return true;
     }
 
+    void OnValidate()
+    {
+        if (allUpgrades == null) return;
+        HashSet<string> seen = new HashSet<string>();
+        for (int i = 0; i < allUpgrades.Count; i++)
+        {
+            var upg = allUpgrades[i];
+            if (upg == null || string.IsNullOrEmpty(upg.upgradeId)) continue;
+            if (!seen.Add(upg.upgradeId))
+                Debug.LogWarning($"[ShopManager] Дублирующийся upgradeId в списке: {upg.upgradeId}", this);
+        }
+    }
+
     public void RecalculateStats()
     {
         double flatClick = 0;
         double clickMult = 1.0;
         double baseAuto = 0;
 
-        foreach (var upgrade in allUpgrades)
+        if (allUpgrades != null)
         {
-            if (upgrade == null) continue;
-            int lvl = GetUpgradeLevel(upgrade.upgradeId);
-            if (lvl <= 0) continue;
+            HashSet<string> processedIds = new HashSet<string>();
 
-            double milestoneMult = GetMilestoneMultiplier(lvl);
-
-            switch (upgrade.upgradeType)
+            foreach (var upgrade in allUpgrades)
             {
-                case UpgradeType.FlatClick:
-                    flatClick += upgrade.baseValue * lvl * milestoneMult;
-                    break;
-                case UpgradeType.ClickMultiplier:
-                    double rawMult = Math.Pow(upgrade.baseValue, lvl) * milestoneMult;
-                    if (double.IsInfinity(rawMult) || rawMult > 1e300)
-                        clickMult = 1e300;
-                    else
-                        clickMult = Math.Min(1e300, clickMult * rawMult);
-                    break;
-                case UpgradeType.AutoIncome:
-                    baseAuto += upgrade.baseValue * lvl * milestoneMult;
-                    break;
+                if (upgrade == null || string.IsNullOrEmpty(upgrade.upgradeId)) continue;
+                if (!processedIds.Add(upgrade.upgradeId)) continue;
+
+                int lvl = GetUpgradeLevel(upgrade.upgradeId);
+                if (lvl <= 0) continue;
+
+                double milestoneMult = GetMilestoneMultiplier(lvl);
+
+                switch (upgrade.upgradeType)
+                {
+                    case UpgradeType.FlatClick:
+                        flatClick += upgrade.baseValue * lvl * milestoneMult;
+                        break;
+                    case UpgradeType.ClickMultiplier:
+                        double rawMult = Math.Pow(upgrade.baseValue, lvl) * milestoneMult;
+                        if (double.IsInfinity(rawMult) || rawMult > 1e300)
+                            clickMult = 1e300;
+                        else
+                            clickMult = Math.Min(1e300, clickMult * rawMult);
+                        break;
+                    case UpgradeType.AutoIncome:
+                        baseAuto += upgrade.baseValue * lvl * milestoneMult;
+                        break;
+                }
             }
         }
 

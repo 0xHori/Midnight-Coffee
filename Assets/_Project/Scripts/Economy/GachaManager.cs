@@ -128,14 +128,32 @@ public class GachaManager : MonoBehaviour
         GameEvents.SaveGame();
     }
     
+    void OnValidate()
+    {
+        if (allCharacters == null) return;
+        HashSet<string> seen = new HashSet<string>();
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            var ch = allCharacters[i];
+            if (ch == null || string.IsNullOrEmpty(ch.characterId)) continue;
+            if (!seen.Add(ch.characterId))
+                Debug.LogWarning($"[GachaManager] Дублирующийся characterId в списке: {ch.characterId}", this);
+        }
+    }
+
     public double GetTotalCharacterBonus(StatType type)
     {
+        if (allCharacters == null) return 0;
+
         double total = 0;
         BalanceConfig balance = affectionManager != null ? affectionManager.balanceConfig : null;
+        HashSet<string> processedIds = new HashSet<string>();
 
         foreach (var ch in allCharacters)
         {
-            if (ch == null) continue;
+            if (ch == null || string.IsNullOrEmpty(ch.characterId)) continue;
+            if (!processedIds.Add(ch.characterId)) continue;
+
             int lvl = GetCharacterLevel(ch.characterId);
             if (lvl <= 0) continue;
 

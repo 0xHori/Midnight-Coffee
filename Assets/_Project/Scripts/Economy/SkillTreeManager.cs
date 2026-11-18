@@ -51,13 +51,32 @@ public class SkillTreeManager : MonoBehaviour
         GameEvents.UpdateSkillUI();
     }
 
-    // Универсальный подсчет бонуса от всех прокачанных навыков по типу стата
+    void OnValidate()
+    {
+        if (allSkills == null) return;
+        HashSet<string> seen = new HashSet<string>();
+        for (int i = 0; i < allSkills.Count; i++)
+        {
+            var skill = allSkills[i];
+            if (skill == null || string.IsNullOrEmpty(skill.skillId)) continue;
+            if (!seen.Add(skill.skillId))
+                Debug.LogWarning($"[SkillTreeManager] Дублирующийся skillId в списке: {skill.skillId}", this);
+        }
+    }
+
     public double GetTotalStatBonus(StatType type)
     {
+        if (allSkills == null) return 0;
+
         double total = 0;
+        HashSet<string> processedIds = new HashSet<string>();
+
         foreach (var skill in allSkills)
         {
-            if (skill != null && skill.statType == type)
+            if (skill == null || string.IsNullOrEmpty(skill.skillId)) continue;
+            if (!processedIds.Add(skill.skillId)) continue;
+
+            if (skill.statType == type)
             {
                 int lvl = GetSkillLevel(skill.skillId);
                 if (lvl > 0) total += skill.GetBonus(lvl);
