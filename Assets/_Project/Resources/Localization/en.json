@@ -8,6 +8,7 @@
     { "key": "btn.close", "value": "Close" },
     { "key": "btn.collect", "value": "Collect" },
     { "key": "btn.invite_guest", "value": "Invite Guest" },
+    { "key": "btn.invite_guest_10", "value":"Invite x10 (100 ★)" },
     { "key": "btn.invite_guest_cost", "value": "Invite Guest (10 ★)" },
     { "key": "btn.open_cafe", "value": "Open New Cafe" },
 

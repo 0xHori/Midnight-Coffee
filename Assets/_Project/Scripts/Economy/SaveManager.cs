@@ -11,6 +11,8 @@ public class SaveManager : MonoBehaviour
     private static extern void JS_FileSystem_Sync();
 #endif
 
+    public static bool IsResetting = false;
+
     public static void SyncWebGLFileSystem()
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -21,6 +23,24 @@ public class SaveManager : MonoBehaviour
         catch (Exception) { }
 #endif
     }
+
+    public static void DeleteAllSaveFiles()
+    {
+        IsResetting = true;
+        try
+        {
+            string basePath = Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
+            if (File.Exists(basePath)) File.Delete(basePath);
+            if (File.Exists(basePath + ".bak")) File.Delete(basePath + ".bak");
+            if (File.Exists(basePath + ".tmp")) File.Delete(basePath + ".tmp");
+            SyncWebGLFileSystem();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Ошибка при удалении файлов сохранения: " + e.Message);
+        }
+    }
+
     public BalanceConfig balanceConfig;
     public ClickerManager clickerManager;
     public ShopManager shopManager;
@@ -32,13 +52,18 @@ public class SaveManager : MonoBehaviour
     private string TempSaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json.tmp");
     private string BackupSaveFilePath => Path.Combine(Application.persistentDataPath, "MyClickerSave.json.bak");
 
+    void Awake()
+    {
+        IsResetting = false;
+    }
+
     void OnEnable() { GameEvents.OnSaveGame += SaveGame; }
     void OnDisable() { GameEvents.OnSaveGame -= SaveGame; }
 
-
-
     public void SaveGame()
     {
+        if (IsResetting) return;
+
         GameData data = new GameData();
 
         data.score = clickerManager.score;
@@ -175,8 +200,6 @@ public class SaveManager : MonoBehaviour
             return false;
         }
     }
-
-
 
     private double CalculateSpentSkillCrystals()
     {

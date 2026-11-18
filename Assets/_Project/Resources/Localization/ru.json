@@ -8,6 +8,7 @@
     { "key": "btn.close", "value": "Закрыть" },
     { "key": "btn.collect", "value": "Забрать" },
     { "key": "btn.invite_guest", "value": "Пригласить гостя" },
+    { "key": "btn.invite_guest_10", "value":"Пригласить x10 (100 ★)" },
     { "key": "btn.invite_guest_cost", "value": "Пригласить гостя (10 ★)" },
     { "key": "btn.open_cafe", "value": "Открыть новую кофейню" },
 

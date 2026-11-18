@@ -1,4 +1,3 @@
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -208,8 +207,8 @@ public class SettingsUI : MonoBehaviour
         if (btn.targetGraphic != null)
         {
             btn.targetGraphic.color = muted
-                ? new Color(0.75f, 0.25f, 0.25f) // Красная, когда звук выключен
-                : new Color(0.92f, 0.92f, 0.92f); // Светлая в стиле твоих кнопок, когда включен
+                ? new Color(0.75f, 0.25f, 0.25f)
+                : new Color(0.92f, 0.92f, 0.92f);
         }
     }
 
@@ -231,15 +230,10 @@ public class SettingsUI : MonoBehaviour
             return;
         }
 
-        string savePath = Path.Combine(Application.persistentDataPath, "MyClickerSave.json");
-        if (File.Exists(savePath))
-        {
-            File.Delete(savePath);
-        }
+        SaveManager.DeleteAllSaveFiles();
 
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-        SaveManager.SyncWebGLFileSystem();
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
